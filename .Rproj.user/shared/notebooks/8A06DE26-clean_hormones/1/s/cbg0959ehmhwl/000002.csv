@@ -1,0 +1,44 @@
+"0","```r
+hormones_final <- 
+  hormones_clean %>% 
+  #rowid_to_column() %>% 
+  mutate(
+    birth_control = if_else(
+      timepoint == \"T1\" & is.na(birth_control), 
+      0, birth_control
+    )
+  ) %>% 
+  select(
+    ELS_ID,
+    session_type,
+    measure,
+    timepoint,
+    male,
+    rep1:mean,
+    rep1_win:mean_win,
+    rep1_clean = rep1_win_log,
+    rep2_clean = rep2_win_log,
+    mean_clean = mean_win_log,
+    comment,
+    scan_date:birth_control,
+    medication_binary
+  ) %>% 
+  gather(
+    key, 
+    value, 
+    rep1, 
+    rep2,
+    mean,
+    rep1_win,
+    rep2_win,
+    mean_win,
+    rep1_clean,
+    rep2_clean,
+    mean_clean,
+    comment
+  ) %>% 
+  unite(\"measure_key\", measure, key) %>% 
+  distinct(ELS_ID, measure_key, timepoint, session_type, .keep_all = TRUE) %>% 
+  spread(measure_key, value) %>% 
+  arrange(male, ELS_ID, timepoint)
+```"

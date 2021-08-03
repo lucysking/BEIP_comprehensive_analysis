@@ -1,0 +1,16 @@
+"0","```r
+anova(mod2_time_fit, mod2_time)
+
+```"
+"1","refitting model(s) with ML (instead of REML)
+"
+"1","Data: cd_clean_time
+Models:
+mod2_time_fit: scale(cort_clean) ~ scale(dhea_per_cent) + scale(dhea_av_t1t2) + 
+mod2_time_fit:     (1 | ELS_ID)
+mod2_time: scale(cort_clean) ~ scale(dhea_per_cent) + scale(dhea_av_t1t2) + 
+mod2_time:     scale(timecoll_av_t1t2) + (1 | ELS_ID)
+              Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)
+mod2_time_fit  5 658.23 675.90 -324.11   648.23                         
+mod2_time      6 660.05 681.25 -324.03   648.05 0.1749      1     0.6758
+"

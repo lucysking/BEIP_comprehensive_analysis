@@ -1,0 +1,12 @@
+"0","```r
+plot_grid(sex_diff_tp_plot, sex_diff_tan_plot, rows = 2)
+```"
+"1","Argument 'rows' is deprecated. Use 'nrow' instead.Removed 34 rows containing non-finite values (stat_ydensity).Removed 182 rows containing non-finite values (stat_smooth).Removed 182 rows containing missing values (geom_point).
+"
+"0","```r
+ggsave(
+  \"~/Box/lucy_king_files/ELS/cort_dhea/sexdiff_hormones_grid.png\",
+  width = 7,
+  height = 7
+  )
+```"

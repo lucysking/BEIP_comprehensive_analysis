@@ -1,0 +1,31 @@
+"0","```r
+crisys_ses_vars <-
+  crisys %>% 
+  select(
+    crisys_2:crisys_12,
+    crisys_66,
+    crisys_70
+  ) %>% 
+  names()
+crisys <-
+  crisys %>% 
+  mutate(
+    n_crisys_ses = pmap_dbl(
+        select(., crisys_ses_vars),
+        function(...) sum(!is.na(c(...)), na.rm = TRUE)
+      ), 
+    crisys_ses_total = as.double(
+      pmap_dbl(
+        select(., crisys_ses_vars),
+        function(...) mean(c(...), na.rm = TRUE)
+      ) * 13
+    ) 
+  )
+crisys <- 
+  crisys %>% 
+  group_by(timepoint) %>% 
+  mutate(
+    crisys_ses_win = winsorize(crisys_ses_total, product = 3)
+  ) %>% 
+  ungroup()
+```"

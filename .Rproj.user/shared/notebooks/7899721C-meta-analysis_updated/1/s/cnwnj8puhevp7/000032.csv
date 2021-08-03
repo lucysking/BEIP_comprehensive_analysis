@@ -1,0 +1,6 @@
+"0","d %>% "
+"0","  group_by(wave, group) %>% "
+"0","  summarise_at("
+"0","    vars(mean_age_months_wave, mean_age_years_wave),"
+"0","    funs(mean, min, max, sd), na.rm = TRUE"
+"0","  )"

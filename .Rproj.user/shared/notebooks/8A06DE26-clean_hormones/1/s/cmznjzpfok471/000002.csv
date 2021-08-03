@@ -1,0 +1,21 @@
+"0","```r
+hormones <-
+  hormones_all %>% 
+  left_join(hormone_info, by = c(\"ELS_ID\", \"assay_id\", \"timepoint\")) %>% 
+  mutate(
+    #create new variable to denote session type
+    session_type = case_when(
+      str_detect(ELS_ID, \"\\.2\") == TRUE ~ \"second session\",
+      str_detect(ELS_ID, \"\\.5\") == TRUE ~ \"session after braces\",
+      TRUE ~ \"first session\"
+    ),
+    #coerce ELS_ID to integer
+    ELS_ID = as.integer(ELS_ID)
+  ) %>% 
+  select(
+    path,
+    ELS_ID,
+    session_type, 
+    everything()
+  )
+```"

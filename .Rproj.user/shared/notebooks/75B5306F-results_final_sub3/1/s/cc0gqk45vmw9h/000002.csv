@@ -1,0 +1,85 @@
+"0","```r
+# collection time_________________________________
+cd_clean_time <-
+  cd_clean %>% 
+  filter(!is.na(timecoll_av_t1t2))
+mod1_time <- lmer(
+  scale(cort_clean) ~ 
+    scale(dhea_clean) * scale(tan_per_cent) +
+    scale(dhea_clean) * scale(tanner_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean_time
+)
+mod1_base_time <- lmer(
+  scale(cort_clean) ~ 
+    scale(dhea_clean) * scale(tan_per_cent) +
+    scale(dhea_clean) * scale(tanner_av_t1t2) +
+    scale(timecoll_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean_time
+)
+anova(mod1_time, mod1_base_time)
+```"
+"1","refitting model(s) with ML (instead of REML)
+"
+"1","Data: cd_clean_time
+Models:
+mod1_time: scale(cort_clean) ~ scale(dhea_clean) * scale(tan_per_cent) + 
+mod1_time:     scale(dhea_clean) * scale(tanner_av_t1t2) + (1 | ELS_ID)
+mod1_base_time: scale(cort_clean) ~ scale(dhea_clean) * scale(tan_per_cent) + 
+mod1_base_time:     scale(dhea_clean) * scale(tanner_av_t1t2) + scale(timecoll_av_t1t2) + 
+mod1_base_time:     (1 | ELS_ID)
+               Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)
+mod1_time       8 630.70 658.58 -307.35   614.70                         
+mod1_base_time  9 632.55 663.91 -307.27   614.55 0.1481      1     0.7004
+"
+"0","```r
+# interaction with change in tanner
+mod1_base_timeX1 <- lmer(
+  scale(cort_clean) ~ 
+    scale(dhea_clean) * scale(tan_per_cent) +
+    scale(dhea_clean) * scale(tanner_av_t1t2) +
+    scale(tan_per_cent) * scale(timecoll_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean_time
+)
+anova(mod1_time, mod1_base_timeX1)
+```"
+"1","refitting model(s) with ML (instead of REML)
+"
+"1","Data: cd_clean_time
+Models:
+mod1_time: scale(cort_clean) ~ scale(dhea_clean) * scale(tan_per_cent) + 
+mod1_time:     scale(dhea_clean) * scale(tanner_av_t1t2) + (1 | ELS_ID)
+mod1_base_timeX1: scale(cort_clean) ~ scale(dhea_clean) * scale(tan_per_cent) + 
+mod1_base_timeX1:     scale(dhea_clean) * scale(tanner_av_t1t2) + scale(tan_per_cent) * 
+mod1_base_timeX1:     scale(timecoll_av_t1t2) + (1 | ELS_ID)
+                 Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)
+mod1_time         8 630.70 658.58 -307.35   614.70                         
+mod1_base_timeX1 10 633.65 668.50 -306.83   613.65 1.0445      2     0.5932
+"
+"0","```r
+# interaction with mean tanner
+mod1_base_timeX2 <- lmer(
+  scale(cort_clean) ~ 
+    scale(dhea_clean) * scale(tan_per_cent) +
+    scale(dhea_clean) * scale(tanner_av_t1t2) +
+    scale(tanner_av_t1t2) * scale(timecoll_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean_time
+)
+anova(mod1_time, mod1_base_timeX2)
+```"
+"1","refitting model(s) with ML (instead of REML)
+"
+"1","Data: cd_clean_time
+Models:
+mod1_time: scale(cort_clean) ~ scale(dhea_clean) * scale(tan_per_cent) + 
+mod1_time:     scale(dhea_clean) * scale(tanner_av_t1t2) + (1 | ELS_ID)
+mod1_base_timeX2: scale(cort_clean) ~ scale(dhea_clean) * scale(tan_per_cent) + 
+mod1_base_timeX2:     scale(dhea_clean) * scale(tanner_av_t1t2) + scale(tanner_av_t1t2) * 
+mod1_base_timeX2:     scale(timecoll_av_t1t2) + (1 | ELS_ID)
+                 Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)
+mod1_time         8 630.70 658.58 -307.35   614.70                         
+mod1_base_timeX2 10 634.47 669.32 -307.24   614.47 0.2249      2     0.8936
+"

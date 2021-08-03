@@ -1,0 +1,4 @@
+"0","```r
+fcg_caug <- rma(abs_smd, variance, method = \"REML\", data = everyone)
+summary(fcg_caug)
+```"

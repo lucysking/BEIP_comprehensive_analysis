@@ -1,0 +1,47 @@
+"0","```r
+mod2_test_threat_t2 <-
+ lmer(
+    scale(cort_clean) ~
+      scale(test_per_cent) * scale(sumsev_threat_t2) +
+      scale(test_av_t1t2) * scale(sumsev_threat_t2) +
+      (1 | ELS_ID),
+    data = cd_clean
+  )
+summary(mod2_test_threat_t2)
+```"
+"1","Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: scale(cort_clean) ~ scale(test_per_cent) * scale(sumsev_threat_t2) +  
+    scale(test_av_t1t2) * scale(sumsev_threat_t2) + (1 | ELS_ID)
+   Data: cd_clean
+
+REML criterion at convergence: 632.3
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.55994 -0.53660  0.01771  0.58563  2.46461 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ ELS_ID   (Intercept) 0.2325   0.4822  
+ Residual             0.6338   0.7961  
+Number of obs: 232, groups:  ELS_ID, 124
+
+Fixed effects:
+                                              Estimate Std. Error        df t value      Pr(>|t|)    
+(Intercept)                                   -0.02027    0.06828 118.54793  -0.297      0.767042    
+scale(test_per_cent)                           0.34323    0.05462 112.55750   6.284 0.00000000644 ***
+scale(sumsev_threat_t2)                       -0.04804    0.06976 121.55874  -0.689      0.492341    
+scale(test_av_t1t2)                            0.27122    0.07576 118.73172   3.580      0.000499 ***
+scale(test_per_cent):scale(sumsev_threat_t2)  -0.03177    0.05442 110.63505  -0.584      0.560510    
+scale(sumsev_threat_t2):scale(test_av_t1t2)    0.03813    0.09247 117.00845   0.412      0.680836    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) sc(__) sc(__2) s(__12 s(__):
+scl(tst_p_) -0.019                             
+scl(sms__2)  0.022 -0.002                      
+scl(ts__12)  0.028  0.004  0.026               
+s(__):(__2) -0.002  0.018 -0.014   0.012       
+s(__2):(__1  0.032  0.015  0.075  -0.005  0.011
+"

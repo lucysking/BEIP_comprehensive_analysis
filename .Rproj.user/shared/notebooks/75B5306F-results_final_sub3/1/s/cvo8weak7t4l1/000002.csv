@@ -1,0 +1,77 @@
+"0","cd_wf_all <-"
+"0","  read_csv(cd_wf_all_file)"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  session_type = [31mcol_character()[39m,
+  timepoint = [31mcol_character()[39m,
+  scan_date = [34mcol_datetime(format = """")[39m,
+  date_collection = [34mcol_date(format = """")[39m,
+  medication = [31mcol_character()[39m,
+  birth_date = [34mcol_datetime(format = """")[39m,
+  tanner_date = [34mcol_date(format = """")[39m
+)
+"
+"2","See spec(...) for full column specifications.
+"
+"0","cd_wf_clean <-"
+"0","  read_csv(cd_wf_file) %>% "
+"0","  mutate("
+"0","    male = as.factor(male),"
+"0","    medication_t1 = as.factor(medication_t1),"
+"0","    medication_t2 = as.factor(medication_t2)"
+"0","  )"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  session_type = [31mcol_character()[39m,
+  timepoint = [31mcol_character()[39m,
+  scan_date = [34mcol_datetime(format = """")[39m,
+  date_collection = [34mcol_date(format = """")[39m,
+  medication = [31mcol_character()[39m,
+  birth_date = [34mcol_datetime(format = """")[39m,
+  tanner_date = [34mcol_date(format = """")[39m
+)
+"
+"2","See spec(...) for full column specifications.
+"
+"0","cd_all <- "
+"0","  read_csv(cd_lf_all_file) %>% "
+"0","  mutate("
+"0","    timepoint = as.factor(timepoint)"
+"0","  )"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  session_type = [31mcol_character()[39m,
+  timepoint = [31mcol_character()[39m,
+  scan_date = [34mcol_datetime(format = """")[39m,
+  date_collection = [34mcol_date(format = """")[39m,
+  medication = [31mcol_character()[39m,
+  birth_date = [34mcol_datetime(format = """")[39m,
+  tanner_date = [34mcol_date(format = """")[39m
+)
+"
+"2","See spec(...) for full column specifications.
+"
+"0","cd_clean <- "
+"0","  read_csv(cd_lf_file) %>% "
+"0","  mutate("
+"0","    timepoint = as.factor(timepoint),"
+"0","    male = as.factor(male),"
+"0","    medication_binary = as.factor(medication_binary)"
+"0","  )"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  session_type = [31mcol_character()[39m,
+  timepoint = [31mcol_character()[39m,
+  scan_date = [34mcol_datetime(format = """")[39m,
+  date_collection = [34mcol_date(format = """")[39m,
+  medication = [31mcol_character()[39m,
+  birth_date = [34mcol_datetime(format = """")[39m,
+  tanner_date = [34mcol_date(format = """")[39m
+)
+"
+"2","See spec(...) for full column specifications.
+"

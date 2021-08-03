@@ -1,0 +1,3 @@
+"0","ibq %>% "
+"0","  ggplot(aes(SUR)) +"
+"0","  geom_histogram(bins = 30) "

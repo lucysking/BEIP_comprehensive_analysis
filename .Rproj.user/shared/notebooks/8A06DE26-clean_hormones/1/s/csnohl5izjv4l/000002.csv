@@ -1,0 +1,112 @@
+"0","```r
+progesterone_data <-
+  progesterone_files %>% 
+  mutate(
+    data = map(
+      path, 
+      read_xlsx, 
+      range = \"A7:G500\",
+      sheet = \"Final Report\",
+      col_types = c(
+        \"text\",
+        \"text\",
+        \"text\",
+        \"text\",
+        \"text\",
+        \"text\",
+        \"text\"
+      )
+    )
+  ) %>% 
+  unnest(data)  
+```"
+"1","
+-
+/
+                                                                                                          
+
+-
+/
+                                                                                                          
+
+-
+/
+                                                                                                          
+
+-
+/
+                                                                                                          
+
+-
+/
+                                                                                                          
+
+-
+/
+                                                                                                          
+
+-
+/
+                                                                                                          
+
+-
+/
+                                                                                                          
+
+-
+/
+                                                                                                          
+
+-
+/
+                                                                                                          
+
+-
+/
+                                                                                                          
+
+-
+/
+                                                                                                          
+
+-
+/
+                                                                                                          
+"
+"0","```r
+  
+  
+progest <-
+  progesterone_data %>% 
+  mutate(
+    measure = \"progesterone\",
+    ELS_ID = as.numeric(
+      case_when(
+        !is.na(`ELS ID`) ~ `ELS ID`
+      )
+    ),
+    ELS_ID = round(ELS_ID, 2)
+  ) %>% 
+  filter(!is.na(`Sample ID`), !is.na(ELS_ID)) %>% 
+  select(
+    path,
+    ELS_ID,
+    measure,
+    assay_id = `Sample ID`,
+    timepoint = Timepoint,
+    rep1 = `Rep 1`,
+    rep2 = `Rep 2`,
+    mean = `Mean (pg/mL)`
+  ) %>% 
+  mutate(
+    timepoint = if_else(
+      is.na(timepoint),
+      str_extract(ELS_ID, \" Tmid\"), timepoint
+    ),
+    timepoint = if_else(
+      timepoint == \"TMID\",
+      \"Tmid\", timepoint
+    ),
+    ELS_ID = str_replace(ELS_ID, \" Tmid\", \"\")
+  ) 
+```"

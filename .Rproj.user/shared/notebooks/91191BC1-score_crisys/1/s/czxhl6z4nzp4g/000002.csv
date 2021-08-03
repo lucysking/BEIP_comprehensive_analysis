@@ -1,0 +1,65 @@
+"0","```r
+library(lme4)
+```"
+"1","Loading required package: Matrix
+
+Attaching package: ‘Matrix’
+
+The following objects are masked from ‘package:tidyr’:
+
+    expand, pack, unpack
+"
+"0","```r
+library(lmerTest)
+```"
+"1","
+Attaching package: ‘lmerTest’
+
+The following object is masked from ‘package:lme4’:
+
+    lmer
+
+The following object is masked from ‘package:stats’:
+
+    step
+"
+"0","```r
+crisys_mod1 <- lmer(crisys_win ~ timepoint + (1|ID), data = crisys)
+summary(crisys_mod1)
+```"
+"1","Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: crisys_win ~ timepoint + (1 | ID)
+   Data: crisys
+
+REML criterion at convergence: 1576
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.13143 -0.50360 -0.08645  0.46974  2.52654 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ ID       (Intercept) 11.049   3.324   
+ Residual              4.947   2.224   
+Number of obs: 297, groups:  ID, 175
+
+Fixed effects:
+                   Estimate Std. Error        df t value Pr(>|t|)    
+(Intercept)         5.63900    0.38001 287.83631  14.839   <2e-16 ***
+timepointneonatal  -0.30665    0.37995 138.22291  -0.807    0.421    
+timepointsixmonth  -0.01726    0.36843 182.14757  -0.047    0.963    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) tmpntn
+timepntnntl -0.425       
+tmpntsxmnth -0.635  0.473
+"
+"0","```r
+anova(crisys_mod1)
+```"
+"1","Type III Analysis of Variance Table with Satterthwaite's method
+          Sum Sq Mean Sq NumDF  DenDF F value Pr(>F)
+timepoint 3.9362  1.9681     2 158.62  0.3978 0.6724
+"

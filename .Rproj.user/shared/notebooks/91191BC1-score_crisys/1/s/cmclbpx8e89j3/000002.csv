@@ -1,0 +1,91 @@
+"0","```r
+crisys <-
+  read_csv(crisys_preg_file) %>% 
+  rename(ID = record_id) %>% 
+  mutate(ID = as.integer(ID)) %>% 
+  select(-redcap_survey_identifier:-crisys_timestamp) %>% 
+  bind_rows(
+    read_csv(crisys_nb_cs_file) %>% 
+      rename(ID = record_id) %>% 
+      mutate(ID = as.integer(ID)) %>% 
+      select(-redcap_survey_identifier:-crisys_timestamp)
+  ) %>% 
+  bind_rows(
+    read_csv(crisys_6mo_cs_file) %>% 
+      rename(ID = record_id) %>% 
+      mutate(ID = as.integer(ID)) %>% 
+      select(-redcap_survey_identifier:-crisys_timestamp) 
+  ) %>% 
+  bind_rows(
+    read_csv(crisys_6mo_lg_file) %>% 
+      rename(ID = record_id) %>% 
+      mutate(ID = as.integer(ID)) %>% 
+      select(-redcap_survey_identifier:-crisys_timestamp)
+  ) %>% 
+  filter(!is.na(crisys_1)) %>% 
+  mutate(
+    n_crisys = pmap_dbl(
+        select(., c(crisys_1:crisys_72)),
+        function(...) sum(!is.na(c(...)), na.rm = TRUE)
+      ), 
+    crisys_total = as.double(
+      pmap_dbl(
+        select(., c(crisys_1:crisys_72)),
+        function(...) mean(c(...), na.rm = TRUE)
+      ) * 72
+    ) 
+  ) %>% 
+  rename(
+    timepoint = redcap_event_name
+  ) %>% 
+  mutate(
+    timepoint = if_else(
+      timepoint == \"questionnaires_6mo_arm_1\",
+      \"sixmonth_arm_1\", timepoint
+    ),
+    timepoint = str_remove(timepoint, \"_arm_1\")
+  )
+```"
+"1","Parsed with column specification:
+cols(
+  .default = col_double(),
+  redcap_event_name = [31mcol_character()[39m,
+  redcap_survey_identifier = [33mcol_logical()[39m,
+  crisys_timestamp = [34mcol_datetime(format = \"\")[39m
+)
+See spec(...) for full column specifications.
+Parsed with column specification:
+cols(
+  .default = col_double(),
+  redcap_event_name = [31mcol_character()[39m,
+  redcap_survey_identifier = [33mcol_logical()[39m,
+  crisys_timestamp = [31mcol_character()[39m
+)
+See spec(...) for full column specifications.
+Parsed with column specification:
+cols(
+  .default = col_double(),
+  record_id = [31mcol_character()[39m,
+  redcap_event_name = [31mcol_character()[39m,
+  redcap_survey_identifier = [33mcol_logical()[39m,
+  crisys_timestamp = [34mcol_datetime(format = \"\")[39m
+)
+See spec(...) for full column specifications.
+NAs introduced by coercionParsed with column specification:
+cols(
+  .default = col_double(),
+  redcap_event_name = [31mcol_character()[39m,
+  redcap_survey_identifier = [33mcol_logical()[39m,
+  crisys_timestamp = [34mcol_datetime(format = \"\")[39m
+)
+See spec(...) for full column specifications.
+"
+"0","```r
+crisys <- 
+  crisys %>% 
+  group_by(timepoint) %>% 
+  mutate(
+    crisys_win = winsorize(crisys_total, product = 3)
+  ) %>% 
+  ungroup()
+```"

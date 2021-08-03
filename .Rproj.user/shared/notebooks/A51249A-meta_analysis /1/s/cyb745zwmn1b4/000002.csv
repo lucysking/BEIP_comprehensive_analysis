@@ -1,0 +1,11 @@
+"0","```r
+everyone <-
+  read_csv(everyone_file) %>% 
+  select(-X14:-X19) %>% 
+  mutate_at(
+    vars(outcome, wave:construct),
+    funs(as.factor)
+  )
+
+glimpse(everyone)
+```"

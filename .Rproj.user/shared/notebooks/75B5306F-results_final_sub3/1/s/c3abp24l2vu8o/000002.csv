@@ -1,0 +1,38 @@
+"0","read_csv(els_file) %>% "
+"0","  filter(ELS_ID %in% included_IDs) %>% "
+"0","  select("
+"0","    `Community verbal conflict ` = comm_arg_t1,"
+"0","    `Community instability` = comm_inst_t1,"
+"0","    `Community violence` = comm_phys_t1,"
+"0","    Bullying = bully_t1,"
+"0","    `Threats of domestic violence` = thrt_domvio_t1,"
+"0","    `Threats of physical abuse` = thrt_phys_ab_t1,"
+"0","    `Kidnapping` = kidnap_t1,"
+"0","    `Family verbal conflict` =  parent_arg_t1,"
+"0","    `Domestic violence` = dom_viol_t1,"
+"0","    `War or terrorism` = war_terr_t1,"
+"0","    `Emotional abuse` = emo_ab_t1,"
+"0","    `Physical abuse` = phys_ab_t1,"
+"0","    `Sexual abuse` = sex_ab_t1,"
+"0","    `Witness sexual abuse` = wit_sexab_t1, "
+"0","    `Mugging or robbery` = mug_rob_t1"
+"0","  ) %>% "
+"0","  gather(type, endorsed) %>% "
+"0","  count(type, endorsed) %>% "
+"0","  group_by(type) %>% "
+"0","  mutate("
+"0","    `Percent endorsed` = round(((n / sum(n)) * 100), 0)"
+"0","  ) %>% "
+"0","  rename(Type = type) %>% "
+"0","  filter(endorsed == 1) %>% "
+"0","  arrange(desc(`Percent endorsed`)) %>% "
+"0","  select(-endorsed) %>% "
+"0","  knitr::kable()"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  class = [31mcol_character()[39m
+)
+"
+"2","See spec(...) for full column specifications.
+"

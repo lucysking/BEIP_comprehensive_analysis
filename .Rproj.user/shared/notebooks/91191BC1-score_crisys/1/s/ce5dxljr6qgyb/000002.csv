@@ -1,0 +1,13 @@
+"0","```r
+#Libraries
+library(tidyverse)
+library(psych)
+library(corrr)
+#Paramaters
+crisys_preg_file <- \"~/Box/Mooddata_Coordinating/BABIES/Data/final_scored_data/CRISYS/raw_data/crisys_lg_preg_complete.csv\"
+crisys_nb_cs_file <- \"~/Box/Mooddata_Coordinating/BABIES/Data/final_scored_data/CRISYS/raw_data/crisys_lg_nb_complete.csv\"
+crisys_6mo_lg_file <- \"~/Box/Mooddata_Coordinating/BABIES/Data/final_scored_data/CRISYS/raw_data/crisys_lg_6mo_complete.csv\"
+crisys_6mo_cs_file <- \"~/Box/Mooddata_Coordinating/BABIES/Data/final_scored_data/CRISYS/raw_data/crisys_cs_complete.csv\"
+#Functions
+source(\"~/Box/lucy_king_files/BABIES/infant_scripts/babies_scoring/winsorize.R\")
+```"

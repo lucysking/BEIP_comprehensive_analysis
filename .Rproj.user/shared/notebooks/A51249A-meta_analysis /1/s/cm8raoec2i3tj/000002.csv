@@ -1,0 +1,7 @@
+"0","```r
+everyone <-
+  everyone %>% 
+  mutate(
+    abs_smd = abs(smd)
+  )
+```"

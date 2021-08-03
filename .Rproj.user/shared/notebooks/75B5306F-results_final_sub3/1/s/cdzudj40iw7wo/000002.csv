@@ -1,0 +1,34 @@
+"0","```r
+sex_diff_tp_plot <- 
+  cd_clean %>% 
+  select(timepoint, male, cort_clean:test_clean) %>% 
+  gather(hormone, value, cort_clean:test_clean) %>% 
+  mutate(
+    hormone = recode(
+      hormone,
+      cort_clean = \"log Cortisol\n(µg/dL)\",
+      dhea_clean = \"log DHEA\n(pg/mL)\",
+      test_clean = \"log Testosterone\n(pg/mL)\"
+    )
+  ) %>% 
+  ggplot(aes(timepoint, value, fill = male)) +
+  geom_violin(draw_quantiles = .5, alpha = 3/4) +
+  scale_y_continuous(breaks = seq.int(-4, 8, 1), expand = c(0, 1)) +
+  scale_fill_manual(
+    values = c(\"darkred\", \"darkblue\"),
+    labels = c(\"Girls\", \"Boys\")
+  ) +
+  theme_apa(box = TRUE) +
+  labs(
+    x = \"Panel A: Time-point of assessment\",
+    y = NULL,
+    fill = NULL
+  ) +
+  facet_wrap(.~hormone, scales = \"free\") 
+sex_diff_tp_plot
+ggsave(
+  \"~/Box/lucy_king_files/ELS/cort_dhea/cort_dhea_sync/sexdiff_hormones.png\",
+  width = 7,
+  height = 5
+  )
+```"

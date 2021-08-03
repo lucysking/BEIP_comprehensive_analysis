@@ -1,0 +1,22 @@
+"0","els_t1_obj <-
+  els_t1_obj %>% 
+  mutate(
+    sumsev_type_t1 = pmap_dbl(
+      select(., sev_rating_vars_T1),
+      function(...) sum(c(...), na.rm = TRUE)
+    ),
+    z_sumsev_type_t1 = scale(sumsev_type_t1, scale = TRUE),
+    maxsev_t1 = pmap_dbl(
+      select(., sev_rating_vars_T1),
+      function(...) pmax(c(...), na.rm = TRUE)
+    ),
+    num_type_t1 = pmap_int(
+      select(., sev_rating_vars_T1),
+      function(...) sum(c(...) > 0, na.rm = TRUE)
+    )
+  ) %>% 
+  left_join(els_t1 %>% select(ELS_ID, num_report_t1) %>% unique(), by = ""ELS_ID"")
+"
+"2","Error: Result 1 must be a single double, not a double vector of length 33
+[90mCall `rlang::last_error()` to see a backtrace.[39m
+"

@@ -1,0 +1,695 @@
+---
+title: "Data wrangling for Multi-Level Analysis of Foster Care as an Alternative to Institutionalization on Biobehavioral Outcomes Across Childhood"
+date: "2021"
+output: 
+  github_document:
+    toc: true
+    toc_depth: 2
+---
+
+https://docs.google.com/spreadsheets/d/1TubH73N8ZpJwILDFGZ6qtvvQM0gqGrzcYEVapVomFaQ/edit?ts=5e0e38bf#gid=0
+
+```{r}
+library(tidyverse)
+library(labelled)
+
+#Files__________________________________________________________________________
+home <- "~/Box/lucy_king_files/Tulane/BEIP/comprehensive_analysis/"
+
+# Demographics, IQ, psychopathology, physical size
+BEIP_MA_file <-paste0(home, "data/Datarequest_Humphreys_12.7.19_updated.sav")
+RAD_12yr_file <-paste0(home, "data/RAD_age12.sav")
+
+# FC stability 
+stability_file <- paste0(home, "data/BEIP_18yrDisruptionsStabilityFCG.xlsx")
+
+# EEG 
+EEG_ages_file <- paste0(home, "data/All EEG ages.sav")
+EEG_16yr_age_file <- paste0(home, "data/ages16eeg_update.sav") # 16 yr wave EEG age incorrect in main file; use age in file below
+EEG_data_file <- paste0(home, "data/EYESOPEN_EYESCLOSED_EEG_ALL_USE_forKate.sav")
+```
+
+# Read in data
+
+```{r}
+d0 <- 
+  haven::read_sav(BEIP_MA_file) %>% 
+  rename(
+    ID = Subject,
+    bl_age_start = bslevalAgeM, # age in months at first baseline assessment
+    bl_age_end = FinEvalAgeM, # age in months at last baseline assessment
+    sex = Gender,
+    group = Group
+  ) %>% 
+  left_join(
+    readxl::read_xlsx(stability_file, sheet = "data") %>% 
+      dplyr::select(
+        ID = SUBJECT,
+        stability_18 = stable_MFC_18,
+        age_disrupt_days = age_disruption_fromFCG
+      ),
+    by = "ID"
+  )
+
+```
+
+## EEG data
+
+### Clean ages of EEG assessments
+```{r}
+eeg_ages <-
+  haven::read_sav(EEG_ages_file) %>% 
+  rename(
+    ID = Subject
+  ) %>%
+  dplyr::select(-EEG_ageM_16, -EEG_ageY_16) %>% 
+  left_join(d0 %>% dplyr::select(ID, bl_age_end), by = "ID") %>% 
+  left_join(
+    haven::read_sav(EEG_16yr_age_file) %>% 
+      dplyr::select(
+        ID = Subject,
+        EEG_ageM_16 = ageM_EEG_16
+      ),
+    by = "ID"
+  ) %>% 
+  gather(
+    eeg_key, 
+    age, 
+    EEG_ageM_0, EEG_ageM_1:EEG_ageM_5, EEG_ageM_8, EEG_ageM_12, EEG_ageM_16
+  ) %>% 
+  dplyr::select(-c(EEG_ageY_8:EEG_ageY_12)) %>% 
+  separate(eeg_key, into = c("domain", "x", "eeg_key")) %>% 
+  dplyr::select(-x) %>% 
+  mutate_all(str_to_lower) %>% 
+  mutate_at(
+    vars(ID, bl_age_end, age),
+    as.double
+  ) %>% 
+  mutate(
+    age_diff_BL = abs(age - bl_age_end),
+    age_diff_30 = abs(age - 30),
+    age_diff_42 = abs(age - 42)
+  ) %>% 
+  group_by(ID) %>% 
+  mutate(
+    min_age_diff = pmin(
+      age_diff_BL, 
+      age_diff_30, 
+      age_diff_42
+    )
+  ) %>% 
+  mutate(
+    # identify wave based on closest age 
+    wave = case_when(
+      eeg_key == "8" ~ "8",
+      eeg_key == "12" ~ "12",
+      eeg_key == "16" ~ "16",
+      eeg_key == "0" ~ "BL",
+      eeg_key == "1" & age >= 29 & age < 37 ~ "30",
+      eeg_key == "1" & age >= 41 & age < 54 ~ "42",
+      eeg_key == "2" & age >= 29 & age < 37 ~ "30",
+      eeg_key == "3" & age >= 29 & age < 37 ~ "30",
+      eeg_key == "4" & age >= 29 & age < 37 ~ "30",
+      eeg_key == "2" & age >= 41 & age < 54 ~ "42",
+      eeg_key == "3" & age >= 41 & age < 54 ~ "42",
+      eeg_key == "4" & age >= 41 & age < 54 ~ "42",
+      eeg_key == "5" & age >= 41 & age < 54 ~ "42"
+    )
+  ) %>% 
+  arrange(ID) %>% 
+  dplyr::select(ID, age, wave)
+```   
+
+### Reformat EEG data 
+```{r}
+eeg_data <-
+  haven::read_sav(EEG_data_file) %>% 
+  dplyr::select(Subject, contains("alpha")) %>% 
+  rename(
+    ID = Subject
+  ) %>% 
+  gather(eeg_key, value, -ID) %>% 
+  separate(eeg_key, c("eyes", "wave", "drop", "measure")) %>% 
+  dplyr::select(-drop) %>% 
+  mutate(
+    wave = case_when(
+      wave == "BS" ~ "BL",
+      wave == "30M" ~ "30",
+      wave == "42M" ~ "42",
+      wave == "8y" ~ "8",
+      wave == "12y" ~ "12",
+      wave == "16y" ~ "16"
+    ),
+    informant = "O",
+    domain = "eeg"
+  ) %>% 
+  filter(!is.na(value))
+```
+
+### Join EEG data with ages of assessment
+```{r}
+eeg <-
+  eeg_data %>% 
+  left_join(eeg_ages, by = c("ID", "wave")) %>% 
+  filter(ID != "0", ID < 800) %>% 
+  unite(measure, measure, eyes, sep = "") 
+```
+
+## ITSEA data
+
+### Clean ITSEA ages of assessment
+```{r}
+# Use earliest observation as baseline. For subsequent, take closes to the intended wave.
+itsea_ages <-
+  d0 %>% 
+  dplyr::select(
+    ID,
+    bl_age_end,
+    starts_with("ageitsea")
+  ) %>% 
+  gather(itsea_key, age, ageitsea..00:ageitsea.5.00) %>% 
+  mutate(
+    itsea_key = recode(
+      itsea_key,
+      "ageitsea..00" = "0",
+      "ageitsea.1.00" = "1",
+      "ageitsea.2.00" = "2",
+      "ageitsea.3.00" = "3",
+      "ageitsea.4.00" = "4",
+      "ageitsea.5.00" = "5"
+    )
+  ) %>% 
+  mutate(
+    age_diff_BL = abs(age - bl_age_end),
+    age_diff_30 = abs(age - 30),
+    age_diff_42 = abs(age - 42),
+    age_diff_54 = abs(age - 54)
+  ) %>% 
+  group_by(ID) %>% 
+  mutate(
+    min_age_diff = pmin(
+      age_diff_BL, 
+      age_diff_30, 
+      age_diff_42, 
+      age_diff_54
+    ),
+    wave = case_when(
+      min_age_diff == age_diff_BL ~ "0",
+      min_age_diff == age_diff_30 ~ "30",
+      min_age_diff == age_diff_42 ~ "42",
+      min_age_diff == age_diff_54 ~ "54"
+    ),
+    wave = if_else(
+      itsea_key == "0", "0", wave
+    )
+  ) %>% 
+  filter(!is.na(age)) %>% 
+  arrange(ID, wave, age) %>% 
+  group_by(ID) %>% 
+  mutate(
+    wave = case_when(
+      lag(wave) == "0" & wave == "0" ~ "30",
+      is.na(wave) & itsea_key == "0" ~ "0",
+      lead(wave) == "42" & wave == "42" & age < lead(age) ~ "drop",
+      TRUE ~ wave
+    ),
+    wave = case_when(
+      lead(wave) == "30" & wave == "30" & age < lead(age) ~ "drop",
+      wave == "0" ~ "BL",
+      TRUE ~ wave
+    ),
+    wave = if_else(
+      wave == "30" & age < 20,
+      "drop", wave
+    )
+  ) %>% 
+  ungroup() %>% 
+  filter(wave != "drop", !is.na(wave)) %>% 
+  dplyr::select(-c(age_diff_BL:min_age_diff))
+```  
+
+### Reformat ITSEA data 
+```{r}
+itsea_domains <- 
+  d0 %>% 
+  dplyr::select(
+    ID,
+    starts_with("activmen"),
+    starts_with("agdefmen"),
+    starts_with("intermen")
+  ) %>% 
+  gather(
+    itsea_key, 
+    value, 
+    activmen..00:intermen.5.00
+  ) %>% 
+  mutate(
+    domain = case_when(
+      str_detect(itsea_key, "activmen") == TRUE ~ "adhd",
+      str_detect(itsea_key, "agdefmen") == TRUE ~ "extern",
+      str_detect(itsea_key, "intermen") == TRUE ~ "intern"
+    ),
+    itsea_key = case_when(
+      str_detect(itsea_key, "\\.\\.") == TRUE ~ "0",
+      str_detect(itsea_key, "1") == TRUE ~ "1",
+      str_detect(itsea_key, "2") == TRUE ~ "2",
+      str_detect(itsea_key, "3") == TRUE ~ "3",
+      str_detect(itsea_key, "4") == TRUE ~ "4",
+      str_detect(itsea_key, "5") == TRUE~ "5"
+    )
+  ) 
+```
+
+### Join ITSEA data with ages of assesment
+```{r}
+itsea <-
+  itsea_domains %>% 
+  left_join(itsea_ages, by = c("ID", "itsea_key")) %>% 
+  mutate(
+    measure = "itsea",
+    informant = "P"
+  ) %>% 
+  dplyr::select(-itsea_key, -bl_age_end) %>% 
+  filter(!is.na(value), !is.na(wave))
+```
+
+    
+## All other psychopathology, IQ, physical size
+
+### Reformat data
+```{r}
+d0_domains <- 
+  d0 %>% 
+  mutate(
+    adhd_hbq_8_T = mean(c(HBQT8_Inatt, HBQT8_Impuls), na.rm = TRUE)
+  ) %>% 
+  dplyr::select(
+    ID,
+    adhd_hbq_8_T,
+    adhd_disc_12_P = DISC_ADHDtotalP_12,
+    adhd_hbq_12_P = HBQP12_ADHD,
+    adhd_hbq_12_T = HBQT12_ADHD,
+    adhd_disc_16_P = ADHDtotalP16,
+    adhd_hbq_16_P = HBQP16_ADHD,
+    adhd_hbq_16_T = HBQT16_ADHD,
+    adhd_p4nadz_54_P = p4nadz,
+    dsed_dai_8_P = raddis_8yr,
+    dsed_dai_12_P = DAI_dis_12,
+    dsed_dai_16_P = Inhibited_16y,
+    dsed_dai_30_P = raddis_30c,
+    dsed_dai_42_P = raddis_42c,
+    dsed_dai_54_P = raddis_54c,
+    dsed_dai_BL_P = raddis_blc,
+    extern_hbq_8_T = HBQT8_Extern,
+    extern_disc_12_P = DISC_ODDandCDP_12,
+    extern_hbq_12_P = HBQP12_Extern,
+    extern_hbq_12_T = HBQT12_Extern,
+    extern_disc_16_P = ODDandCDtotalP16,
+    extern_hbq_16_P = HBQP16_Extern,
+    extern_hbq_16_T = HBQT16_Extern,
+    extern_oddcdsx_54_P = oddcdsx,
+    head_ofc_8_O = OFC_8yr,
+    head_ofc_12_O = OFC_12yr,
+    head_ofc_16_O = OFC_16yr,
+    head_ofc_30_O = OFC_30mo,
+    head_ofc_42_O = OFC_42mo,
+    head_ofc_BL_O = OFC_BL,
+    height_cm_8_O = height_8yr,
+    height_cm_12_O = height_12yr,
+    height_cm_16_O = height_16yr,
+    height_cm_30_O = height_30mo,
+    height_cm_42_O = height_42mo,
+    height_cm_BL_O = height_BL,
+    intern_hbq_8_T = HBQT8_Intern,
+    intern_disc_12_P = DISC_inttotalP_12,
+    intern_hbq_12_P = HBQP12_Intern,
+    intern_hbq_12_T = HBQT12_Intern,
+    intern_disc_16_P = inttotalnospphP16,
+    intern_hbq_16_P = HBQP16_Intern,
+    intern_hbq_16_T = HBQT16_Intern,
+    intern_intsx_54_P = intsx,
+    iq_wisc_8_O = FSISUMSC_8,
+    iq_wisc_12_O = FSIQ_COMP_12,
+    iq_wisc_16_O = IQ_fullscale_age18,
+    iq_bayley_30_O = mdi_30mo,
+    iq_bayley_42_O = mdi_42mo,
+    iq_wppsi_54_O = fulliq,
+    iq_bayley_BL_O = mdi_bl,
+    rad_dai_8_P = radinh_8yr,
+    rad_dai_12_P = DAI_inh_12,
+    rad_dai_16_P = Disinhibited_16y,
+    rad_dai_30_P = radinh_30c,
+    rad_dai_42_P = radinh_42c,
+    rad_dai_54_P = radinh_54c,
+    rad_dai_BL_P = radinh_blc,
+    weight_kg_8_O = weight_8yr,
+    weight_kg_12_O = weight_12yr,
+    weight_kg_16_O = weight_16yr,
+    weight_kg_30_O = weight_30mo,
+    weight_kg_42_O = weight_42mo,
+    weight_kg_BL_O = weight_BL
+  ) %>% 
+  # incorrect RAD data at 12y; replace with data from KH
+  dplyr::select(-rad_dai_12_P) %>% 
+  left_join(
+    haven::read_sav(RAD_12yr_file) %>% 
+      rename(
+        rad_dai_12_P = Inhibited_12y
+      ) %>% 
+      dplyr::select(
+        ID = subject,
+        rad_dai_12_P
+      ),
+    by = "ID"
+  ) %>% 
+  gather(domain_key, value, adhd_hbq_8_T:last_col()) %>% 
+  filter(!is.na(value)) 
+```
+
+### Ages of assessment
+```{r}
+d0_ages <-
+  d0 %>% 
+  mutate(
+    adhd_hbq_8_T = hbqt8_ageyrs * 12,
+    adhd_disc_12_P = DISC_age_12 * 12,
+    adhd_hbq_12_P = ageM_hbqp,
+    adhd_hbq_12_T = ageM_hbqt,
+    adhd_disc_16_P = ageDisc16 * 12,
+    adhd_hbq_16_P = age_HBQ16p_M,
+    adhd_hbq_16_T = age_HBQ16t_M,
+    adhd_p4nadz_54_P = jage * 12,
+    dsed_dai_8_P = ageM_8_dai,
+    dsed_dai_12_P = ageM_12,
+    dsed_dai_16_P = ageM_DAI16,
+    dsed_dai_30_P = ageM_30_dai,
+    dsed_dai_42_P = ageM_42_dai,
+    dsed_dai_54_P = ageM_54_dai,
+    dsed_dai_BL_P = ageM_bsl_dai,
+    extern_hbq_8_T = hbqt8_agemos,
+    extern_disc_12_P = DISC_age_12 * 12,
+    extern_hbq_12_P = ageM_hbqp, 
+    extern_hbq_12_T = ageM_hbqt, 
+    extern_disc_16_P = ageDisc16 * 12,
+    extern_hbq_16_P = age_HBQ16p_M,
+    extern_hbq_16_T = age_HBQ16t_M,
+    extern_oddcdsx_54_P = jage * 12,
+    head_ofc_8_O = ageM_8yr,
+    head_ofc_12_O = ageM_12yr,
+    head_ofc_16_O = ageM_16yr_physical,
+    head_ofc_30_O = ageM_30mo,
+    head_ofc_42_O = ageM_42mo,
+    head_ofc_BL_O = ageM_BL,
+    height_cm_8_O = ageM_8yr,
+    height_cm_12_O = ageM_12yr,
+    height_cm_16_O = ageM_16yr_physical,
+    height_cm_30_O = ageM_30mo,
+    height_cm_42_O = ageM_42mo,
+    height_cm_BL_O = ageM_BL,
+    intern_hbq_8_T = hbqt8_agemos,
+    intern_disc_12_P = DISC_age_12 * 12,
+    intern_hbq_12_P = ageM_hbqp, 
+    intern_hbq_12_T = ageM_hbqt, 
+    intern_disc_16_P = ageDisc16 * 12,
+    intern_hbq_16_P = age_HBQ16p_M,
+    intern_hbq_16_T = age_HBQ16t_M,
+    intern_intsx_54_P = jage * 12,
+    iq_wisc_8_O = wisc8_agemos,
+    iq_wisc_12_O = Age * 12,
+    iq_wisc_16_O = Age_WISC_16 * 12,
+    iq_bayley_30_O = age_bay_30mo,
+    iq_bayley_42_O = age_bay_42mo,
+    iq_wppsi_54_O = wppsiage,
+    iq_bayley_BL_O = age_bay_bl,
+    rad_dai_8_P = ageM_8_dai,
+    rad_dai_12_P = ageM_12,
+    rad_dai_16_P = ageM_DAI16,
+    rad_dai_30_P = ageM_30_dai,
+    rad_dai_42_P = ageM_42_dai,
+    rad_dai_54_P = ageM_54_dai,
+    rad_dai_BL_P = ageM_bsl_dai,
+    weight_kg_8_O = ageM_8yr,
+    weight_kg_12_O = ageM_12yr,
+    weight_kg_16_O = ageM_16yr_physical,
+    weight_kg_30_O = ageM_30mo,
+    weight_kg_42_O = ageM_42mo,
+    weight_kg_BL_O = ageM_BL
+  ) %>% 
+  dplyr::select(ID, adhd_hbq_8_T:weight_kg_BL_O) %>% 
+  mutate_all(as.numeric) %>% 
+  gather(domain_key, age, -ID) %>% 
+  filter(!is.na(age)) 
+
+
+```
+
+## Create combined dataset
+
+```{r}
+d0_tidy <-
+  d0_domains %>% 
+  ungroup() %>% 
+  full_join(d0_ages, by = c("ID", "domain_key")) %>% 
+  separate(domain_key, into = c("domain", "measure", "wave", "informant")) %>%   
+  dplyr::select(
+    ID,
+    wave,
+    age,
+    domain,
+    measure,
+    informant,
+    value
+  ) %>% 
+  bind_rows(itsea) %>% 
+  bind_rows(eeg)  %>% 
+  mutate(
+    domain = as.factor(domain),
+    informant = as.factor(informant),
+    wave = factor(
+      wave,
+      levels = c("BL", "30", "42", "54", "8", "12", "16"),
+      labels = c("BL", "30", "42", "54", "8", "12", "16")
+    )
+  ) %>% 
+  mutate(
+    construct = case_when(
+      domain == "adhd" | domain == "dsed" | domain == "extern" | 
+        domain == "intern" | domain == "rad" ~ "psychopathology",
+      domain == "head" | domain == "height" | domain == "weight" ~ "physical",
+      domain == "iq" ~ "IQ",
+      domain == "eeg" ~ "EEG"
+    ),
+    measure = if_else(
+      (measure == "intsx" | measure == "p4nadz" | measure == "oddcdsx"),
+      "papa", measure
+    )
+  ) %>% 
+  mutate(
+    ## 2020/04/14 identified error in data: IQ at 16-year wave for 150 is actually 160's score
+    value = case_when(
+      ID == 160 & wave == "16" & construct == "IQ" ~ 81, #(150's IQ score)
+      ID == 150 & wave == "16" & construct == "IQ" ~ NA_real_,
+      TRUE ~ value
+    )
+  ) %>% 
+  mutate(
+    wave = fct_relevel(
+      wave,
+      "BL", "30", "42", "54", "8", "12", "16"
+    )
+  ) %>% 
+  # IDs not part of the sample
+  filter(ID != 0 & ID < 800) %>% 
+  arrange(ID, wave)
+
+```
+
+### Tidy age variables
+```{r}
+d0_tidy <- 
+  d0_tidy %>% 
+  rename(age_months = age) %>% 
+  mutate(
+    age_years = age_months / 12
+  )
+```
+
+#### Missing age data; impute
+```{r}
+d0_tidy %>% 
+  filter(is.na(age_months)) %>% 
+  arrange(ID, wave, domain, measure)
+
+d0_tidy %>% 
+  filter(is.na(age_months)) %>% 
+  arrange(ID, wave, domain, measure) %>% 
+  distinct(ID) %>% 
+  arrange(ID) 
+
+d0_tidy <-
+  d0_tidy %>% 
+  group_by(ID, wave) %>% 
+  mutate(
+    max_age_months_wave = max(age_months,  na.rm = TRUE),
+    min_age_months_wave = min(age_months,  na.rm = TRUE),
+    mean_age_years_wave = mean(age_years, na.rm = TRUE),
+    mean_age_months_wave = mean(age_months, na.rm = TRUE),
+    max_age_months_wave = if_else(
+      max_age_months_wave == Inf, 
+      mean_age_years_wave, max_age_months_wave
+    ),
+    min_age_months_wave = if_else(
+      min_age_months_wave == Inf, 
+      mean_age_years_wave, min_age_months_wave
+    ),
+    age_months = if_else(
+      is.na(age_months), 
+      mean_age_months_wave, age_months
+    ),
+    age_years = if_else(
+      is.na(age_years), 
+      mean_age_years_wave, age_years
+    ),
+    age_months = if_else(
+      is.na(age_months), 
+      mean_age_months_wave, age_months
+    )
+  ) %>% 
+  filter(!is.na(age_years)) %>% 
+  ungroup()
+```
+
+### Add additional predictors
+
+```{r}
+# remove SPSS labels from  variables
+var_label(d0$group) <- NULL
+var_label(d0$sex) <- NULL
+var_label(d0$Ethnic) <- NULL
+
+# select predictors
+d_pred <-
+  d0 %>% 
+  dplyr::select(
+    ID,
+    male = sex,
+    ethnic = Ethnic,
+    gestation_weeks = Gestation,
+    birth_weight = BW,
+    inst_entry_age = Inst_ageM,
+    FC_placement_age = FC_ageM, #Age in months when participant entered MacArthur FC
+    stability_18,
+    age_disrupt_days,
+    group,
+    bl_age_start,
+    bl_age_end
+  ) %>% 
+  mutate(
+    male = as.factor(male),
+    group = as.factor(
+      recode(
+        group,
+        "0" = "CAUG",
+        "1" = "FCG",
+        "2" = "NIG"
+      )
+    )
+  )
+```
+
+### Tidy percent in institutionalized variables 
+```{r}
+d_pct_time <-
+  d0 %>% 
+  dplyr::select(
+    ID, 
+    pctinst_bsl:pctinst_16yr
+  ) %>% 
+  gather(wave, pctinst, -ID) %>% 
+  mutate(
+    wave = case_when(
+      wave == "pctinst_bsl" ~ "BL",
+      wave == "pctinst_30" ~ "30",
+      wave == "pctinst_42" ~ "42",
+      wave == "pctinst_54" ~ "54",
+      wave == "pctinst_8yr" ~ "8",
+      wave == "pctinst_12yr" ~ "12",
+      wave == "pctinst_16yr" ~ "16"
+    )
+  ) %>% 
+  filter(!is.na(pctinst)) %>% 
+  arrange(ID, wave)
+```
+
+### Stability variables and final tidied dataset 
+For info on separating b/w and within-subject components of stability: https://solomonkurz.netlify.app/post/2019-10-31-time-varying-covariates-in-longitudinal-multilevel-models-contain-state-and-trait-level-information-this-includes-binary-variables-too/
+```{r}
+d <-
+  d0_tidy %>% 
+  left_join(d_pred, by = "ID") %>% 
+  left_join(d_pct_time, by = c("ID", "wave")) %>% 
+  dplyr::select(
+    ID,
+    group,
+    male,
+    ethnic,
+    gestation_weeks,
+    birth_weight,
+    inst_entry_age,
+    FC_placement_age,
+    stability_18,
+    age_disrupt_days,
+    wave,
+    bl_age_start,
+    bl_age_end,
+    age_months, 
+    age_years,
+    mean_age_months_wave,
+    mean_age_years_wave,
+    max_age_months_wave,
+    min_age_months_wave,
+    construct,
+    domain,
+    measure,
+    informant,
+    value,
+    pctinst
+  )  %>% 
+  group_by(ID) %>% 
+  mutate(
+    wave = factor(
+      wave,
+      levels = c("BL", "30", "42", "54", "8", "12", "16"),
+      labels = c("BL", "30m", "42m", "54m", "8y", "12y", "16-18y")
+    ),
+    stability_18 = as.factor(
+      case_when(
+        stability_18 == "no" ~ "FCG, disrupted",
+        stability_18 == "yes" ~ "FCG, stable",
+        group == "CAUG" ~ "CAUG"
+      )
+    ),
+    age_disrupt_months = age_disrupt_days / 30,
+    # determine if FCG participant had been disrupted from original placement by the given wave; this is a within-person time-varying effect
+    stable = case_when(
+      round(age_months, 0) >= round(age_disrupt_months, 0) ~ "disrupted",
+      round(age_months, 0) < round(age_disrupt_months, 0) ~ "stable",
+      stability_18 == "FCG, stable" ~ "stable"
+    ),
+    stable_num = case_when(
+     stable ==  "disrupted" ~ 0,
+     stable == "stable" ~ 1
+    )
+  ) %>% 
+  # remove duplicated row
+  distinct(ID, wave, domain, value, informant, .keep_all = TRUE) %>% 
+  dplyr::select(
+    -stability_18
+  )
+```
+
+# Export data
+```{r}
+write_csv(d, paste0(home, "/data/BEIP_big_analysis_tidied_data_20210723.csv"))
+```
+

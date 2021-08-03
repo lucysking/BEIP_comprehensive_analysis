@@ -1,0 +1,14 @@
+"0","```r
+sev_rating_vars_T2 <-
+  els_t2_obj %>% 
+  select(
+    ends_with(\"panel_objective_decision_re\")
+  ) %>% 
+  names()
+sub_sev_rating_vars_T2 <-
+  els_t2_subj %>% 
+  select(
+    ends_with(\"child_subjective_rating\")
+  ) %>% 
+  names()
+```"

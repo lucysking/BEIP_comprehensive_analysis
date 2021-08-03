@@ -1,0 +1,7 @@
+"0","cd_wf_clean %>% "
+"0","  ggplot(aes(tan_diff)) +"
+"0","  geom_histogram(binwidth = .5) +"
+"0","  scale_y_continuous(breaks = seq.int(0, 35, 2)) +"
+"0","  labs("
+"0","    x = ""Change in Tanner stage from T1 to T2"""
+"0","  )"

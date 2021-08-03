@@ -1,0 +1,141 @@
+"0","```r
+# sex________________________________________
+mod1_test_sex <- lmer(
+  scale(cort_clean) ~ 
+    scale(test_clean) * scale(tan_per_cent) +
+    scale(test_clean) * scale(tanner_av_t1t2) +
+    male +
+    (1 | ELS_ID),
+  data = cd_clean
+)
+anova(mod1_test_base, mod1_test_sex)
+```"
+"1","refitting model(s) with ML (instead of REML)
+"
+"1","Data: cd_clean
+Models:
+mod1_test_base: scale(cort_clean) ~ scale(test_clean) * scale(tan_per_cent) + 
+mod1_test_base:     scale(test_clean) * scale(tanner_av_t1t2) + (1 | ELS_ID)
+mod1_test_sex: scale(cort_clean) ~ scale(test_clean) * scale(tan_per_cent) + 
+mod1_test_sex:     scale(test_clean) * scale(tanner_av_t1t2) + male + (1 | ELS_ID)
+               Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)    
+mod1_test_base  8 649.98 677.96 -316.99   633.98                             
+mod1_test_sex   9 636.52 668.00 -309.26   618.52 15.461      1 0.00008424 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+"
+"0","```r
+# interaction with change in tanner
+mod1_test_sexX1 <- lmer(
+  scale(cort_clean) ~ 
+    scale(test_clean) * scale(tan_per_cent) +
+    scale(test_clean) * scale(tanner_av_t1t2) +
+    tan_per_cent * male +
+    (1 | ELS_ID),
+  data = cd_clean
+)
+```"
+"1","fixed-effect model matrix is rank deficient so dropping 1 column / coefficient
+"
+"0","```r
+anova(mod1_test_sex, mod1_test_sexX1)
+```"
+"1","refitting model(s) with ML (instead of REML)
+"
+"1","Data: cd_clean
+Models:
+mod1_test_sex: scale(cort_clean) ~ scale(test_clean) * scale(tan_per_cent) + 
+mod1_test_sex:     scale(test_clean) * scale(tanner_av_t1t2) + male + (1 | ELS_ID)
+mod1_test_sexX1: scale(cort_clean) ~ scale(test_clean) * scale(tan_per_cent) + 
+mod1_test_sexX1:     scale(test_clean) * scale(tanner_av_t1t2) + tan_per_cent * 
+mod1_test_sexX1:     male + (1 | ELS_ID)
+                Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)
+mod1_test_sex    9 636.52 668.00 -309.26   618.52                         
+mod1_test_sexX1 10 638.44 673.41 -309.22   618.44 0.0827      1     0.7737
+"
+"0","```r
+# interaction with mean tanner
+mod1_test_sexX2 <- lmer(
+  scale(cort_clean) ~ 
+    scale(test_clean) * scale(tan_per_cent) +
+    scale(test_clean) * scale(tanner_av_t1t2) +
+    scale(tanner_av_t1t2) * male +
+    (1 | ELS_ID),
+  data = cd_clean
+)
+anova(mod1_test_sex, mod1_test_sexX2)
+```"
+"1","refitting model(s) with ML (instead of REML)
+"
+"1","Data: cd_clean
+Models:
+mod1_test_sex: scale(cort_clean) ~ scale(test_clean) * scale(tan_per_cent) + 
+mod1_test_sex:     scale(test_clean) * scale(tanner_av_t1t2) + male + (1 | ELS_ID)
+mod1_test_sexX2: scale(cort_clean) ~ scale(test_clean) * scale(tan_per_cent) + 
+mod1_test_sexX2:     scale(test_clean) * scale(tanner_av_t1t2) + scale(tanner_av_t1t2) * 
+mod1_test_sexX2:     male + (1 | ELS_ID)
+                Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)
+mod1_test_sex    9 636.52 668.00 -309.26   618.52                         
+mod1_test_sexX2 10 638.50 673.47 -309.25   618.50 0.0208      1     0.8853
+"
+"0","```r
+#check results hold when including sex -- NO, become marginal
+summary(mod1_test_sex)
+```"
+"1","Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: scale(cort_clean) ~ scale(test_clean) * scale(tan_per_cent) +  
+    scale(test_clean) * scale(tanner_av_t1t2) + male + (1 | ELS_ID)
+   Data: cd_clean
+
+REML criterion at convergence: 644.4
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.81073 -0.56210  0.02634  0.59866  2.24580 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ ELS_ID   (Intercept) 0.1731   0.416   
+ Residual             0.6053   0.778   
+Number of obs: 244, groups:  ELS_ID, 132
+
+Fixed effects:
+                                          Estimate Std. Error         df t value          Pr(>|t|)    
+(Intercept)                              -0.007539   0.067682 147.865583  -0.111          0.911460    
+scale(test_clean)                         0.564070   0.073830 236.943831   7.640 0.000000000000535 ***
+scale(tan_per_cent)                      -0.049361   0.057964 147.204972  -0.852          0.395830    
+scale(tanner_av_t1t2)                    -0.108172   0.071347 132.653306  -1.516          0.131862    
+male1                                    -0.275788   0.069208 147.627033  -3.985          0.000106 ***
+scale(test_clean):scale(tan_per_cent)     0.044475   0.060074 194.307385   0.740          0.459985    
+scale(test_clean):scale(tanner_av_t1t2)  -0.138323   0.072592 232.890814  -1.905          0.057949 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) scl(_) sc(__) s(__12 male1  s(_):(__)
+scl(tst_cl)  0.090                                      
+scl(tn_pr_)  0.035 -0.389                               
+scl(tn__12) -0.133 -0.266  0.139                        
+male1        0.134 -0.313  0.217  0.177                 
+scl(_):(__) -0.291 -0.256 -0.159 -0.032 -0.135          
+s(_):(__12) -0.187 -0.079 -0.082  0.048 -0.142 -0.135   
+"
+"0","```r
+confint.merMod(mod1_test_sex, method = \"boot\")
+```"
+"1","Computing bootstrap confidence intervals ...
+
+1 message(s): boundary (singular) fit: see ?isSingular
+1 warning(s): Model failed to converge with max|grad| = 0.00368574 (tol = 0.002, component 1)
+"
+"1","                                              2.5 %       97.5 %
+.sig01                                   0.21233575  0.589142862
+.sigma                                   0.66161916  0.866726504
+(Intercept)                             -0.14516127  0.127757273
+scale(test_clean)                        0.41882938  0.704280142
+scale(tan_per_cent)                     -0.16024359  0.061137833
+scale(tanner_av_t1t2)                   -0.24652991  0.038841787
+male1                                   -0.40961003 -0.129357160
+scale(test_clean):scale(tan_per_cent)   -0.07580428  0.167571431
+scale(test_clean):scale(tanner_av_t1t2) -0.28304987  0.002327858
+"

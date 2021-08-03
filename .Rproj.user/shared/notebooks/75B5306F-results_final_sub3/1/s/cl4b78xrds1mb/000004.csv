@@ -1,0 +1,7 @@
+"0","cd_clean %>% "
+"0","  ggplot(aes(tanner_av, fill = timepoint)) +"
+"0","  geom_density(alpha = 1/2) +"
+"0","  labs("
+"0","    fill = """","
+"0","    x = ""Tanner stage"""
+"0","  )"

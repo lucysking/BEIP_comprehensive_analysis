@@ -1,0 +1,31 @@
+"0","```r
+#T1
+els_t1_wf_alpha <-
+  els_t1_wf %>% 
+  mutate_all(
+    as.double
+  ) %>% 
+  mutate_all(
+    . %>% 
+      if_else(
+        is.na(.),
+        0, .
+      )
+  ) %>% 
+  select(
+    contains(\"panel\")
+  )
+psych::alpha(els_t1_wf_alpha)
+```"
+"1","Item = nothing_reported_panel_objective_decision_re had no variance and was deletedSome items were negatively correlated with the total scale and probably 
+should be reversed.  
+To do this, run the function again with the 'check.keys=TRUE' option
+"
+"1","Some items ( death_panel_objective_decision_re war_terr_panel_objective_decision_re ) were negatively correlated with the total scale and 
+probably should be reversed.  
+To do this, run the function again with the 'check.keys=TRUE' option
+Reliability analysis   
+Call: psych::alpha(x = els_t1_wf_alpha)
+
+ 
+"

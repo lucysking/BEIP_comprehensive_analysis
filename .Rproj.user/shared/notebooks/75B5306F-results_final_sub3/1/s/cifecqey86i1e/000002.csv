@@ -1,0 +1,5 @@
+"0","cd_clean %>% "
+"0","  group_by(timepoint) %>% "
+"0","  count(medication_binary) %>%"
+"0","  mutate(prop = round(n / sum(n), 2))"
+"2","Factor `medication_binary` contains implicit NA, consider using `forcats::fct_explicit_na`"

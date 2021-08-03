@@ -1,0 +1,13 @@
+"0","```r
+crisys_6mo <-
+  crisys_wf %>% 
+    select(
+      ID,
+      crisys_total_6mo = sixmonth_crisys_total,
+      crisys_neg_total_6mo = sixmonth_crisys_neg_total,
+      crisys_total_6mo_win = sixmonth_crisys_win,
+      crisys_neg_total_6mo_win = sixmonth_crisys_neg_win,
+      crisys_ses_total_6mo = sixmonth_crisys_ses_total,
+      crisys_ses_total_6mo_win = sixmonth_crisys_ses_win
+    )
+```"

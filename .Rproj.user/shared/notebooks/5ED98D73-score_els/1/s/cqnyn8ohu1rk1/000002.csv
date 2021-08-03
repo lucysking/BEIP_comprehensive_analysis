@@ -1,0 +1,16 @@
+"0","```r
+els_t2_types <-
+  els_t2_wf %>% 
+  select(
+    ELS_ID,
+    ends_with(\"panel_objective_decision_re\")
+  ) %>% 
+  mutate_at(
+    vars(-ELS_ID),
+    funs(as.integer(!is.na(.)))
+  ) %>% 
+  rename_at(
+    vars(-ELS_ID),
+    funs(str_replace(., \"_panel_objective_decision_re\", \"_t2\"))
+  )
+```"

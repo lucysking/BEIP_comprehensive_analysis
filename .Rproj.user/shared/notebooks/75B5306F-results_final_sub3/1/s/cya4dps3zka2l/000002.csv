@@ -1,0 +1,48 @@
+"0","```r
+cd_clean_bmi <-
+  cd_clean %>% 
+  filter(!is.na(bmi_av_t1t2))
+
+mod2_test_bmi_fit <-
+ lmer(
+    cort_clean ~
+      test_per_cent +
+      test_av_t1t2 +
+      (1 | ELS_ID),
+    data = cd_clean_bmi
+  )
+
+mod2_test_bmi <-
+ lmer(
+    cort_clean ~
+      test_per_cent +
+      test_av_t1t2 +
+      bmi_av_t1t2 +
+      (1 | ELS_ID),
+    data = cd_clean_bmi
+  )
+
+anova(mod2_test_bmi_fit, mod2_test_bmi)
+
+mod2_test_bmiX1 <-
+ lmer(
+    cort_clean ~
+      test_per_cent * bmi_av_t1t2 +
+      test_av_t1t2 +
+      (1 | ELS_ID),
+    data = cd_clean_bmi
+  )
+
+anova(mod2_test_bmi_fit, mod2_test_bmiX1)
+
+mod2_test_bmiX2 <-
+ lmer(
+    cort_clean ~
+      test_per_cent +
+      test_av_t1t2 * bmi_av_t1t2 +
+      (1 | ELS_ID),
+    data = cd_clean_bmi
+  )
+
+anova(mod2_test_bmi_fit, mod2_test_bmiX2)
+```"

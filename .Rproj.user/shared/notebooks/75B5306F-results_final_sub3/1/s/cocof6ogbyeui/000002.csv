@@ -1,0 +1,35 @@
+"0","```r
+# medication________________________________
+mod1_test_med <- lmer(
+  scale(cort_clean) ~ 
+    scale(test_clean) * scale(tan_per_cent) +
+    scale(test_clean) * scale(tanner_av_t1t2) +
+    medication_binary +
+    (1 | ELS_ID),
+  data = cd_clean
+)
+    
+anova(mod1_test_base, mod1_test_med)
+
+# interaction with change in tanner
+mod1_test_medX1 <- lmer(
+  scale(cort_clean) ~ 
+    scale(test_clean) * scale(tan_per_cent) +
+    scale(test_clean) * scale(tanner_av_t1t2) +
+    scale(tan_per_cent) * medication_binary +
+    (1 | ELS_ID),
+  data = cd_clean
+)
+anova(mod1_test_base, mod1_test_medX1)
+
+# interaction with mean tanner
+mod1_test_medX2 <- lmer(
+  scale(cort_clean) ~ 
+    scale(test_clean) * scale(tan_per_cent) +
+    scale(test_clean) * scale(tanner_av_t1t2) +
+    scale(tanner_av_t1t2) * medication_binary +
+    (1 | ELS_ID),
+  data = cd_clean
+)
+anova(mod1_test_base, mod1_test_medX2)
+```"

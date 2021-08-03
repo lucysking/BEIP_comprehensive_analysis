@@ -1,0 +1,32 @@
+"0","ibq <-"
+"0","  read_csv(ibq_cs_file) %>% "
+"0","  rename(ID = record_id) %>% "
+"0","  mutate(ID = as.integer(ID)) %>% "
+"0","  bind_rows("
+"0","    read_csv(ibq_lg_file) %>% "
+"0","      rename(ID = record_id) %>% "
+"0","      mutate(ID = as.integer(ID))"
+"0","  ) %>% "
+"0","  select(-redcap_event_name:-redcap_survey_identifier) %>% "
+"0","  filter(ibq_complete == 2)"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  record_id = [31mcol_character()[39m,
+  redcap_event_name = [31mcol_character()[39m,
+  redcap_survey_identifier = [33mcol_logical()[39m,
+  ibq_timestamp = [34mcol_datetime(format = """")[39m
+)
+"
+"2","See spec(...) for full column specifications.
+"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  redcap_event_name = [31mcol_character()[39m,
+  redcap_survey_identifier = [33mcol_logical()[39m,
+  ibq_timestamp = [34mcol_datetime(format = """")[39m
+)
+"
+"2","See spec(...) for full column specifications.
+"

@@ -1,0 +1,123 @@
+"0","```r
+cortisol_data <-
+  cortisol_files %>% 
+  mutate(
+    data = map(
+      path, 
+      read_xlsx, 
+      range = \"A7:I500\",
+      sheet = \"Final Report\",
+      col_types = c(
+        \"text\",
+        \"text\",
+        \"text\",
+        \"text\",
+        \"text\",
+        \"text\",
+        \"text\",
+        \"text\",
+        \"text\"
+      )
+    )
+  ) %>% 
+  unnest(data)  
+```"
+"1","
+-
+/
+                                                                                                          
+
+-
+/
+                                                                                                          
+"
+"1","New names:
+* `` -> ...8
+* `` -> ...9
+"
+"1","
+-
+/
+                                                                                                          
+"
+"1","New names:
+* `` -> ...9
+"
+"1","
+-
+/
+                                                                                                          
+"
+"1","New names:
+* `` -> ...8
+* `` -> ...9
+"
+"1","
+-
+/
+                                                                                                          
+"
+"1","New names:
+* `` -> ...8
+* `` -> ...9
+"
+"1","
+-
+/
+                                                                                                          
+"
+"1","New names:
+* `` -> ...8
+* `` -> ...9
+"
+"1","
+-
+/
+                                                                                                          
+"
+"1","New names:
+* `` -> ...8
+* `` -> ...9
+"
+"1","
+-
+/
+                                                                                                          
+
+-
+/
+                                                                                                          
+"
+"1","New names:
+* `` -> ...8
+* `` -> ...9
+"
+"1","
+-
+/
+                                                                                                          
+"
+"1","New names:
+* `` -> ...8
+* `` -> ...9
+"
+"0","```r
+  
+  
+cortisol <-
+  cortisol_data %>% 
+  filter(!is.na(`Sample ID`), !is.na(`ELS ID`)) %>% 
+  mutate(
+    measure = \"cortisol\"
+  ) %>% 
+  select(
+    path,
+    ELS_ID = `ELS ID`,
+    measure,
+    assay_id = `Sample ID`,
+    timepoint = Timepoint, 
+    rep1 = `Rep 1`,
+    rep2 = `Rep 2`,
+    mean = `Mean (µg/dL)`
+  ) 
+```"

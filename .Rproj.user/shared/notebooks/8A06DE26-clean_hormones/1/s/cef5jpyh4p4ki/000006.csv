@@ -1,0 +1,7 @@
+"0","```r
+hormones_clean %>% 
+  filter(measure == \"testosterone\") %>% 
+  ggplot(aes(mean_win_log, fill = male)) +
+  geom_density(alpha = 1/2) +
+  facet_grid(.~ timepoint)
+```"

@@ -1,0 +1,36 @@
+"0","```r
+mod2_test_sex <-
+ lmer(
+    cort_clean ~
+      test_per_cent +
+      test_av_t1t2 +
+      male +
+      (1 | ELS_ID),
+    data = cd_clean
+  )
+
+anova(mod2_test_base, mod2_test_sex)
+
+mod2_test_sexX1 <-
+ lmer(
+    cort_clean ~
+      test_per_cent +
+      test_av_t1t2 +
+      (1 | ELS_ID),
+    data = cd_clean
+  )
+summary(mod2_test_sexX1)
+
+anova(mod2_test_base, mod2_test_sexX1)
+
+mod2_test_sexX2 <-
+ lmer(
+    cort_clean ~
+      test_per_cent +
+      test_av_t1t2 * male +
+      (1 | ELS_ID),
+    data = cd_clean
+  )
+
+anova(mod2_test_base, mod2_test_sexX2)
+```"

@@ -1,0 +1,16 @@
+"0","```r
+anova(mod2_base, mod2_sexX2)
+
+```"
+"1","refitting model(s) with ML (instead of REML)
+"
+"1","Data: cd_clean
+Models:
+mod2_base: scale(cort_clean) ~ scale(dhea_per_cent) + scale(dhea_av_t1t2) + 
+mod2_base:     (1 | ELS_ID)
+mod2_sexX2: scale(cort_clean) ~ scale(dhea_per_cent) + scale(dhea_av_t1t2) * 
+mod2_sexX2:     male + (1 | ELS_ID)
+           Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)
+mod2_base   5 664.48 682.19 -327.24   654.48                         
+mod2_sexX2  7 667.13 691.92 -326.56   653.13 1.3569      2     0.5074
+"

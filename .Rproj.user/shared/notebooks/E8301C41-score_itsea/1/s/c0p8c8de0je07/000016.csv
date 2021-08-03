@@ -1,0 +1,85 @@
+"0","itsea <-"
+"0","  read_csv(q_18month_cs_file) %>% "
+"0","  rename("
+"0","    ID = record_id,"
+"0","    survey_date = questionnaires_18mo_timestamp"
+"0","  ) %>% "
+"0","  mutate("
+"0","    ID = as.integer(ID)"
+"0","  ) %>% "
+"0","  select(-redcap_event_name:-redcap_survey_identifier) %>% "
+"0","  bind_rows("
+"0","    read_csv(q_18month_long_file) %>% "
+"0","      rename("
+"0","        ID = record_id,"
+"0","        survey_date = month_survey_timestamp"
+"0","        ) %>% "
+"0","      mutate(ID = as.integer(ID)) %>%"
+"0","      select(-redcap_event_name:-redcap_survey_identifier) "
+"0","  ) %>% "
+"0","  select(ID, survey_date, itsea_a2:itsea_e11) %>% "
+"0","  left_join("
+"0","    read_csv(demographics_file) %>% "
+"0","      select(ID, male, baby_dob),"
+"0","    by = ""ID"""
+"0","  )"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  redcap_event_name = [31mcol_character()[39m,
+  redcap_survey_identifier = [33mcol_logical()[39m,
+  questionnaires_18mo_timestamp = [31mcol_character()[39m,
+  aofp_1 = [31mcol_character()[39m,
+  aofp_2 = [31mcol_character()[39m,
+  aoc_1 = [31mcol_character()[39m,
+  aow_1 = [31mcol_character()[39m,
+  primarylang_18mo = [31mcol_character()[39m,
+  secondlang_18mo_type = [31mcol_character()[39m
+)
+"
+"2","See spec(...) for full column specifications.
+"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  redcap_event_name = [31mcol_character()[39m,
+  redcap_survey_identifier = [33mcol_logical()[39m,
+  month_survey_timestamp = [31mcol_character()[39m,
+  aofp_1 = [31mcol_character()[39m,
+  aofp_2 = [31mcol_character()[39m,
+  aoc_1 = [31mcol_character()[39m,
+  aow_1 = [31mcol_character()[39m,
+  primarylang_18mo = [31mcol_character()[39m,
+  secondlang_18mo_type = [31mcol_character()[39m
+)
+"
+"2","See spec(...) for full column specifications.
+"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  due_date = [34mcol_date(format = """")[39m,
+  baby_dob = [34mcol_date(format = """")[39m,
+  mom_dob = [34mcol_date(format = """")[39m,
+  baby_race = [31mcol_character()[39m,
+  baby_race_describe = [31mcol_character()[39m,
+  mom_race = [31mcol_character()[39m,
+  momrace_describe = [31mcol_character()[39m,
+  annual_income_txt = [31mcol_character()[39m,
+  education_txt = [31mcol_character()[39m,
+  employment_status_txt = [31mcol_character()[39m,
+  marital_status_txt = [31mcol_character()[39m,
+  partner_educ_txt = [31mcol_character()[39m,
+  partner_employ_txt = [31mcol_character()[39m,
+  educ_describe = [33mcol_logical()[39m,
+  employment_explain = [31mcol_character()[39m,
+  mom_pob = [31mcol_character()[39m,
+  mom_native_lang = [31mcol_character()[39m,
+  primarylang = [31mcol_character()[39m,
+  secondlang_type = [31mcol_character()[39m,
+  marital_explain = [31mcol_character()[39m
+  # ... with 23 more columns
+)
+"
+"2","See spec(...) for full column specifications.
+"

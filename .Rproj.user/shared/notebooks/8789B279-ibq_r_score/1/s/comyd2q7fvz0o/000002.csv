@@ -1,0 +1,20 @@
+"0","#Libraries"
+"0","library(tidyverse)"
+"0","library(psych)"
+"2","
+Attaching package: ‘psych’
+
+"
+"2","The following objects are masked from ‘package:sjstats’:
+
+    pca, phi
+
+"
+"2","The following objects are masked from ‘package:ggplot2’:
+
+    %+%, alpha
+
+"
+"0","#Parameters"
+"0","ibq_cs_file <- ""~/Box/Mooddata_Coordinating/BABIES/Data/final_scored_data/IBQ/raw_data/ibq_cs_complete.csv"""
+"0","ibq_lg_file <- ""~/Box/Mooddata_Coordinating/BABIES/Data/final_scored_data/IBQ/raw_data/ibq_lg_complete.csv"""

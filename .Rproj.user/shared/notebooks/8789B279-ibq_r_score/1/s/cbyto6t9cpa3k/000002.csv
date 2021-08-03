@@ -1,0 +1,4 @@
+"0","ibq %>% "
+"0","  ggplot(aes(SUR, NEG)) +"
+"0","  geom_point() +"
+"0","  geom_smooth(method = ""lm"")"

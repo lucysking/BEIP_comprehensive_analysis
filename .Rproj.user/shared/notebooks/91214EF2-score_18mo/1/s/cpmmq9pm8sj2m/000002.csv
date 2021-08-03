@@ -1,0 +1,7 @@
+"0","```r
+m18$cesd18_4r = recode(m18$cesd18_4, \"3\"=0, \"2\"=1, \"1\"=2, \"0\"=3)
+m18$cesd18_8r = recode(m18$cesd18_8, \"3\"=0, \"2\"=1, \"1\"=2, \"0\"=3)
+m18$cesd18_12r = recode(m18$cesd18_12, \"3\"=0, \"2\"=1, \"1\"=2, \"0\"=3)
+m18$cesd18_16r = recode(m18$cesd18_16, \"3\"=0, \"2\"=1, \"1\"=2, \"0\"=3)
+m18$cesd18_tot <-rowMeans(subset(m18, select = c(cesd18_1, cesd18_2, cesd18_3, cesd18_4r, cesd18_5, cesd18_6, cesd18_7, cesd18_8r, cesd18_9, cesd18_10, cesd18_11, cesd18_12r, cesd18_13, cesd18_14, cesd18_15, cesd18_16r, cesd18_17, cesd18_18, cesd18_19, cesd18_20)), na.rm = T)*20
+```"

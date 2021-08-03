@@ -1,0 +1,6 @@
+"0","```r
+sens_t1t2_mod <- lm(z_sumsub_type_t1t2 ~ z_sumsev_type_t1t2, data = els_t1t2)
+els_t1t2 <-
+  els_t1t2 %>% 
+  add_residuals(sens_t1t2_mod, var = \"sss_t1t2\")
+```"

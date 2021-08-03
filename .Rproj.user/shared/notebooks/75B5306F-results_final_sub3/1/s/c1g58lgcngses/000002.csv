@@ -1,0 +1,18 @@
+"0","```r
+confint.merMod(mod2_threat, method = \"boot\")
+
+```"
+"1","Computing bootstrap confidence intervals ...
+
+1 message(s): boundary (singular) fit: see ?isSingular
+"
+"1","                                                   2.5 %      97.5 %
+.sig01                                        0.23531218  0.59957630
+.sigma                                        0.65986511  0.87075875
+(Intercept)                                  -0.13194838  0.10838763
+scale(dhea_per_cent)                          0.22455186  0.42611698
+scale(sumsev_threat_t1)                      -0.17926115  0.05825371
+scale(dhea_av_t1t2)                           0.23757418  0.52242607
+scale(dhea_per_cent):scale(sumsev_threat_t1) -0.24824742 -0.02573026
+scale(sumsev_threat_t1):scale(dhea_av_t1t2)  -0.06571214  0.19000949
+"

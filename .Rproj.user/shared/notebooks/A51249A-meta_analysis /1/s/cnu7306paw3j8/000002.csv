@@ -1,0 +1,12 @@
+"0","```r
+contrasts(everyone$wave) <- wave2
+
+fcg_caug_wave_2 <- rma(
+  abs_smd, 
+  variance, 
+  mods = ~ wave,
+  method = \"REML\", 
+  data = everyone
+)
+summary(fcg_caug_wave_2)
+```"

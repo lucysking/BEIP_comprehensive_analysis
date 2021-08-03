@@ -1,0 +1,311 @@
+"0","demo_cs <-"
+"0","  read_csv(demo_cs_6mo_file) %>% "
+"0","  select(record_id, mom_ethnicity:child_pob) %>% "
+"0","  mutate(record_id = as.numeric(record_id)) %>% "
+"0","  rename(ID = record_id) %>% "
+"0","  left_join("
+"0","    read_csv(dob_cs_file) %>% "
+"0","      mutate(record_id = as.numeric(record_id)) %>% "
+"0","      rename(ID = record_id), "
+"0","    by = ""ID"""
+"0","  ) %>% "
+"0","  left_join("
+"0","    read_csv(visit_date_cs_file) %>% "
+"0","      mutate(record_id = as.numeric(record_id)) %>% "
+"0","      rename(ID = record_id) %>% "
+"0","      filter(!is.na(ID)) %>% "
+"0","      select(ID, behav_visit_date = crf_date),"
+"0","    by = ""ID"""
+"0","  ) %>% "
+"0","  left_join("
+"0","    scan_age_6mo %>% "
+"0","      rename(age_scan = age_scan_t3, age_scan_corr = age_scan_corr_t3),"
+"0","    by = ""ID"""
+"0","  ) %>% "
+"0","  rename("
+"0","    due_date = baby_due_date,"
+"0","    baby_race = child_race,"
+"0","    baby_ethnicity = child_ethnicity,"
+"0","    baby_race_describe = childrace_describe,"
+"0","    baby_pob = child_pob"
+"0","  ) %>% "
+"0","  mutate("
+"0","    male = if_else("
+"0","      baby_sex == 1,"
+"0","      0, 1"
+"0","    ),"
+"0","    mom_dob = parse_date(mom_dob, ""%m/%d/%y""),"
+"0","    baby_dob = parse_date(baby_dob, ""%m/%d/%y""),"
+"0","    due_date = parse_date(due_date, ""%m/%d/%y""),"
+"0","    behav_visit_date = parse_date(behav_visit_date, format = ""%m/%d/%y""),"
+"0","    conception_date = due_date - weeks(40),"
+"0","    gestational_weeks_birth = (conception_date %--% baby_dob) / weeks(1),"
+"0","    age_behav = (baby_dob %--% behav_visit_date) / months(1),"
+"0","    mom_age = (mom_dob %--% behav_visit_date) / years(1)"
+"0","  ) %>% "
+"0","  select(-baby_sex) %>% "
+"0","  filter(!is.na(behav_visit_date) | !is.na(scan_date_t3)) %>% "
+"0","  mutate(partner_age = as.numeric(partner_age)) %>% "
+"0","  rename("
+"0","    mom_latinx = mom_ethnicity,"
+"0","    baby_latinx = baby_ethnicity,"
+"0","    in_home_partner = ppl_in_home___1,"
+"0","    in_home_infant = ppl_in_home___2,"
+"0","    in_home_preschool = ppl_in_home___3,"
+"0","    in_home_olderchild = ppl_in_home___4,"
+"0","    in_home_maternal_grandmom = ppl_in_home___5,"
+"0","    in_home_maternal_granddad = ppl_in_home___6,"
+"0","    in_home_paternal_grandpar = ppl_in_home___7,"
+"0","    in_home_friend = ppl_in_home___8,"
+"0","    in_home_otherfam = ppl_in_home___9,"
+"0","    live_alone = ppl_in_home___10,"
+"0","    in_home_other = ppl_in_home___11,"
+"0","    ppl_in_home_allinfants = ppl_in_home_infants,"
+"0","    ppl_in_home_allpreschool = ppl_in_home_preschool,"
+"0","    ppl_in_home_allolderchild = ppl_in_home_schoolage"
+"0","  ) %>% "
+"0","  mutate("
+"0","    mom_race = factor("
+"0","      mom_race, "
+"0","      levels = c(1, 2, 3, 4, 5, 6),"
+"0","      labels = c("
+"0","        ""American Indian/Alaska Native"","
+"0","        ""Asian"","
+"0","        ""Black/African American"","
+"0","        ""Native Hawaiian/Other Pacific Islander"","
+"0","        ""White"","
+"0","        ""Other"""
+"0","      )"
+"0","    ),"
+"0","    education = recode("
+"0","      education,"
+"0","      ""0"" = ""0"","
+"0","      ""2"" = ""1"","
+"0","      ""3"" = ""2"","
+"0","      ""4"" = ""3"","
+"0","      ""5"" = ""4"","
+"0","      ""6"" = ""5"","
+"0","      ""7"" = ""6"","
+"0","      ""8"" = ""7"","
+"0","      ""9"" = ""8"","
+"0","      ""10"" = ""9"""
+"0","    ), "
+"0","    education_txt = factor("
+"0","      education,"
+"0","      levels = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9),"
+"0","      labels = c("
+"0","        ""No schooling completed"","
+"0","        ""Nursery school-8th grade"","
+"0","        ""Some high school, no diploma"","
+"0","        ""High school graduate/diploma/equivalent (i.e. GED)"","
+"0","        ""Some college credit, no degree"","
+"0","        ""Trade/technical/vocational training"","
+"0","        ""Associate degree"","
+"0","        ""Bachelor's degree"","
+"0","        ""Graduate degree"","
+"0","        ""Other"""
+"0","      )"
+"0","    ),"
+"0","    employment_status_txt = factor("
+"0","      employment_status,"
+"0","      levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),"
+"0","      labels = c("
+"0","        ""Employed for wages"","
+"0","        ""Self-employed"","
+"0","        ""Out of work, looking for work"","
+"0","        ""Out of work, not looking for work"","
+"0","        ""Homemaker"","
+"0","        ""Student"","
+"0","        ""Military"","
+"0","        ""Retired"","
+"0","        ""Unable to work"","
+"0","        ""Other"""
+"0","      )"
+"0","    ),"
+"0","    marital_status_txt = factor("
+"0","      marital_status, "
+"0","      levels = c(1, 2, 3, 4, 5, 6),"
+"0","      labels = c("
+"0","        ""Single, never married"","
+"0","        ""Married/domestic partnership"","
+"0","        ""Widowed"","
+"0","        ""Divorced"","
+"0","        ""Separated"","
+"0","        ""Other"""
+"0","      )"
+"0","    ),"
+"0","    partner_educ = recode("
+"0","      education,"
+"0","      ""0"" = ""0"","
+"0","      ""2"" = ""1"","
+"0","      ""3"" = ""2"","
+"0","      ""4"" = ""3"","
+"0","      ""5"" = ""4"","
+"0","      ""6"" = ""5"","
+"0","      ""7"" = ""6"","
+"0","      ""8"" = ""7"","
+"0","      ""9"" = ""8"","
+"0","      ""10"" = ""9"""
+"0","    ), "
+"0","    partner_educ_txt = factor("
+"0","      partner_educ,"
+"0","      levels = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9),"
+"0","      labels = c("
+"0","        ""No schooling completed"","
+"0","        ""Nursery school-8th grade"","
+"0","        ""Some high school, no diploma"","
+"0","        ""High school graduate/diploma/equivalent (i.e. GED)"","
+"0","        ""Some college credit, no degree"","
+"0","        ""Trade/technical/vocational training"","
+"0","        ""Associate degree"","
+"0","        ""Bachelor's degree"","
+"0","        ""Graduate degree"","
+"0","        ""Other"""
+"0","      )"
+"0","    ),"
+"0","    partner_employ_txt =  factor("
+"0","      partner_employ,"
+"0","      levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),"
+"0","      labels = c("
+"0","        ""Employed for wages"","
+"0","        ""Self-employed"","
+"0","        ""Out of work, looking for work"","
+"0","        ""Out of work, not looking for work"","
+"0","        ""Homemaker"","
+"0","        ""Student"","
+"0","        ""Military"","
+"0","        ""Retired"","
+"0","        ""Unable to work"","
+"0","        ""Other"""
+"0","      )"
+"0","    ),"
+"0","    annual_income_txt = factor("
+"0","      annual_income,"
+"0","      levels = c(1, 2, 3, 4, 5, 6, 7),"
+"0","      labels = c("
+"0","        ""$0-5,000"","
+"0","        ""$5,001-15,000"","
+"0","        ""$15,001-30,000"","
+"0","        ""30,001-60,000"","
+"0","        ""60,001-90,000"","
+"0","        ""90,001-150,000"","
+"0","        "">$150,000"""
+"0","      )"
+"0","    ),"
+"0","    baby_race = factor("
+"0","      baby_race,"
+"0","      levels = c(1, 2, 3, 4, 5, 6, 7),"
+"0","      labels = c("
+"0","        ""American Indian/Alaska Native"","
+"0","        ""Asian"","
+"0","        ""Black/African American"","
+"0","        ""Prefer not to answer"","
+"0","        ""Native Hawaiian/Other Pacific Islander"","
+"0","        ""White"","
+"0","        ""Other"""
+"0","      )"
+"0","    )"
+"0","  ) %>% "
+"0","  group_by(ID) %>% "
+"0","  mutate("
+"0","    ppl_in_home_tot = ppl_in_home_adults + ppl_in_home_allchild,"
+"0","    annual_income_num = recode("
+"0","      annual_income,"
+"0","      ""1"" = 2500,"
+"0","      ""2"" = 10000,"
+"0","      ""3"" = 22500,"
+"0","      ""4"" = 45000,"
+"0","      ""5"" = 75000,"
+"0","      ""6"" = 120000,"
+"0","      ""7"" = 150000"
+"0","    ),"
+"0","    #santa clara country low-income limit : 80% of median income (ratios <= 1 are therefore ""low income"")"
+"0","    #https://www.huduser.gov/portal/datasets/il/il2017/2017summary.odn"
+"0","    ppl_in_home_tot_SClimit = recode("
+"0","      ppl_in_home_tot,"
+"0","      ""1"" = 59350,"
+"0","      ""2"" = 67800,"
+"0","      ""3"" = 76300, "
+"0","      ""4"" = 84750,"
+"0","      ""5"" = 91500,"
+"0","      ""6"" = 98350,"
+"0","      ""7"" = 105100,"
+"0","      ""8"" = 111900,"
+"0","      .default = 111900"
+"0","    ),"
+"0","    income_needs = annual_income_num / ppl_in_home_tot_SClimit"
+"0","  ) %>% "
+"0","  ungroup() %>% "
+"0","  select(-partner_in_home, -mom_dob, -baby_dob) "
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  redcap_event_name = [31mcol_character()[39m,
+  redcap_survey_identifier = [33mcol_logical()[39m,
+  demograph_date = [31mcol_character()[39m,
+  momrace_describe = [31mcol_character()[39m,
+  educ_describe = [33mcol_logical()[39m,
+  employment_explain = [31mcol_character()[39m,
+  mom_pob = [31mcol_character()[39m,
+  mom_native_lang = [31mcol_character()[39m,
+  primarylang = [31mcol_character()[39m,
+  secondlang_type = [31mcol_character()[39m,
+  marital_explain = [31mcol_character()[39m,
+  partner_educ_describe = [33mcol_logical()[39m,
+  partner_employ_describe = [33mcol_logical()[39m,
+  partner_pob = [31mcol_character()[39m,
+  ppl_in_home_describe = [33mcol_logical()[39m,
+  childrace_describe = [31mcol_character()[39m,
+  child_pob = [31mcol_character()[39m
+)
+"
+"2","See spec(...) for full column specifications.
+"
+"2","Parsed with column specification:
+cols(
+  record_id = [31mcol_character()[39m,
+  mom_dob = [31mcol_character()[39m,
+  baby_sex = [32mcol_double()[39m,
+  baby_dob = [31mcol_character()[39m,
+  baby_due_date = [31mcol_character()[39m
+)
+"
+"2","NAs introduced by coercion"
+"2","Parsed with column specification:
+cols(
+  .default = col_character(),
+  record_id = [32mcol_double()[39m,
+  redcap_survey_identifier = [33mcol_logical()[39m,
+  crf_time_arrived = [34mcol_time(format = """")[39m,
+  crf_time_left = [34mcol_time(format = """")[39m,
+  crf_sleepquality = [32mcol_double()[39m,
+  crf_sleephours = [32mcol_double()[39m,
+  crf_meals = [32mcol_double()[39m,
+  crf_mealtime = [34mcol_time(format = """")[39m,
+  crf_babymeds = [32mcol_double()[39m,
+  crf_babysick = [32mcol_double()[39m,
+  mom_med = [32mcol_double()[39m,
+  mom_height_ft = [32mcol_double()[39m,
+  mom_height_inch = [32mcol_double()[39m,
+  mom_weight_lb = [32mcol_double()[39m,
+  saliva1_time = [34mcol_time(format = """")[39m,
+  saliva2_time = [34mcol_time(format = """")[39m,
+  saliva5_time = [34mcol_time(format = """")[39m,
+  saliva6_time = [34mcol_time(format = """")[39m,
+  sfp_play_start = [34mcol_time(format = """")[39m,
+  sfp_sf1_start = [34mcol_time(format = """")[39m
+  # ... with 6 more columns
+)
+"
+"2","See spec(...) for full column specifications.
+"
+"2","31 parsing failures.
+row            col   expected      actual                                                                            file
+ 63 crf_time_left  valid date 13:50:21PM  '~/Box/Mooddata_Coordinating/BABIES/Data/demographics_data/crf_cs_complete.csv'
+ 63 saliva5_time   valid date 13:24:16 PM '~/Box/Mooddata_Coordinating/BABIES/Data/demographics_data/crf_cs_complete.csv'
+ 71 crf_time_left  valid date 14:45:08 PM '~/Box/Mooddata_Coordinating/BABIES/Data/demographics_data/crf_cs_complete.csv'
+ 71 saliva2_time   valid date 13:04:21 PM '~/Box/Mooddata_Coordinating/BABIES/Data/demographics_data/crf_cs_complete.csv'
+ 71 sfp_play_start valid date 13:12:43 PM '~/Box/Mooddata_Coordinating/BABIES/Data/demographics_data/crf_cs_complete.csv'
+... .............. .......... ........... ...............................................................................
+See problems(...) for more details.
+"

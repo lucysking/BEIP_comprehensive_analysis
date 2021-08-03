@@ -1,0 +1,27 @@
+"0","```r
+everyone %>% 
+  ggplot(aes(construct, abs_smd)) +
+  geom_hline(yintercept = 0, color = \"red\") +
+  geom_boxplot() +
+  labs(
+    y = \"standardized mean difference\"
+  )
+
+everyone %>% 
+  ggplot(aes(wave, abs_smd)) +
+  geom_hline(yintercept = 0, color = \"red\") +
+  geom_boxplot() +
+  labs(
+    y = \"standardized mean difference\"
+  )
+
+everyone %>% 
+  ggplot(aes(informant, smd)) +
+  geom_hline(yintercept = 0, color = \"red\") +
+  geom_boxplot() +
+  labs(
+    y = \"standardized mean difference\"
+  )
+
+contrasts(everyone$construct)
+```"

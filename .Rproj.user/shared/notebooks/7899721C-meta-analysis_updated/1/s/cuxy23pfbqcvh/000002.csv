@@ -1,0 +1,6 @@
+"0","d0_tidy <- "
+"0","  d0_tidy %>% "
+"0","  rename(age_months = age) %>% "
+"0","  mutate("
+"0","    age_years = age_months / 12"
+"0","  )"

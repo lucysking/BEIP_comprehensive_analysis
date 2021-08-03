@@ -1,0 +1,4 @@
+"0","write_csv(ecsa_total, ""~/Box/Mooddata_Coordinating/BABIES/Data/final_scored_data/ECSA/ecsa_18mo_scored_20200414.csv"")
+"
+"2","Error in is.data.frame(x) : object 'ecsa_total' not found
+"

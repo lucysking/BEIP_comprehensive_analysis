@@ -1,0 +1,16 @@
+"0","```r
+crisys %>% 
+  ggplot(aes(timepoint, crisys_ses_total)) +
+  geom_line(
+    aes(
+      timepoint, 
+      crisys_ses_total, 
+      group = ID
+    ),
+    color = \"blue\",
+    alpha = 1/4
+  ) +
+  theme(
+    legend.position = \"none\"
+  )
+```"

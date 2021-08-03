@@ -1,0 +1,117 @@
+"0","```r
+cd_clean_boys <-
+  cd_clean %>% 
+  filter(male == 1)
+mod1_boys_hi <- lmer(
+  scale(cort_clean) ~ 
+    scale(dhea_clean) * I(scale(tan_per_cent) - sd(tan_per_cent, na.rm = TRUE)) +
+    scale(dhea_clean) * scale(tanner_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean_boys
+)
+summary(mod1_boys_hi)
+```"
+"1","Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: scale(cort_clean) ~ scale(dhea_clean) * I(scale(tan_per_cent) -  
+    sd(tan_per_cent, na.rm = TRUE)) + scale(dhea_clean) * scale(tanner_av_t1t2) +      (1 | ELS_ID)
+   Data: cd_clean_boys
+
+REML criterion at convergence: 281.1
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.2239 -0.5668  0.0776  0.5247  1.9008 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ ELS_ID   (Intercept) 0.1855   0.4307  
+ Residual             0.4832   0.6951  
+Number of obs: 112, groups:  ELS_ID, 60
+
+Fixed effects:
+                                                                           Estimate Std. Error        df t value
+(Intercept)                                                                 0.07820    0.11499  98.99346   0.680
+scale(dhea_clean)                                                           0.83992    0.14651 104.26599   5.733
+I(scale(tan_per_cent) - sd(tan_per_cent, na.rm = TRUE))                     0.15474    0.07274  62.48155   2.127
+scale(tanner_av_t1t2)                                                      -0.05758    0.09941  59.48193  -0.579
+scale(dhea_clean):I(scale(tan_per_cent) - sd(tan_per_cent, na.rm = TRUE))   0.24777    0.09204  80.82245   2.692
+scale(dhea_clean):scale(tanner_av_t1t2)                                     0.02603    0.09427 105.94630   0.276
+                                                                              Pr(>|t|)    
+(Intercept)                                                                    0.49804    
+scale(dhea_clean)                                                         0.0000000968 ***
+I(scale(tan_per_cent) - sd(tan_per_cent, na.rm = TRUE))                        0.03735 *  
+scale(tanner_av_t1t2)                                                          0.56465    
+scale(dhea_clean):I(scale(tan_per_cent) - sd(tan_per_cent, na.rm = TRUE))      0.00863 ** 
+scale(dhea_clean):scale(tanner_av_t1t2)                                        0.78298    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) scl(_) I-sn=T s(__12 s-sn=T
+scl(dh_cln) -0.366                            
+I((__)-sn=T  0.609 -0.404                     
+scl(tn__12)  0.000 -0.266  0.104              
+s(_):I-sn=T -0.346  0.794 -0.320 -0.148       
+s(_):(__12) -0.314  0.328 -0.204 -0.097  0.207
+"
+"0","```r
+#confint.merMod(mod1_boys_hi, method = \"boot\")
+mod1_boys_hi_int <- summary(mod1_boys_hi)$coefficients[1]
+mod1_boys_hi_slp <- summary(mod1_boys_hi)$coefficients[2]
+mod1_boys_lo <- lmer(
+  scale(cort_clean) ~ 
+    scale(dhea_clean) * I(scale(tan_per_cent) + sd(tan_per_cent, na.rm = TRUE)) +
+    scale(dhea_clean) * scale(tanner_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean_boys
+)
+summary(mod1_boys_lo)
+```"
+"1","Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: scale(cort_clean) ~ scale(dhea_clean) * I(scale(tan_per_cent) +  
+    sd(tan_per_cent, na.rm = TRUE)) + scale(dhea_clean) * scale(tanner_av_t1t2) +      (1 | ELS_ID)
+   Data: cd_clean_boys
+
+REML criterion at convergence: 281.1
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.2239 -0.5668  0.0776  0.5247  1.9008 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ ELS_ID   (Intercept) 0.1855   0.4307  
+ Residual             0.4832   0.6951  
+Number of obs: 112, groups:  ELS_ID, 60
+
+Fixed effects:
+                                                                           Estimate Std. Error        df t value Pr(>|t|)
+(Intercept)                                                                -0.20612    0.11119  98.51126  -1.854 0.066770
+scale(dhea_clean)                                                           0.38466    0.10347 100.34534   3.718 0.000331
+I(scale(tan_per_cent) + sd(tan_per_cent, na.rm = TRUE))                     0.15474    0.07274  62.48155   2.127 0.037352
+scale(tanner_av_t1t2)                                                      -0.05758    0.09941  59.48193  -0.579 0.564649
+scale(dhea_clean):I(scale(tan_per_cent) + sd(tan_per_cent, na.rm = TRUE))   0.24777    0.09204  80.82245   2.692 0.008628
+scale(dhea_clean):scale(tanner_av_t1t2)                                     0.02603    0.09427 105.94630   0.276 0.782976
+                                                                             
+(Intercept)                                                               .  
+scale(dhea_clean)                                                         ***
+I(scale(tan_per_cent) + sd(tan_per_cent, na.rm = TRUE))                   *  
+scale(tanner_av_t1t2)                                                        
+scale(dhea_clean):I(scale(tan_per_cent) + sd(tan_per_cent, na.rm = TRUE)) ** 
+scale(dhea_clean):scale(tanner_av_t1t2)                                      
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) scl(_) I+sn=T s(__12 s+sn=T
+scl(dh_cln)  0.106                            
+I((__)+sn=T -0.572 -0.048                     
+scl(tn__12) -0.125 -0.135  0.104              
+s(_):I+sn=T  0.028 -0.510 -0.320 -0.148       
+s(_):(__12) -0.079  0.126 -0.204 -0.097  0.207
+"
+"0","```r
+#confint.merMod(mod1_boys_lo, method = \"boot\")
+mod1_boys_lo_int <- summary(mod1_boys_lo)$coefficients[1]
+mod1_boys_lo_slp <- summary(mod1_boys_lo)$coefficients[2]
+```"

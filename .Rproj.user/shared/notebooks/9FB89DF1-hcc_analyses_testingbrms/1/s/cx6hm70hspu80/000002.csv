@@ -1,0 +1,45 @@
+"0","mod2.no <- brm("
+"0","  scale(hcc_log_m) ~ "
+"0","    0 + "
+"0","    Intercept + "
+"0","    poly(scale(seg_week), 2) +"
+"0","    (poly(scale(seg_week), 2) | ID),"
+"0","  iter = 2000, warmup = 1000, chains = 4, cores = 4,"
+"0","  family = ""gaussian"","
+"0","  seed = 3, "
+"0","  data = d"
+"0",")"
+"2","Rows containing NAs were excluded from the model."
+"2","Compiling the C++ model
+"
+"2","Start sampling
+"
+"1","starting worker pid=70323 on localhost:11587 at 16:19:34.042
+"
+"1","starting worker pid=70324 on localhost:11587 at 16:19:34.039
+"
+"1","starting worker pid=70326 on localhost:11587 at 16:19:34.093
+"
+"1","starting worker pid=70325 on localhost:11587 at 16:19:34.165
+"
+"2","Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> -> slaveLoop -> makeSOCKmaster
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> -> slaveLoop -> makeSOCKmaster
+"
+"2","Execution halted
+Execution halted
+"
+"2","Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> -> slaveLoop -> makeSOCKmaster
+"
+"2","Execution halted
+"
+"2","Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> -> slaveLoop -> makeSOCKmaster
+"
+"2","Execution halted
+"
+"2","Error in makePSOCKcluster(names = spec, ...) : 
+  Cluster setup failed. 4 of 4 workers failed to connect.
+"

@@ -1,0 +1,25 @@
+"0","```r
+crisys <-
+  crisys %>% 
+  mutate(
+    timepoint = factor(
+      timepoint,
+      levels = c(\"pregnancy\", \"neonatal\", \"sixmonth\")
+    )
+  )
+crisys_wf <-
+  crisys %>% 
+  select(
+    ID, 
+    timepoint, 
+    crisys_total, 
+    crisys_win, 
+    crisys_neg_total, 
+    crisys_neg_win,
+    crisys_ses_total,
+    crisys_ses_win
+    ) %>% 
+  gather(variable, value, crisys_total:crisys_ses_win) %>% 
+  unite(temp, timepoint, variable) %>% 
+  spread(temp, value) 
+```"

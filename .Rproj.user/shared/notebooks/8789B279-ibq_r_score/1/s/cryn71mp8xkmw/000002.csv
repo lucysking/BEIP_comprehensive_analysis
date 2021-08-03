@@ -1,0 +1,29 @@
+"0","ibq %>% "
+"0","  # regulation"
+"0","  select("
+"0","    ibq_13, ibq_14, ibq_15, ibq_17, ibq_18, ibq_19, ibq_67,"
+"0","    ibq_61_r, ibq_50_r, ibq_51, ibq_59, ibq_60_r, ibq_73_r,"
+"0","    ibq_5, ibq_6, ibq_7, ibq_8, ibq_10, ibq_25,"
+"0","    ibq_81, ibq_82_r, ibq_83, ibq_84_r, ibq_85, ibq_86_r, ibq_91_r"
+"0","  ) %>% "
+"0","  alpha()"
+"2","Some items were negatively correlated with the total scale and probably 
+should be reversed.  
+To do this, run the function again with the 'check.keys=TRUE' option"
+"1","Some items ("
+"1"," "
+"1","ibq_10"
+"1"," "
+"1",") were negatively correlated with the total scale and 
+probably should be reversed.  
+To do this, run the function again with the 'check.keys=TRUE' option"
+"1","
+Reliability analysis "
+"1"," "
+"1"," 
+"
+"1","Call: "
+"1","alpha(x = .)
+"
+"1","
+ "

@@ -1,0 +1,16 @@
+"0","```r
+anova(mod2_bmi_fit, mod2_bmiX2)
+
+```"
+"1","refitting model(s) with ML (instead of REML)
+"
+"1","Data: cd_clean_bmi
+Models:
+mod2_bmi_fit: scale(cort_clean) ~ scale(dhea_per_cent) + scale(dhea_av_t1t2) + 
+mod2_bmi_fit:     (1 | ELS_ID)
+mod2_bmiX2: scale(cort_clean) ~ scale(dhea_per_cent) + scale(dhea_av_t1t2) * 
+mod2_bmiX2:     scale(bmi_av_t1t2) + (1 | ELS_ID)
+             Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)
+mod2_bmi_fit  5 657.33 675.00 -323.67   647.33                         
+mod2_bmiX2    7 659.40 684.13 -322.70   645.40 1.9339      2     0.3802
+"

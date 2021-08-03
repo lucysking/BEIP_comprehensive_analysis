@@ -1,0 +1,79 @@
+"0","#Libraries"
+"0","library(papaja)"
+"0","library(tidyverse)"
+"0","library(lme4)"
+"0","library(lmerTest)"
+"0","library(modelr)"
+"2","
+Attaching package: ‘modelr’
+
+"
+"2","The following objects are masked from ‘package:sjstats’:
+
+    bootstrap, mse, rmse
+
+"
+"0","library(sjstats)"
+"0","#library(olsrr)"
+"0","library(broom)"
+"2","
+Attaching package: ‘broom’
+
+"
+"2","The following object is masked from ‘package:modelr’:
+
+    bootstrap
+
+"
+"2","The following object is masked from ‘package:sjstats’:
+
+    bootstrap
+
+"
+"0","library(haven)"
+"0","library(corrr)"
+"0","library(ggcorrplot)"
+"0","library(corrplot)"
+"2","corrplot 0.84 loaded
+"
+"0","library(cowplot)"
+"2","
+********************************************************
+"
+"2","Note: As of version 1.0.0, cowplot does not change the
+"
+"2","  default ggplot2 theme anymore. To recover the previous
+"
+"2","  behavior, execute:
+  theme_set(theme_cowplot())
+"
+"2","********************************************************
+
+"
+"0","#Files "
+"0","cd_lf_all_file <- ""~/Box/lucy_king_files/ELS/cort_dhea/data/data_final/cort_dhea_all_20190509.csv"""
+"0","cd_lf_file <- ""~/Box/lucy_king_files/ELS/cort_dhea/data/data_final/cort_dhea_final_20190509.csv"""
+"0","cd_wf_all_file <- ""~/Box/lucy_king_files/ELS/cort_dhea/data/data_final/cort_dhea_all_wf_20190509.csv"""
+"0","cd_wf_file <- ""~/Box/lucy_king_files/ELS/cort_dhea/data/data_final/cort_dhea_final_wf_20190509.csv"""
+"0","els_file <- ""~/Box/lucy_king_files/ELS/stress_data/data/els_severity_scores_20190221.csv"""
+"0","severity_file <- ""~/Box/lucy_king_files/ELS/stress_data/data/severity_by_event_20190825.csv"""
+"0","demo_file <- ""~/Box/lucy_king_files/ELS/cort_dhea/data/data_final/demo.csv"""
+"0","tanner_file <- ""~/Box/lucy_king_files/ELS/cort_dhea/data/data_final/tanner_t1t2.csv"""
+"0","#Themes"
+"0","theme_set(theme_apa())"
+"0","#Functions"
+"0","format_pval <- function(pval, digits = 3){"
+"0","  pval <- str_replace(round(signif(pval), digits), ""0."", ""."")"
+"0","  pval <- if_else(pval == 0, ""<.001"", paste0(""="", pval))"
+"0","  return(pval)"
+"0","}"
+"0","format_lm_df <- function(mod) {"
+"0","  df <- broom::tidy(mod)"
+"0","  "
+"0","  df %>% "
+"0","    gather(key, value, estimate:p.value) %>% "
+"0","    unite(new, term, key) %>% "
+"0","    spread(new, value)"
+"0","}"
+"0","set.seed(123)"
+"0","options(scipen = 999)"

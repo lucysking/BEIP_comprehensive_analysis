@@ -1,0 +1,32 @@
+"1","
+Non missing response frequency for each item
+                                            0  0.5    1  1.5    2  2.5    3  3.5 miss
+animal_panel_objective_decision_re       0.97 0.03 0.00 0.00 0.00 0.00 0.00 0.00    0
+bully_panel_objective_decision_re        0.84 0.04 0.03 0.05 0.05 0.00 0.00 0.00    0
+comm_arg_panel_objective_decision_re     0.95 0.04 0.01 0.00 0.00 0.00 0.00 0.00    0
+comm_inst_panel_objective_decision_re    0.96 0.03 0.01 0.01 0.00 0.00 0.00 0.00    0
+comm_phys_panel_objective_decision_re    0.92 0.06 0.01 0.01 0.01 0.00 0.00 0.00    0
+death_panel_objective_decision_re        0.77 0.05 0.05 0.05 0.07 0.01 0.01 0.01    0
+disaster_panel_objective_decision_re     0.99 0.01 0.00 0.00 0.00 0.00 0.00 0.00    0
+divorce_panel_objective_decision_re      0.95 0.01 0.00 0.00 0.00 0.05 0.00 0.00    0
+dom_viol_panel_objective_decision_re     0.98 0.00 0.01 0.00 0.00 0.01 0.00 0.01    0
+emo_ab_panel_objective_decision_re       0.94 0.00 0.00 0.01 0.03 0.00 0.03 0.00    0
+exp_acc_panel_objective_decision_re      0.94 0.01 0.03 0.01 0.01 0.01 0.00 0.00    0
+exp_ill_panel_objective_decision_re      0.90 0.01 0.05 0.03 0.01 0.00 0.00 0.00    0
+finance_panel_objective_decision_re      0.90 0.01 0.03 0.06 0.00 0.01 0.00 0.00    0
+legal_prob_panel_objective_decision_re   0.91 0.02 0.03 0.02 0.01 0.00 0.01 0.00    0
+mental_ill_panel_objective_decision_re   0.81 0.03 0.03 0.05 0.08 0.01 0.00 0.00    0
+moved_panel_objective_decision_re        0.77 0.07 0.11 0.04 0.01 0.01 0.00 0.00    0
+mug_rob_panel_objective_decision_re      0.97 0.01 0.01 0.00 0.01 0.00 0.00 0.00    0
+neglect_panel_objective_decision_re      0.99 0.00 0.00 0.00 0.01 0.00 0.00 0.00    0
+other_panel_objective_decision_re        0.92 0.02 0.01 0.02 0.02 0.01 0.00 0.00    0
+parent_arg_panel_objective_decision_re   0.77 0.02 0.03 0.03 0.06 0.10 0.00 0.00    0
+sep_rfd_panel_objective_decision_re      0.95 0.00 0.00 0.01 0.02 0.01 0.01 0.00    0
+sep_wt_panel_objective_decision_re       0.96 0.00 0.01 0.01 0.01 0.01 0.00 0.00    0
+suicide_panel_objective_decision_re      0.88 0.01 0.03 0.03 0.03 0.02 0.01 0.00    0
+thrt_domvio_panel_objective_decision_re  0.99 0.00 0.00 0.01 0.00 0.00 0.00 0.00    0
+thrt_phys_ab_panel_objective_decision_re 0.99 0.00 0.00 0.01 0.00 0.00 0.00 0.00    0
+war_terr_panel_objective_decision_re     0.98 0.02 0.00 0.00 0.00 0.00 0.00 0.00    0
+wit_acc_panel_objective_decision_re      0.90 0.06 0.03 0.01 0.00 0.00 0.00 0.00    0
+wit_ill_panel_objective_decision_re      0.69 0.11 0.10 0.07 0.02 0.01 0.00 0.00    0
+"

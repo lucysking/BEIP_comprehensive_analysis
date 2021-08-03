@@ -1,0 +1,43 @@
+"0","ecsa <-"
+"0","  read_csv(ecsa_cs_file) %>% "
+"0","  mutate(record_id = as.numeric(record_id)) %>% "
+"0","  bind_rows(read_csv(ecsa_lg_file)) %>% "
+"0","  select("
+"0","    ID = record_id,"
+"0","    ecsa_1:ecsa_36"
+"0","  )"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  record_id = [31mcol_character()[39m,
+  redcap_event_name = [31mcol_character()[39m,
+  redcap_survey_identifier = [33mcol_logical()[39m,
+  questionnaires_18mo_timestamp = [34mcol_datetime(format = """")[39m,
+  survey_date = [31mcol_character()[39m,
+  aofp_1 = [31mcol_character()[39m,
+  aofp_2 = [31mcol_character()[39m,
+  aoc_1 = [31mcol_character()[39m,
+  aow_1 = [31mcol_character()[39m,
+  primarylang_18mo = [31mcol_character()[39m,
+  secondlang_18mo_type = [31mcol_character()[39m
+)
+"
+"2","See spec(...) for full column specifications.
+"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  redcap_event_name = [31mcol_character()[39m,
+  redcap_survey_identifier = [33mcol_logical()[39m,
+  month_survey_timestamp = [34mcol_datetime(format = """")[39m,
+  survey_date = [31mcol_character()[39m,
+  aofp_1 = [31mcol_character()[39m,
+  aofp_2 = [31mcol_character()[39m,
+  aoc_1 = [31mcol_character()[39m,
+  aow_1 = [31mcol_character()[39m,
+  primarylang_18mo = [31mcol_character()[39m,
+  secondlang_18mo_type = [31mcol_character()[39m
+)
+"
+"2","See spec(...) for full column specifications.
+"

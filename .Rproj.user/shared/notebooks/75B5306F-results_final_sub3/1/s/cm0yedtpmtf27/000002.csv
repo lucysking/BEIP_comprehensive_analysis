@@ -1,0 +1,158 @@
+"0","```r
+plot_mod2 <-
+  tibble(
+    Sex = c(\"Girls\", \"Boys\", \"Girls\", \"Boys\"),
+    Threat = c(\"Higher (+1SD)\", \"Higher (+1SD)\", \"Lower (-1SD)\", \"Lower (-1SD)\"),
+    Intercept = c(
+      mod2_threat_girls_hi_int, 
+      mod2_threat_boys_hi_int, 
+      mod2_threat_girls_lo_int, 
+      mod2_threat_boys_lo_int
+    ),
+    Slope = c(
+      mod2_threat_girls_hi_slp, 
+      mod2_threat_boys_hi_slp, 
+      mod2_threat_girls_lo_slp, 
+      mod2_threat_boys_lo_slp
+    )
+  )
+# produce a plot for legend only_______________________________________________
+plot_mod2_threat_legend <- 
+  cd_clean_boys %>% 
+  ggplot(aes(dhea_per_cent, cort_clean)) +
+  geom_point(alpha = 1/2) +
+  geom_abline(
+    data = plot_mod2 %>% filter(Sex == \"Boys\"),
+    aes(
+      intercept = Intercept,
+      slope = Slope,
+      color = Threat
+    ),
+    size = 2
+  ) +
+  scale_x_continuous(breaks = seq.int(-4, 4, 1)) +
+  scale_color_manual(
+    values = c(\"darkred\", \"darkblue\")
+  ) +
+  expand_limits(y = c(-1, -4)) +
+  expand_limits(x = c(-2, 2)) +
+  theme_apa(base_size = 20, box = TRUE) +
+  theme(
+    plot.title = element_text(hjust = .5)
+  ) +
+  labs(
+    title = \"Boys\",
+    shape = NULL,
+    size = NULL,
+    color = \"Threat severity\",
+    x = NULL,
+    y = \"log Cortisol (µg/dL)\"
+  )  
+# plot for boys________________________________________________________________
+plot_mod2_threat_boys <- 
+  cd_clean_boys %>% 
+  ggplot(aes(dhea_per_cent, cort_clean)) +
+  geom_point(alpha = 1/2, aes(size = sumsev_threat_t1, show.legend = FALSE)) +
+  geom_abline(
+    data = plot_mod2 %>% filter(Sex == \"Boys\"),
+    aes(
+      intercept = Intercept,
+      slope = Slope,
+      color = Threat
+    ),
+    size = 2
+  ) +
+  scale_x_continuous(breaks = seq.int(-4, 4, 1)) +
+  scale_color_manual(
+    values = c(\"darkred\", \"darkblue\")
+  ) +
+  expand_limits(y = c(-1, -4)) +
+  expand_limits(x = c(-2, 2)) +
+  theme_apa(base_size = 20, box = TRUE) +
+  theme(
+    plot.title = element_text(hjust = .5)
+  ) +
+  labs(
+    title = \"Boys\",
+    shape = NULL,
+    size = NULL,
+    color = \"Threat severity\",
+    x = NULL,
+    y = NULL
+  )  
+```"
+"1","Ignoring unknown aesthetics: show.legend
+"
+"0","```r
+ggsave(
+  \"~/Box/lucy_king_files/ELS/cort_dhea/dhea_cort_threat_boys.png\",
+  height = 6, width = 10
+)
+# plot for girls________________________________________________________________
+plot_mod2_threat_girls <- 
+  cd_clean_girls %>% 
+  ggplot(aes(dhea_per_cent, cort_clean)) +
+  geom_point(alpha = 1/2, aes(size = sumsev_threat_t1), show.legend = FALSE) +
+  geom_abline(
+    data = plot_mod2 %>% filter(Sex == \"Girls\"),
+    aes(
+      intercept = Intercept,
+      slope = Slope,
+      color = Threat
+    ),
+    size = 2
+  ) +
+  scale_x_continuous(breaks = seq.int(-4, 4, 1)) +
+  scale_color_manual(
+    values = c(\"darkred\", \"darkblue\")
+  ) +
+  expand_limits(y = c(-1, -4)) +
+  expand_limits(x = c(-2, 2)) +
+  theme_apa(base_size = 20, box = TRUE) +
+  theme(
+    plot.title = element_text(hjust = .5)
+  ) +
+  labs(
+    title = \"Girls\",
+    shape = NULL,
+    size = NULL,
+    color = \"Threat severity\",
+    x = NULL,
+    y = NULL
+  )  
+ggsave(
+  \"~/Box/lucy_king_files/ELS/cort_dhea/dhea_cort_threat_girls.png\",
+  height = 6, width = 10
+)
+# save together________________________________________________________________
+plot_mod2_threat_sex <- 
+  plot_grid(
+    plot_mod2_threat_girls + theme(legend.position = \"none\"),
+    plot_mod2_threat_boys + theme(legend.position = \"none\"), 
+    align = \"hv\", 
+    axis = \"bt\", 
+    rel_widths = c(1, 1)
+  ) 
+#create common x and y labels___________________________________________________
+library(grid)
+library(gridExtra)
+library(gridGraphics)
+y.grob_cort <- textGrob(
+  \"log Cortisol (µg/dL)\",
+  gp = gpar(col = \"black\", fontsize = 22), 
+  rot = 90
+)
+x.grob_dhea <- textGrob(
+  expression(\"Panel A: \"*Delta*\" log DHEA (pg/mL) (person-mean-centered)\"),
+  gp = gpar(col = \"black\", fontsize = 22)
+)
+#add common labels to plot______________________________________________________
+plot_mod2_threat_sex <-
+  grid.arrange(
+  arrangeGrob(
+    plot_mod2_threat_sex, 
+    left = y.grob_cort, 
+    bottom = x.grob_dhea
+  )
+)
+```"

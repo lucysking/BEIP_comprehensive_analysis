@@ -1,0 +1,50 @@
+"0","```r
+cd_clean_nosteroid <-
+  cd_clean %>% 
+  filter(corticosteroid == 0)
+contrasts(cd_clean_nosteroid$timepoint) = c(0, 1) # T1 is baseline
+mod1_test_nosteroid <- lmer(
+  scale(cort_clean) ~ 
+    scale(test_clean) * scale(tan_per_cent) +
+    scale(test_clean) * scale(tanner_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean_nosteroid
+)
+summary(mod1_test_nosteroid)
+
+```"
+"1","Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: scale(cort_clean) ~ scale(test_clean) * scale(tan_per_cent) +      scale(test_clean) * scale(tanner_av_t1t2) + (1 | ELS_ID)
+   Data: cd_clean_nosteroid
+
+REML criterion at convergence: 613.9
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.61180 -0.55355 -0.00011  0.58209  2.28610 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ ELS_ID   (Intercept) 0.2321   0.4817  
+ Residual             0.5953   0.7716  
+Number of obs: 229, groups:  ELS_ID, 129
+
+Fixed effects:
+                                         Estimate Std. Error        df t value       Pr(>|t|)    
+(Intercept)                               0.02825    0.07257 142.19283   0.389         0.6977    
+scale(test_clean)                         0.48281    0.07497 222.91070   6.440 0.000000000723 ***
+scale(tan_per_cent)                       0.01300    0.05977 144.42957   0.217         0.8282    
+scale(tanner_av_t1t2)                    -0.07315    0.07585 126.38920  -0.964         0.3367    
+scale(test_clean):scale(tan_per_cent)     0.02477    0.06182 178.52518   0.401         0.6891    
+scale(test_clean):scale(tanner_av_t1t2)  -0.17731    0.07588 221.82489  -2.337         0.0204 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) scl(_) sc(__) s(__12 s(_):(__)
+scl(tst_cl)  0.148                               
+scl(tn_pr_)  0.007 -0.370                        
+scl(tn__12) -0.155 -0.224  0.116                 
+scl(_):(__) -0.284 -0.308 -0.144 -0.026          
+s(_):(__12) -0.169 -0.145 -0.053  0.074 -0.156   
+"

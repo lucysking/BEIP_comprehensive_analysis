@@ -1,0 +1,12 @@
+"0","```r
+m18$itsea_b43re <-recode(m18$itsea_b43, \"0\" = 2, \"1\" = 1, \"2\" = 0)
+m18$itsea_b65re <-recode(m18$itsea_b65, \"0\" = 2, \"1\" = 1, \"2\" = 0)
+m18$itsea_activity <- rowMeans(subset(m18, select = c(itsea_a2, itsea_a4, itsea_b8, itsea_b10, itsea_b27, itsea_b32)), na.rm = T)*6
+m18$itsea_agress <- rowMeans(subset(m18, select = c(itsea_a28, itsea_a30, itsea_a33, itsea_b3, itsea_b9, itsea_b16, itsea_b30, itsea_b34, itsea_b44, itsea_b88, itsea_c2, itsea_e4)), na.rm = T)*12
+m18$itsea_depp <- rowMeans(subset(m18, select = c(itsea_a9, itsea_a39, itsea_a40, itsea_b43re, itsea_b76, itsea_b81, itsea_b84, itsea_b91, itsea_b92)), na.rm = T)*9
+m18$itsea_empath <- rowMeans(subset(m18, select = c(itsea_a22, itsea_b51, itsea_b56, itsea_b57, itsea_b63, itsea_b73, itsea_c4)), na.rm = T)*7
+m18$itsea_gad <- rowMeans(subset(m18, select = c(itsea_a3, itsea_a12, itsea_a35, itsea_b37, itsea_b70, itsea_b86, itsea_e5, itsea_e6, itsea_e11)), na.rm = T)*9
+m18$itsea_immplay <- rowMeans(subset(m18, select = c(itsea_a25, itsea_a31, itsea_b25, itsea_b38, itsea_b67, itsea_b71)), na.rm = T)*6
+m18$itsea_negemo <- rowMeans(subset(m18, select = c(itsea_a7, itsea_a21, itsea_a23, itsea_b31, itsea_b45, itsea_b50, itsea_b53, itsea_b59, itsea_b65re, itsea_b66, itsea_b74, itsea_b80, itsea_b85)), na.rm = T)*13
+m18$itsea_socrel <- rowMeans(subset(m18, select = c(itsea_a10, itsea_a13, itsea_a15, itsea_b6, itsea_b19, itsea_b26, itsea_b28, itsea_b42, itsea_b60, itsea_b90)), na.rm = T)*10
+```"

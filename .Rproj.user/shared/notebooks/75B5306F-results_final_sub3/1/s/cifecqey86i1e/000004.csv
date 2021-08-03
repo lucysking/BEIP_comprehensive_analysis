@@ -1,0 +1,4 @@
+"0","cd_clean %>% "
+"0","  group_by(timepoint) %>% "
+"0","  count(corticosteroid) %>%"
+"0","  mutate(prop = round(n / sum(n), 2))"

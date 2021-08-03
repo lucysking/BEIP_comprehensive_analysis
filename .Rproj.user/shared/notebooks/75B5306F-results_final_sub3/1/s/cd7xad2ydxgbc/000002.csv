@@ -1,0 +1,5 @@
+"0","```r
+# sex differences: stress
+t_test_stress_T1 <- t.test(cd_clean$sumsev_threat_t1 ~ cd_clean$male)
+t_test_stress_T2 <- t.test(cd_clean$sumsev_threat_t2 ~ cd_clean$male)
+```"

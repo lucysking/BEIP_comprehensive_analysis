@@ -1,0 +1,42 @@
+"0","```r
+# sex differences: tanner
+tanner_sex_mod <-
+  lmer(
+    tanner_av ~
+      male * timepoint +
+      (1|ELS_ID),
+    data = cd_clean
+  )
+summary(tanner_sex_mod)
+```"
+"1","Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: tanner_av ~ male * timepoint + (1 | ELS_ID)
+   Data: cd_clean
+
+REML criterion at convergence: 666.3
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.6432 -0.4808  0.1306  0.5102  1.7782 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ ELS_ID   (Intercept) 0.2547   0.5046  
+ Residual             0.2914   0.5399  
+Number of obs: 309, groups:  ELS_ID, 176
+
+Fixed effects:
+                   Estimate Std. Error        df t value            Pr(>|t|)    
+(Intercept)         1.98640    0.07597 264.83370  26.149 <0.0000000000000002 ***
+male1              -0.12659    0.11324 264.41760  -1.118              0.2647    
+timepointT2         1.41525    0.08651 155.68645  16.360 <0.0000000000000002 ***
+male1:timepointT2   0.21826    0.12811 154.34916   1.704              0.0904 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) male1  tmpnT2
+male1       -0.671              
+timepointT2 -0.482  0.323       
+ml1:tmpntT2  0.325 -0.483 -0.675
+"

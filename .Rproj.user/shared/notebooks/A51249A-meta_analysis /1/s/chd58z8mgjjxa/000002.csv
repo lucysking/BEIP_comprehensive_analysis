@@ -1,0 +1,19 @@
+"0","```r
+everyone <- 
+  escalc(
+    measure = \"SMD\", #standardized mean difference
+    n1i = CAUG_n, 
+    n2i = FCG_n, 
+    m1i = CAUG_mean, 
+    m2i = FCG_mean, 
+    sd1i = CAUG_sd, 
+    sd2i = FCG_sd, 
+    vtype = \"LS\",
+    data = everyone, 
+    append = TRUE
+  ) %>% 
+  rename(
+    smd = yi,
+    variance = vi
+  ) 
+```"

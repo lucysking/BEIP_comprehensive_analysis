@@ -1,0 +1,20 @@
+"0","```r
+els_t2_obj <- 
+  els_t2_obj %>% 
+  mutate(
+    sumsev_type_t2 = pmap_dbl(
+      select(., sev_rating_vars_T2),
+      function(...) sum(c(...), na.rm = TRUE)
+    ),
+    z_sumsev_type_t2 = scale(sumsev_type_t2, scale = TRUE),
+    maxsev_t2 = pmap_dbl(
+      select(., sev_rating_vars_T2),
+      function(...) max(c(...), na.rm = TRUE)
+    ),
+    num_type_t2 = pmap_int(
+      select(., sev_rating_vars_T2),
+      function(...) sum((c(...) > 0), na.rm = TRUE)
+    )
+  ) %>% 
+  left_join(els_t2 %>% select(ELS_ID, num_report_t2) %>% unique(), by = \"ELS_ID\")
+```"

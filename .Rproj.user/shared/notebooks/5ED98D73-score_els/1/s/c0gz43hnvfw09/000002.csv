@@ -1,0 +1,22 @@
+"0","```r
+threat_vars_t1 <-
+  els_t1_wf %>% 
+  select(
+    comm_arg_panel_objective_decision_re,
+    comm_inst_panel_objective_decision_re,
+    comm_phys_panel_objective_decision_re,
+    bully_panel_objective_decision_re,
+    thrt_domvio_panel_objective_decision_re,
+    thrt_phys_ab_panel_objective_decision_re,
+    kidnap_panel_objective_decision_re,
+    parent_arg_panel_objective_decision_re,
+    dom_viol_panel_objective_decision_re,
+    war_terr_panel_objective_decision_re,
+    emo_ab_panel_objective_decision_re,
+    phys_ab_panel_objective_decision_re,
+    sex_ab_panel_objective_decision_re,
+    wit_sexab_panel_objective_decision_re, 
+    mug_rob_panel_objective_decision_re
+  ) %>% 
+  names()
+```"

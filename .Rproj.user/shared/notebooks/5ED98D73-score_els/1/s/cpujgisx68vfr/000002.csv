@@ -1,0 +1,18 @@
+"0","```r
+els_t1_early_7 <- 
+  els_t1_early_7 %>% 
+  mutate(
+    sumsev_type_7 = pmap_dbl(
+      select(., sev_rating_vars_7),
+      function(...) sum(c(...), na.rm = TRUE)
+    ),
+    maxsev_7 = pmap_dbl(
+      select(., sev_rating_vars_7),
+      function(...) max(c(...), na.rm = TRUE)
+    ),
+    num_type_7 = pmap_int(
+      select(., sev_rating_vars_7),
+      function(...) sum((c(...) > 0), na.rm = TRUE)
+    )
+  ) 
+```"

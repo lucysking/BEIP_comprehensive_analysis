@@ -1,0 +1,16 @@
+"1","
+ Number of subjects = 1155     Number of Judges =  5
+"
+"0","```r
+#T2
+els_t2_icc <-
+  els_t2 %>% 
+  select(
+    Panel_Objective_Rating_1_natalie:Panel_Objective_Rating_5_tiffany
+  )
+psych::ICC(els_t2_icc)
+```"
+"1","Call: psych::ICC(x = els_t2_icc)
+
+Intraclass correlation coefficients 
+"

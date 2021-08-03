@@ -1,0 +1,43 @@
+"0","```r
+# pregnancy
+crisys %>% 
+  filter(timepoint == \"pregnancy\") %>% 
+  select(
+    crisys_2,
+    crisys_3,
+    crisys_5:crisys_22,
+    crisys_24,
+    crisys_27:crisys_30,
+    crisys_32:crisys_54,
+    crisys_58:crisys_67,
+    crisys_70:crisys_71,
+    #variables too missing to compute
+    -crisys_9,
+    -crisys_36,
+    -crisys_42,
+    -crisys_61,
+    -crisys_24,
+    -crisys_47,
+    -crisys_52,
+    -crisys_66,
+    -crisys_70,
+    -crisys_71
+  ) %>% 
+  psych::alpha()
+```"
+"1","Matrix was not positive definite, smoothing was doneSome items were negatively correlated with the total scale and probably 
+should be reversed.  
+To do this, run the function again with the 'check.keys=TRUE' option
+"
+"1","Some items ( crisys_7 crisys_12 crisys_22 crisys_30 crisys_32 crisys_33 crisys_34 crisys_38 crisys_39 crisys_40 crisys_41 crisys_43 crisys_44 crisys_45 crisys_46 crisys_49 crisys_50 crisys_51 crisys_53 crisys_62 crisys_63 crisys_65 crisys_67 ) were negatively correlated with the total scale and 
+probably should be reversed.  
+To do this, run the function again with the 'check.keys=TRUE' option
+"
+"1","Matrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was doneMatrix was not positive definite, smoothing was done
+"
+"1","
+Reliability analysis   
+Call: psych::alpha(x = .)
+
+ 
+"

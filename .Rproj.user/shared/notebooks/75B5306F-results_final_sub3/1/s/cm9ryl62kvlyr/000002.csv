@@ -1,0 +1,48 @@
+"0","```r
+# T1 to T2 interval________________________________
+cd_clean_interval <-
+  cd_clean %>% 
+  filter(!is.na(interval_yr))
+
+mod1_test_int <- lmer(
+  scale(cort_clean) ~ 
+    scale(test_clean) * scale(tan_per_cent) +
+    scale(test_clean) * scale(tanner_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean_interval
+)
+
+mod1_test_base_int <- lmer(
+  scale(cort_clean) ~ 
+    scale(test_clean) * scale(tan_per_cent) +
+    scale(test_clean) * scale(tanner_av_t1t2) +
+    scale(interval_yr) +
+    (1 | ELS_ID),
+  data = cd_clean_interval
+)
+
+anova(mod1_test_int, mod1_test_base_int)
+
+# interaction with change in tanner
+
+mod1_test_base_intX1 <- lmer(
+  scale(cort_clean) ~ 
+    scale(test_clean) * scale(tan_per_cent) +
+    scale(test_clean) * scale(tanner_av_t1t2) +
+    scale(tan_per_cent) * interval_yr +
+    (1 | ELS_ID),
+  data = cd_clean_interval
+)
+anova(mod1_test_int, mod1_test_base_intX1)
+
+# interaction with mean tanner
+mod1_test_base_intX2 <- lmer(
+  scale(cort_clean) ~ 
+    scale(test_clean) * scale(tan_per_cent) +
+    scale(test_clean) * scale(tanner_av_t1t2) +
+    scale(tanner_av_t1t2) * interval_yr +
+    (1 | ELS_ID),
+  data = cd_clean_interval
+)
+anova(mod1_test_int, mod1_test_base_intX2)
+```"

@@ -1,0 +1,4 @@
+"0","```r
+everyone %>% 
+  gather(group, mean, c(CAUG_mean, FCG_mean, NIG_mean))
+```"

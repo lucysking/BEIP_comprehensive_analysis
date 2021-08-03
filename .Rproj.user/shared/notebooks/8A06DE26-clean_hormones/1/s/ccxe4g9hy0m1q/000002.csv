@@ -1,0 +1,15 @@
+"0","```r
+hormones_clean <-
+  hormones_clean %>% 
+  group_by(timepoint, male, measure) %>% 
+  mutate_at(
+    vars(rep1_win:mean_win),
+    funs(
+      if_else(. == 0, NA_real_, .)
+    )
+  ) %>% 
+  mutate_at(
+    vars(rep1_win:mean_win),
+    funs(\"log\" = log)
+  ) 
+```"

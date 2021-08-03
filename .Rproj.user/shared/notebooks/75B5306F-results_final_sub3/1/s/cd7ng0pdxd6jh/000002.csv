@@ -1,0 +1,6 @@
+"0","cd_clean %>% "
+"0","  distinct(ELS_ID, inr_t1) %>% "
+"0","  count(inr_t1 < 1) %>% "
+"0","  mutate("
+"0","    prop = n / sum(n)"
+"0","  )"

@@ -1,0 +1,44 @@
+"0","demo_lg_nb <-"
+"0","  read_csv(demo_lg_nb_file) %>% "
+"0","  select("
+"0","    record_id, "
+"0","    demograph_date_preg, "
+"0","    mom_ethnicity:tenth_childsex, "
+"0","    baby_ethnicity:baby_race_describe,"
+"0","    baby_sex,"
+"0","    baby_pob"
+"0","  ) %>% "
+"0","  mutate(record_id = as.numeric(record_id)) %>% "
+"0","  rename(ID = record_id, date = demograph_date_preg) %>% "
+"0","  rename_at("
+"0","    vars(-ID),"
+"0","    funs(paste0(., ""_t2""))"
+"0","  )"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  redcap_event_name = [31mcol_character()[39m,
+  redcap_survey_identifier = [33mcol_logical()[39m,
+  demographics_questionnaire_timestamp = [31mcol_character()[39m,
+  demograph_date_preg = [31mcol_character()[39m,
+  momrace_describe = [31mcol_character()[39m,
+  educ_describe = [33mcol_logical()[39m,
+  employment_explain = [31mcol_character()[39m,
+  mom_pob = [31mcol_character()[39m,
+  mom_native_lang = [31mcol_character()[39m,
+  primarylang = [31mcol_character()[39m,
+  secondlang_type = [31mcol_character()[39m,
+  marital_explain = [33mcol_logical()[39m,
+  partner_educ_describe = [33mcol_logical()[39m,
+  partner_employ_describe = [33mcol_logical()[39m,
+  partner_pob = [31mcol_character()[39m,
+  ppl_in_home_describe = [31mcol_character()[39m,
+  first_childage = [31mcol_character()[39m,
+  third_childage = [31mcol_character()[39m,
+  fourth_childage = [33mcol_logical()[39m,
+  fourth_childsex = [33mcol_logical()[39m
+  # ... with 15 more columns
+)
+"
+"2","See spec(...) for full column specifications.
+"

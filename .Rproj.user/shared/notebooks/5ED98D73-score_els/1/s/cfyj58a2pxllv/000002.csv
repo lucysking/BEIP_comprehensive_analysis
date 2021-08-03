@@ -1,0 +1,61 @@
+"0","```r
+els_all_ratings <-
+  els_t1_wf %>% 
+  select(
+    ELS_ID,
+    sumsev_type_t1:num_report_t1,
+    sumsub_type_t1:sss_t1,
+    sumsev_threat_t1
+  ) %>% 
+  left_join(
+    els_t2_wf %>% 
+      select(
+        ELS_ID,
+        sumsev_type_t2:num_report_t2,
+        sumsub_type_t2:sss_t2,
+        sumsev_threat_t2
+      ),
+    by = \"ELS_ID\"
+  ) %>% 
+  distinct(ELS_ID, sumsev_type_t1, .keep_all = TRUE) %>% 
+  left_join(
+    els_t1t2 %>% 
+      select(
+        ELS_ID,
+        sumsev_type_t1t2:num_report_t1t2,
+        sumsub_type_t1t2:sss_t1t2,
+        sumsev_threat_t1t2,
+        -num_report_t1,
+        -num_report_t2
+      ),
+    by = \"ELS_ID\"
+  ) %>% 
+  left_join(
+    els_t1_early_6 %>% 
+      select(
+        ELS_ID,
+        sumsev_type_6:num_type_6
+      ),
+    by = \"ELS_ID\"
+  ) %>% 
+  left_join(
+    els_t1_early_7 %>% 
+      select(
+        ELS_ID,
+        sumsev_type_7:num_type_7
+      ),
+    by = \"ELS_ID\"
+  ) %>% 
+  left_join(
+    els_t1t2_7 %>% 
+      select(
+        ELS_ID,
+        sumsev_type_7_t1t2:num_type_7_t1t2
+      ),
+    by = \"ELS_ID\"
+  ) %>% 
+  mutate_at(
+    vars(-ELS_ID),
+    as.double
+  )
+```"

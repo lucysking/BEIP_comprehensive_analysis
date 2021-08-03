@@ -1,0 +1,8 @@
+"0","```r
+#Libraries
+library(tidyverse)
+library(metafor)
+
+#Parameters
+everyone_file <- \"~/Box/BEIP/everyone_tidy.csv\"
+```"

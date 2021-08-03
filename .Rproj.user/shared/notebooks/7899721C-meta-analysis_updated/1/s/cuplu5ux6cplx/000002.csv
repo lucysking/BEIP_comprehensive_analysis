@@ -1,0 +1,6 @@
+"0","eeg <-"
+"0","  eeg_data %>% "
+"0","  left_join(eeg_ages, by = c(""ID"", ""wave"")) %>% "
+"0","  filter(ID != ""0"", ID < 800) %>% "
+"0","  unite(measure, measure, eyes, sep = """") "
+"2","Column `ID` has different attributes on LHS and RHS of join"

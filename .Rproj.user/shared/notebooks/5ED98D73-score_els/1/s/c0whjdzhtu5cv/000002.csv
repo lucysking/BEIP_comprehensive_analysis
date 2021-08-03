@@ -1,0 +1,13 @@
+"0","```r
+#T1
+els_t1_icc <-
+  els_t1 %>% 
+  select(
+    Panel_Objective_Rating_1_natalie:Panel_Objective_Rating_5_alex
+  )
+psych::ICC(els_t1_icc)
+```"
+"1","Call: psych::ICC(x = els_t1_icc)
+
+Intraclass correlation coefficients 
+"

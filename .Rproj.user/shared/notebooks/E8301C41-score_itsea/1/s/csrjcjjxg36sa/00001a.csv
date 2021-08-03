@@ -1,0 +1,6 @@
+"0","itsea %>% "
+"0","  select(itsea_activity:itsea_social) %>% "
+"0","  gather(itsea_subscale, score, itsea_activity:itsea_social) %>% "
+"0","  ggplot(aes(score, color = itsea_subscale)) +"
+"0","  geom_freqpoly(bins = 5, size = 2, alpha = 1/2) +"
+"0","  theme_minimal()"

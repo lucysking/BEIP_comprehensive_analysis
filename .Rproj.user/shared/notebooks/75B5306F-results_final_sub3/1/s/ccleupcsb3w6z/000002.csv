@@ -1,0 +1,34 @@
+"0","```r
+sex_diff_tan_plot <-
+  cd_clean %>% 
+  select(tan_per_cent, male, cort_clean:test_clean) %>% 
+  gather(hormone, value, cort_clean:test_clean) %>% 
+  mutate(
+    hormone = recode(
+      hormone,
+      cort_clean = \"log Cortisol\n(µg/dL)\",
+      dhea_clean = \"log DHEA\n(pg/mL)\",
+      test_clean = \"log Testosterone\n(pg/mL)\"
+    )
+  ) %>% 
+  ggplot(aes(tan_per_cent, value, color = male)) +
+  geom_point(alpha = 1/2, size = 1.5) +
+  geom_smooth(method = \"lm\", se = FALSE, size = 1.5) +
+  scale_color_manual(
+    values = c(\"darkred\", \"darkblue\"),
+    labels = c(\"Girls\", \"Boys\")
+  ) +
+  theme_apa(box = TRUE) +
+  labs(
+    color = NULL,
+    x = expression(\"Panel B: \"*Delta*\" Pubertal stage (person-mean-centered)\"),
+    y = NULL
+  ) +
+  facet_wrap(.~hormone, scales = \"free\") 
+sex_diff_tan_plot
+ggsave(
+  \"~/Box/lucy_king_files/ELS/cort_dhea/sexdiff_hormones_tan.png\",
+  width = 7,
+  height = 5
+  )
+```"

@@ -1,0 +1,101 @@
+"0","```r
+# tanner________________________________________________________________________
+contrasts(cd_clean$male) = c(0, 1)
+cort_mod_tan_sex_girls <-
+  lmer(
+    scale(cort_clean) ~
+      scale(tan_per_cent) * male +
+      scale(tanner_av_t1t2) * male +
+      (1|ELS_ID),
+    data = cd_clean
+  )
+summary(cort_mod_tan_sex_girls)
+```"
+"1","Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: scale(cort_clean) ~ scale(tan_per_cent) * male + scale(tanner_av_t1t2) *      male + (1 | ELS_ID)
+   Data: cd_clean
+
+REML criterion at convergence: 689.6
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.5084 -0.5703  0.1231  0.5715  1.8270 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ ELS_ID   (Intercept) 0.2247   0.474   
+ Residual             0.7431   0.862   
+Number of obs: 244, groups:  ELS_ID, 132
+
+Fixed effects:
+                              Estimate Std. Error         df t value Pr(>|t|)  
+(Intercept)                   0.088905   0.097201 127.353804   0.915    0.362  
+scale(tan_per_cent)           0.003315   0.083387 127.286290   0.040    0.968  
+male1                        -0.194846   0.141134 125.077363  -1.381    0.170  
+scale(tanner_av_t1t2)        -0.007914   0.104962 126.533452  -0.075    0.940  
+scale(tan_per_cent):male1     0.279496   0.112070 122.994663   2.494    0.014 *
+male1:scale(tanner_av_t1t2)   0.137882   0.153320 125.918785   0.899    0.370  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) sc(__) male1  s(__12 s(__):
+scl(tn_pr_) -0.060                            
+male1       -0.689  0.041                     
+scl(tn__12) -0.235  0.019  0.162              
+scl(tn__):1  0.045 -0.744 -0.051 -0.014       
+ml1:s(__12)  0.161 -0.013 -0.147 -0.685  0.011
+"
+"0","```r
+#confint.merMod(cort_mod_tan_sex_girls, method = \"boot\")
+contrasts(cd_clean$male) = c(1, 0)
+cort_mod_tan_sex_boys <-
+  lmer(
+    scale(cort_clean) ~
+      scale(tan_per_cent) * male +
+      scale(tanner_av_t1t2) * male +
+      (1|ELS_ID),
+    data = cd_clean
+  )
+summary(cort_mod_tan_sex_boys)
+```"
+"1","Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: scale(cort_clean) ~ scale(tan_per_cent) * male + scale(tanner_av_t1t2) *      male + (1 | ELS_ID)
+   Data: cd_clean
+
+REML criterion at convergence: 689.6
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.5084 -0.5703  0.1231  0.5715  1.8270 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ ELS_ID   (Intercept) 0.2247   0.474   
+ Residual             0.7431   0.862   
+Number of obs: 244, groups:  ELS_ID, 132
+
+Fixed effects:
+                             Estimate Std. Error        df t value Pr(>|t|)    
+(Intercept)                  -0.10594    0.10233 123.05634  -1.035  0.30255    
+scale(tan_per_cent)           0.28281    0.07488 117.86612   3.777  0.00025 ***
+male1                         0.19485    0.14113 125.07736   1.381  0.16987    
+scale(tanner_av_t1t2)         0.12997    0.11176 125.37894   1.163  0.24707    
+scale(tan_per_cent):male1    -0.27950    0.11207 122.99466  -2.494  0.01396 *  
+male1:scale(tanner_av_t1t2)  -0.13788    0.15332 125.91878  -0.899  0.37021    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) sc(__) male1  s(__12 s(__):
+scl(tn_pr_) -0.042                            
+male1       -0.725  0.030                     
+scl(tn__12) -0.069  0.004  0.050              
+scl(tn__):1  0.028 -0.668 -0.051 -0.002       
+ml1:s(__12)  0.050 -0.003 -0.147 -0.729  0.011
+"
+"0","```r
+confint.merMod(cort_mod_tan_sex_boys, method = \"boot\")
+```"
+"1","Computing bootstrap confidence intervals ...
+"

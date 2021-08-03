@@ -1,0 +1,60 @@
+"0","```r
+ratings_descriptives <- 
+  els_all_ratings %>% 
+  summarise_at(
+    vars(-ELS_ID),
+    funs(sum(!is.na(.)))
+  ) %>% 
+  gather(variable, n) %>% 
+  left_join(
+    els_all_ratings %>% 
+      summarise_at(
+        vars(-ELS_ID),
+        funs(mean),
+        na.rm = TRUE
+      ) %>% 
+      gather(variable, mean),
+    by = \"variable\"
+  ) %>% 
+  left_join(
+    els_all_ratings %>% 
+      summarise_at(
+        vars(-ELS_ID),
+        funs(median),
+        na.rm = TRUE
+      ) %>% 
+      gather(variable, median),
+    by = \"variable\"
+  ) %>% 
+  left_join(
+    els_all_ratings %>% 
+      summarise_at(
+        vars(-ELS_ID),
+        funs(sd),
+        na.rm = TRUE
+      ) %>% 
+      gather(variable, sd),
+    by = \"variable\"
+  ) %>% 
+  left_join( 
+    els_all_ratings %>% 
+      summarise_at(
+        vars(-ELS_ID),
+        funs(min),
+        na.rm = TRUE
+      ) %>% 
+      gather(variable, min),
+    by = \"variable\"
+  ) %>% 
+  left_join( 
+    els_all_ratings %>% 
+      summarise_at(
+        vars(-ELS_ID),
+        funs(max),
+        na.rm = TRUE
+      ) %>% 
+      gather(variable, max),
+    by = \"variable\"
+  ) 
+knitr::kable(ratings_descriptives, digits = 2)
+```"

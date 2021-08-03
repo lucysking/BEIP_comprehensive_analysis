@@ -1,0 +1,29 @@
+"0","```r
+everyone %>% 
+  ggplot(aes(smd)) +
+  geom_histogram(bins = 30) +
+  labs(
+    x = \"standardized mean difference\"
+  )
+
+everyone %>% 
+  ggplot(aes(smd, fill = construct, color = construct)) +
+  geom_density(alpha = 1/2) +
+  labs(
+    x = \"standardized mean difference\"
+  )
+
+everyone %>% 
+  ggplot(aes(smd,  fill = construct, color = wave)) +
+  geom_density(alpha = 1/2) +
+  labs(
+    x = \"standardized mean difference\"
+  )
+
+everyone %>% 
+  ggplot(aes(smd,  fill = informant, color = informant)) +
+  geom_density(alpha = 1/2) +
+  labs(
+    x = \"standardized mean difference\"
+  )
+```"

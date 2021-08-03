@@ -1,0 +1,3 @@
+"0","```r
+m18$ecsa_tot <- rowMeans(subset(m18, select = c(ecsa_1, ecsa_2, ecsa_3, ecsa_4, ecsa_5, ecsa_6, ecsa_7, ecsa_8, ecsa_9, ecsa_10, ecsa_11, ecsa_12, ecsa_13, ecsa_14, ecsa_15, ecsa_16, ecsa_17, ecsa_18, ecsa_19, ecsa_20, ecsa_21, ecsa_22, ecsa_23, ecsa_24, ecsa_25, ecsa_26, ecsa_27, ecsa_28, ecsa_29, ecsa_30, ecsa_31, ecsa_32, ecsa_33, ecsa_34, ecsa_35, ecsa_36)), na.rm = T)*36
+```"

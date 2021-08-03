@@ -1,0 +1,50 @@
+"0","```r
+cd_clean_time <-
+  cd_clean %>% 
+  filter(!is.na(timecoll_av_t1t2))
+
+mod2_test_time_fit <-
+ lmer(
+    cort_clean ~
+      test_per_cent +
+      test_av_t1t2 +
+      (1 | ELS_ID),
+    data = cd_clean_time
+  )
+
+mod2_test_time <-
+ lmer(
+    cort_clean ~
+      test_per_cent +
+      test_av_t1t2 +
+      timecoll_av_t1t2 +
+      (1 | ELS_ID),
+    data = cd_clean_time
+  )
+
+anova(mod2_test_time_fit, mod2_test_time)
+
+mod2_test_timeX1 <-
+ lmer(
+    cort_clean ~
+      test_per_cent * timecoll_av_t1t2 +
+      test_av_t1t2 +
+      timecoll_av_t1t2 +
+      (1 | ELS_ID),
+    data = cd_clean_time
+  )
+
+anova(mod2_test_time_fit, mod2_test_timeX1)
+
+mod2_test_timeX2 <-
+ lmer(
+    cort_clean ~
+      test_per_cent +
+      test_av_t1t2 * timecoll_av_t1t2 +
+      timecoll_av_t1t2 +
+      (1 | ELS_ID),
+    data = cd_clean_time
+  )
+
+anova(mod2_test_time_fit, mod2_test_timeX2)
+```"

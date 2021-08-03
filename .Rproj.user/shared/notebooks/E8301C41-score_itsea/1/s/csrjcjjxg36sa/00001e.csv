@@ -1,0 +1,7 @@
+"0","itsea %>% "
+"0","  select(itsea_activity:itsea_social) %>% "
+"0","  gather(itsea_subscale, score, itsea_activity:itsea_social) %>% "
+"0","  ggplot(aes(score)) +"
+"0","  geom_histogram(bins = 12) +"
+"0","  theme_minimal() +"
+"0","  facet_wrap(.~itsea_subscale)"

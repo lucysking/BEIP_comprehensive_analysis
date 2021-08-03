@@ -1,0 +1,7 @@
+"0","cd_wf_clean %>% "
+"0","  ggplot(aes(interval_yr)) +"
+"0","  geom_histogram() +"
+"0","  scale_x_continuous(breaks = seq.int(1, 3, .25)) +"
+"0","  labs("
+"0","    x = ""T1 to T2 interval (years)"""
+"0","  )"

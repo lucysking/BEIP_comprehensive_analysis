@@ -1,0 +1,8 @@
+"0","```r
+sev_rating_vars_7 <-
+  els_t1_early_7 %>% 
+  select(
+    ends_with(\"panel_objective_decision_re\")
+  ) %>% 
+  names()
+```"

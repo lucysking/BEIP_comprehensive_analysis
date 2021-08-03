@@ -1,0 +1,224 @@
+"0","```r
+mod2_threat_girls <-
+ lmer(
+    scale(cort_clean) ~
+      scale(dhea_per_cent) * scale(sumsev_threat_t1) +
+      scale(dhea_av_t1t2) * scale(sumsev_threat_t1) +
+      (1 | ELS_ID),
+    data = cd_clean_girls
+  )
+summary(mod2_threat_girls)
+```"
+"1","Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: scale(cort_clean) ~ scale(dhea_per_cent) * scale(sumsev_threat_t1) +  
+    scale(dhea_av_t1t2) * scale(sumsev_threat_t1) + (1 | ELS_ID)
+   Data: cd_clean_girls
+
+REML criterion at convergence: 364.6
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.38209 -0.56675 -0.01006  0.58978  1.74404 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ ELS_ID   (Intercept) 0.1908   0.4368  
+ Residual             0.6736   0.8208  
+Number of obs: 132, groups:  ELS_ID, 72
+
+Fixed effects:
+                                              Estimate Std. Error        df t value Pr(>|t|)    
+(Intercept)                                   0.006990   0.088694 65.690218   0.079 0.937422    
+scale(dhea_per_cent)                          0.230829   0.075612 67.048811   3.053 0.003249 ** 
+scale(sumsev_threat_t1)                      -0.007694   0.091763 64.150751  -0.084 0.933440    
+scale(dhea_av_t1t2)                           0.353129   0.099552 72.715607   3.547 0.000686 ***
+scale(dhea_per_cent):scale(sumsev_threat_t1) -0.176580   0.077109 63.505476  -2.290 0.025354 *  
+scale(sumsev_threat_t1):scale(dhea_av_t1t2)  -0.029030   0.096546 63.028165  -0.301 0.764645    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) sc(__) sc(__1) s(__12 s(__):
+scl(dh_pr_) -0.033                             
+scl(sms__1)  0.019  0.006                      
+scl(dh__12) -0.025  0.060 -0.053               
+s(__):(__1)  0.016 -0.235  0.011   0.011       
+s(__1):(__1 -0.039  0.024  0.149  -0.053  0.000
+"
+"0","```r
+#confint.merMod(mod2_threat_girls, method = \"boot\")
+# higher threat severity in girls________________________________________________
+mod2_threat_girls_hi <-
+   lmer(
+    cort_clean ~
+      scale(dhea_per_cent, scale = FALSE) * I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE)) +
+      scale(dhea_av_t1t2, scale = FALSE) * I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE)) +
+      (1 | ELS_ID),
+    data = cd_clean_girls
+  )
+summary(mod2_threat_girls_hi)
+```"
+"1","Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: cort_clean ~ scale(dhea_per_cent, scale = FALSE) * I(scale(sumsev_threat_t1,  
+    scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE)) + scale(dhea_av_t1t2,  
+    scale = FALSE) * I(scale(sumsev_threat_t1, scale = FALSE) -  
+    sd(sumsev_threat_t1, na.rm = TRUE)) + (1 | ELS_ID)
+   Data: cd_clean_girls
+
+REML criterion at convergence: 244.8
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.38209 -0.56675 -0.01006  0.58978  1.74404 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ ELS_ID   (Intercept) 0.0739   0.2718  
+ Residual             0.2609   0.5108  
+Number of obs: 132, groups:  ELS_ID, 72
+
+Fixed effects:
+                                                                                                                    Estimate
+(Intercept)                                                                                                        -1.483702
+scale(dhea_per_cent, scale = FALSE)                                                                                 0.086336
+I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE))                                     -0.002274
+scale(dhea_av_t1t2, scale = FALSE)                                                                                  0.260522
+scale(dhea_per_cent, scale = FALSE):I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE)) -0.133444
+I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE)):scale(dhea_av_t1t2, scale = FALSE)  -0.011081
+                                                                                                                   Std. Error
+(Intercept)                                                                                                          0.080178
+scale(dhea_per_cent, scale = FALSE)                                                                                  0.150330
+I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE))                                       0.027119
+scale(dhea_av_t1t2, scale = FALSE)                                                                                   0.108501
+scale(dhea_per_cent, scale = FALSE):I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE))   0.058273
+I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE)):scale(dhea_av_t1t2, scale = FALSE)    0.036852
+                                                                                                                          df
+(Intercept)                                                                                                        64.806814
+scale(dhea_per_cent, scale = FALSE)                                                                                62.719645
+I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE))                                     64.150751
+scale(dhea_av_t1t2, scale = FALSE)                                                                                 67.309140
+scale(dhea_per_cent, scale = FALSE):I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE)) 63.505476
+I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE)):scale(dhea_av_t1t2, scale = FALSE)  63.028165
+                                                                                                                   t value
+(Intercept)                                                                                                        -18.505
+scale(dhea_per_cent, scale = FALSE)                                                                                  0.574
+I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE))                                      -0.084
+scale(dhea_av_t1t2, scale = FALSE)                                                                                   2.401
+scale(dhea_per_cent, scale = FALSE):I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE))  -2.290
+I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE)):scale(dhea_av_t1t2, scale = FALSE)   -0.301
+                                                                                                                              Pr(>|t|)
+(Intercept)                                                                                                        <0.0000000000000002
+scale(dhea_per_cent, scale = FALSE)                                                                                             0.5678
+I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE))                                                  0.9334
+scale(dhea_av_t1t2, scale = FALSE)                                                                                              0.0191
+scale(dhea_per_cent, scale = FALSE):I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE))              0.0254
+I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE)):scale(dhea_av_t1t2, scale = FALSE)               0.7646
+                                                                                                                      
+(Intercept)                                                                                                        ***
+scale(dhea_per_cent, scale = FALSE)                                                                                   
+I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE))                                        
+scale(dhea_av_t1t2, scale = FALSE)                                                                                 *  
+scale(dhea_per_cent, scale = FALSE):I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE)) *  
+I(scale(sumsev_threat_t1, scale = FALSE) - sd(sumsev_threat_t1, na.rm = TRUE)):scale(dhea_av_t1t2, scale = FALSE)     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+             (Intr) s(__,s=F Is=F-sn=T s(__1s=F ss=Fs=F-sn=T
+s(__,s=FALS  0.001                                          
+I((s=F-sn=T  0.725  0.014                                   
+s(__12,s=FA  0.016  0.056    0.068                          
+ss=Fs=F-sn=T 0.019  0.628    0.011     0.009                
+Is=F-sn=Ts=F 0.079  0.020    0.149     0.676    0.000       
+"
+"0","```r
+mod2_threat_girls_hi_int <- summary(mod2_threat_girls_hi)$coefficients[1]
+mod2_threat_girls_hi_slp <- summary(mod2_threat_girls_hi)$coefficients[2]
+# lower threat severity in girls________________________________________________
+mod2_threat_girls_lo <-
+   lmer(
+    cort_clean ~
+      scale(dhea_per_cent, scale = FALSE) * I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE)) +
+      scale(dhea_av_t1t2, scale = FALSE) * I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE)) +
+      (1 | ELS_ID),
+    data = cd_clean_girls
+  )
+summary(mod2_threat_girls_lo)
+```"
+"1","Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: cort_clean ~ scale(dhea_per_cent, scale = FALSE) * I(scale(sumsev_threat_t1,  
+    scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE)) + scale(dhea_av_t1t2,  
+    scale = FALSE) * I(scale(sumsev_threat_t1, scale = FALSE) +  
+    sd(sumsev_threat_t1, na.rm = TRUE)) + (1 | ELS_ID)
+   Data: cd_clean_girls
+
+REML criterion at convergence: 244.8
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.38209 -0.56675 -0.01006  0.58978  1.74404 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ ELS_ID   (Intercept) 0.0739   0.2718  
+ Residual             0.2609   0.5108  
+Number of obs: 132, groups:  ELS_ID, 72
+
+Fixed effects:
+                                                                                                                    Estimate
+(Intercept)                                                                                                        -1.474125
+scale(dhea_per_cent, scale = FALSE)                                                                                 0.648381
+I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE))                                     -0.002274
+scale(dhea_av_t1t2, scale = FALSE)                                                                                  0.307192
+scale(dhea_per_cent, scale = FALSE):I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE)) -0.133444
+I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE)):scale(dhea_av_t1t2, scale = FALSE)  -0.011081
+                                                                                                                   Std. Error
+(Intercept)                                                                                                          0.078672
+scale(dhea_per_cent, scale = FALSE)                                                                                  0.190999
+I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE))                                       0.027119
+scale(dhea_av_t1t2, scale = FALSE)                                                                                   0.114371
+scale(dhea_per_cent, scale = FALSE):I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE))   0.058273
+I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE)):scale(dhea_av_t1t2, scale = FALSE)    0.036852
+                                                                                                                          df
+(Intercept)                                                                                                        64.976305
+scale(dhea_per_cent, scale = FALSE)                                                                                66.815857
+I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE))                                     64.150751
+scale(dhea_av_t1t2, scale = FALSE)                                                                                 68.362770
+scale(dhea_per_cent, scale = FALSE):I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE)) 63.505476
+I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE)):scale(dhea_av_t1t2, scale = FALSE)  63.028165
+                                                                                                                   t value
+(Intercept)                                                                                                        -18.738
+scale(dhea_per_cent, scale = FALSE)                                                                                  3.395
+I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE))                                      -0.084
+scale(dhea_av_t1t2, scale = FALSE)                                                                                   2.686
+scale(dhea_per_cent, scale = FALSE):I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE))  -2.290
+I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE)):scale(dhea_av_t1t2, scale = FALSE)   -0.301
+                                                                                                                               Pr(>|t|)
+(Intercept)                                                                                                        < 0.0000000000000002
+scale(dhea_per_cent, scale = FALSE)                                                                                             0.00116
+I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE))                                                  0.93344
+scale(dhea_av_t1t2, scale = FALSE)                                                                                              0.00907
+scale(dhea_per_cent, scale = FALSE):I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE))              0.02535
+I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE)):scale(dhea_av_t1t2, scale = FALSE)               0.76464
+                                                                                                                      
+(Intercept)                                                                                                        ***
+scale(dhea_per_cent, scale = FALSE)                                                                                ** 
+I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE))                                        
+scale(dhea_av_t1t2, scale = FALSE)                                                                                 ** 
+scale(dhea_per_cent, scale = FALSE):I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE)) *  
+I(scale(sumsev_threat_t1, scale = FALSE) + sd(sumsev_threat_t1, na.rm = TRUE)):scale(dhea_av_t1t2, scale = FALSE)     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+             (Intr) s(__,s=F Is=F+sn=T s(__1s=F ss=Fs=F+sn=T
+s(__,s=FALS  -0.020                                         
+I((s=F+sn=T  -0.713 -0.003                                  
+s(__12,s=FA   0.106  0.011   -0.138                         
+ss=Fs=F+sn=T  0.003 -0.791    0.011     0.008               
+Is=F+sn=Ts=F -0.135  0.015    0.149    -0.715    0.000      
+"
+"0","```r
+mod2_threat_girls_lo_int <- summary(mod2_threat_girls_lo)$coefficients[1]
+mod2_threat_girls_lo_slp <- summary(mod2_threat_girls_lo)$coefficients[2]
+```"

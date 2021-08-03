@@ -1,0 +1,4 @@
+"0","```r
+#sex differences interval
+t_test_interval <- t.test(cd_clean$interval_yr ~ cd_clean$male)
+```"

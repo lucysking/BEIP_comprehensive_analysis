@@ -1,0 +1,49 @@
+"0","```r
+# collection time_________________________________
+cd_clean_time <-
+  cd_clean %>% 
+  filter(!is.na(timecoll_av_t1t2))
+
+mod1_test_time <- lmer(
+  scale(cort_clean) ~ 
+    scale(test_clean) * scale(tan_per_cent) +
+    scale(test_clean) * scale(tanner_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean_time
+)
+
+mod1_test_base_time <- lmer(
+  scale(cort_clean) ~ 
+    scale(test_clean) * scale(tan_per_cent) +
+    scale(test_clean) * scale(tanner_av_t1t2) +
+    scale(timecoll_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean_time
+)
+
+anova(mod1_test_time, mod1_test_base_time)
+
+# interaction with change in tanner
+
+mod1_test_base_timeX1 <- lmer(
+  scale(cort_clean) ~ 
+    scale(test_clean) * scale(tan_per_cent) +
+    scale(test_clean) * scale(tanner_av_t1t2) +
+    tan_per_cent * scale(timecoll_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean_time
+)
+anova(mod1_test_time, mod1_test_base_timeX1)
+
+# interaction with mean tanner
+
+mod1_test_base_timeX2 <- lmer(
+  scale(cort_clean) ~ 
+    scale(test_clean) * scale(tan_per_cent) +
+    scale(test_clean) * scale(tanner_av_t1t2) +
+    scale(tanner_av_t1t2) * scale(timecoll_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean_time
+)
+anova(mod1_test_time, mod1_test_base_timeX2)
+```"

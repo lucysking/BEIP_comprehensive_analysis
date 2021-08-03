@@ -1,0 +1,13 @@
+"0","```r
+plot_grid(
+  plot_mod2,
+  threat_legend,
+  rows = 2,
+  rel_heights = c(5, 1)
+)
+```"
+"1","Argument 'rows' is deprecated. Use 'nrow' instead.
+"
+"0","```r
+ggsave(\"~/Box/lucy_king_files/ELS/cort_dhea/hormones_cort_threat_sex.png\", width = 12, height = 12)
+```"

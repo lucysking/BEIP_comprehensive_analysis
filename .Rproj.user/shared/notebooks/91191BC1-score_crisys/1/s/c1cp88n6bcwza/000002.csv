@@ -1,0 +1,24 @@
+"0","```r
+crisys %>% 
+  filter(timepoint == \"pregnancy\") %>% 
+  select(
+    crisys_ses_vars,
+    #variables too missing to compute
+    -crisys_9,
+    -crisys_66,
+    -crisys_70
+  ) %>% 
+  psych::alpha()
+```"
+"1","Matrix was not positive definite, smoothing was doneSome items were negatively correlated with the total scale and probably 
+should be reversed.  
+To do this, run the function again with the 'check.keys=TRUE' option
+"
+"1","Some items ( crisys_12 ) were negatively correlated with the total scale and 
+probably should be reversed.  
+To do this, run the function again with the 'check.keys=TRUE' option
+Reliability analysis   
+Call: psych::alpha(x = .)
+
+ 
+"

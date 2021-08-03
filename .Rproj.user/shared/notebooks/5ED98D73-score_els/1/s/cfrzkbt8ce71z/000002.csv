@@ -1,0 +1,47 @@
+"0","```r
+els_t1t2_7 <-
+  els_t1 %>% 
+  select(
+    ELS_ID,
+    event_domain_re,
+    age_onset = Age_onset,
+    panel_objective_decision_re
+  ) %>% 
+  group_by(ELS_ID, event_domain_re) %>% 
+  filter(
+    panel_objective_decision_re == max(
+      panel_objective_decision_re, na.rm = TRUE
+    ),
+    age_onset >= 6
+  ) %>% 
+  distinct(event_domain_re, panel_objective_decision_re) %>% 
+  gather(key1, value, panel_objective_decision_re) %>% 
+  mutate(
+    timepoint = \"T1\"
+  ) %>% 
+  bind_rows(
+    els_t2 %>% 
+      select(
+        ELS_ID,
+        event_domain_re,
+        age_onset = Age_onset,
+        age_offset = Age_offset,
+        panel_objective_decision_re
+      ) %>% 
+      group_by(ELS_ID, event_domain_re) %>% 
+      filter(
+        panel_objective_decision_re == max(
+          panel_objective_decision_re, na.rm = TRUE
+        )
+      ) %>% 
+      distinct(event_domain_re, panel_objective_decision_re) %>% 
+      gather(key1, value, panel_objective_decision_re) %>% 
+      mutate(timepoint = \"T2\")
+  ) %>% 
+  unite(key2, event_domain_re, key1, sep = \"_\") %>% 
+  unite(key3, timepoint, key2, sep = \"_\") %>% 
+  spread(key3, value) %>% 
+  ungroup()
+```"
+"1","no non-missing arguments to max; returning -Infno non-missing arguments to max; returning -Infno non-missing arguments to max; returning -Infno non-missing arguments to max; returning -Infno non-missing arguments to max; returning -Inf
+"

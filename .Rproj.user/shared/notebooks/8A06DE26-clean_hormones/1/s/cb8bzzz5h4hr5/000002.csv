@@ -1,0 +1,25 @@
+"0","```r
+hormones_clean <-
+  hormones %>% 
+  group_by(timepoint, male, measure) %>% 
+  mutate_at(
+    vars(
+      rep1:mean
+      ),
+    funs(\"win\" = winsorize), product = 3
+  ) %>% 
+  ungroup()
+```"
+"1","funs() is soft deprecated as of dplyr 0.8.0
+Please use a list of either functions or lambdas: 
+
+  # Simple named list: 
+  list(mean = mean, median = median)
+
+  # Auto named with `tibble::lst()`: 
+  tibble::lst(mean, median)
+
+  # Using lambdas
+  list(~ mean(., trim = .2), ~ median(., na.rm = TRUE))
+[90mThis warning is displayed once per session.[39m
+"

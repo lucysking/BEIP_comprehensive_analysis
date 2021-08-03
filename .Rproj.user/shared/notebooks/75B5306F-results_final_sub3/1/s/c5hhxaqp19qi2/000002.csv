@@ -1,0 +1,88 @@
+"0","```r
+# bmi T1______________________________________
+cd_clean_bmi <-
+  cd_clean %>% 
+  filter(!is.na(bmi_t1))
+mod1_bmi <- lmer(
+  scale(cort_clean) ~ 
+    scale(dhea_clean) * scale(tan_per_cent) +
+    scale(dhea_clean) * scale(tanner_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean_bmi
+)
+mod1_base_bmi <- lmer(
+  scale(cort_clean) ~ 
+    scale(dhea_clean) * scale(tan_per_cent) +
+    scale(dhea_clean) * scale(tanner_av_t1t2) +
+    scale(bmi_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean_bmi
+)
+    
+anova(mod1_bmi, mod1_base_bmi)
+```"
+"1","refitting model(s) with ML (instead of REML)
+"
+"1","Data: cd_clean_bmi
+Models:
+mod1_bmi: scale(cort_clean) ~ scale(dhea_clean) * scale(tan_per_cent) + 
+mod1_bmi:     scale(dhea_clean) * scale(tanner_av_t1t2) + (1 | ELS_ID)
+mod1_base_bmi: scale(cort_clean) ~ scale(dhea_clean) * scale(tan_per_cent) + 
+mod1_base_bmi:     scale(dhea_clean) * scale(tanner_av_t1t2) + scale(bmi_av_t1t2) + 
+mod1_base_bmi:     (1 | ELS_ID)
+              Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)
+mod1_bmi       8 615.29 643.03 -299.64   599.29                         
+mod1_base_bmi  9 615.21 646.43 -298.61   597.21 2.0753      1     0.1497
+"
+"0","```r
+# interaction with change in tanner
+mod1_base_bmiX1 <- lmer(
+  scale(cort_clean) ~ 
+    scale(dhea_clean) * scale(tan_per_cent) +
+    scale(dhea_clean) * scale(tanner_av_t1t2) +
+    scale(tan_per_cent) * scale(bmi_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean_bmi
+)
+    
+anova(mod1_bmi, mod1_base_bmiX1)
+```"
+"1","refitting model(s) with ML (instead of REML)
+"
+"1","Data: cd_clean_bmi
+Models:
+mod1_bmi: scale(cort_clean) ~ scale(dhea_clean) * scale(tan_per_cent) + 
+mod1_bmi:     scale(dhea_clean) * scale(tanner_av_t1t2) + (1 | ELS_ID)
+mod1_base_bmiX1: scale(cort_clean) ~ scale(dhea_clean) * scale(tan_per_cent) + 
+mod1_base_bmiX1:     scale(dhea_clean) * scale(tanner_av_t1t2) + scale(tan_per_cent) * 
+mod1_base_bmiX1:     scale(bmi_av_t1t2) + (1 | ELS_ID)
+                Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)
+mod1_bmi         8 615.29 643.03 -299.64   599.29                         
+mod1_base_bmiX1 10 615.58 650.26 -297.79   595.58 3.7121      2     0.1563
+"
+"0","```r
+# interaction with mean tanner
+mod1_base_bmiX2 <- lmer(
+  scale(cort_clean) ~ 
+    scale(dhea_clean) * scale(tan_per_cent) +
+    scale(dhea_clean) * scale(tanner_av_t1t2) +
+    scale(tanner_av_t1t2) * scale(bmi_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean_bmi
+)
+    
+anova(mod1_bmi, mod1_base_bmiX2)
+```"
+"1","refitting model(s) with ML (instead of REML)
+"
+"1","Data: cd_clean_bmi
+Models:
+mod1_bmi: scale(cort_clean) ~ scale(dhea_clean) * scale(tan_per_cent) + 
+mod1_bmi:     scale(dhea_clean) * scale(tanner_av_t1t2) + (1 | ELS_ID)
+mod1_base_bmiX2: scale(cort_clean) ~ scale(dhea_clean) * scale(tan_per_cent) + 
+mod1_base_bmiX2:     scale(dhea_clean) * scale(tanner_av_t1t2) + scale(tanner_av_t1t2) * 
+mod1_base_bmiX2:     scale(bmi_av_t1t2) + (1 | ELS_ID)
+                Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)
+mod1_bmi         8 615.29 643.03 -299.64   599.29                         
+mod1_base_bmiX2 10 617.17 651.85 -298.58   597.17 2.1203      2     0.3464
+"

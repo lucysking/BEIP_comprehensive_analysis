@@ -1,0 +1,76 @@
+"0","```r
+# age________________________________________
+mod1_test_age <- lmer(
+  scale(cort_clean) ~ 
+    scale(test_clean) * scale(tan_per_cent) +
+    scale(test_clean) * scale(tanner_av_t1t2) +
+    scale(age_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean
+)
+anova(mod1_test_base, mod1_test_age)
+
+```"
+"1","refitting model(s) with ML (instead of REML)
+"
+"1","Data: cd_clean
+Models:
+mod1_test_base: scale(cort_clean) ~ scale(test_clean) * scale(tan_per_cent) + 
+mod1_test_base:     scale(test_clean) * scale(tanner_av_t1t2) + (1 | ELS_ID)
+mod1_test_age: scale(cort_clean) ~ scale(test_clean) * scale(tan_per_cent) + 
+mod1_test_age:     scale(test_clean) * scale(tanner_av_t1t2) + scale(age_av_t1t2) + 
+mod1_test_age:     (1 | ELS_ID)
+               Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)
+mod1_test_base  8 649.98 677.96 -316.99   633.98                         
+mod1_test_age   9 651.11 682.59 -316.56   633.11 0.8726      1     0.3502
+"
+"0","```r
+# interaction with change in tanner
+mod1_test_ageX1 <- lmer(
+  scale(cort_clean) ~ 
+    scale(test_clean) * scale(tan_per_cent) +
+    scale(test_clean) * scale(tanner_av_t1t2) +
+    scale(tan_per_cent) * scale(age_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean
+)
+anova(mod1_test_base, mod1_test_ageX1)
+```"
+"1","refitting model(s) with ML (instead of REML)
+"
+"1","Data: cd_clean
+Models:
+mod1_test_base: scale(cort_clean) ~ scale(test_clean) * scale(tan_per_cent) + 
+mod1_test_base:     scale(test_clean) * scale(tanner_av_t1t2) + (1 | ELS_ID)
+mod1_test_ageX1: scale(cort_clean) ~ scale(test_clean) * scale(tan_per_cent) + 
+mod1_test_ageX1:     scale(test_clean) * scale(tanner_av_t1t2) + scale(tan_per_cent) * 
+mod1_test_ageX1:     scale(age_av_t1t2) + (1 | ELS_ID)
+                Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)
+mod1_test_base   8 649.98 677.96 -316.99   633.98                         
+mod1_test_ageX1 10 651.14 686.11 -315.57   631.14 2.8426      2     0.2414
+"
+"0","```r
+# interaction with mean tanner
+mod1_test_ageX2 <- lmer(
+  scale(cort_clean) ~ 
+    scale(test_clean) * scale(tan_per_cent) +
+    scale(test_clean) * scale(tanner_av_t1t2) +
+    scale(tanner_av_t1t2) * scale(age_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean
+)
+anova(mod1_test_base, mod1_test_ageX2)
+```"
+"1","refitting model(s) with ML (instead of REML)
+"
+"1","Data: cd_clean
+Models:
+mod1_test_base: scale(cort_clean) ~ scale(test_clean) * scale(tan_per_cent) + 
+mod1_test_base:     scale(test_clean) * scale(tanner_av_t1t2) + (1 | ELS_ID)
+mod1_test_ageX2: scale(cort_clean) ~ scale(test_clean) * scale(tan_per_cent) + 
+mod1_test_ageX2:     scale(test_clean) * scale(tanner_av_t1t2) + scale(tanner_av_t1t2) * 
+mod1_test_ageX2:     scale(age_av_t1t2) + (1 | ELS_ID)
+                Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)
+mod1_test_base   8 649.98 677.96 -316.99   633.98                         
+mod1_test_ageX2 10 653.11 688.08 -316.56   633.11 0.8734      2     0.6462
+"

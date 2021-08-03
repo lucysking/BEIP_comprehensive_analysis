@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1591627939474.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1001913212",
+    "id" : "8C9819AD",
+    "lastKnownWriteTime" : 1587002906,
+    "last_content_update" : 1596571541289,
+    "path" : "~/Desktop/BEIP/meta-analysis/meta-analysis_updated.Rmd",
+    "project_path" : "meta-analysis_updated.Rmd",
+    "properties" : {
+        "cursorPosition" : "688,14",
+        "scrollLine" : "680",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

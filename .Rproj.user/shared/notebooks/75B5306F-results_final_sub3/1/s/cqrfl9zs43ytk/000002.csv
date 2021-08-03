@@ -1,0 +1,12 @@
+"0","```r
+mod2_test_boys <-
+ lmer(
+    cort_clean ~
+      test_per_cent +
+      test_av_t1t2 +
+      (1 | ELS_ID),
+    data = cd_clean_boys
+  )
+summary(mod2_test_boys)
+#confint.merMod(mod2_test_boys, method = \"boot\")
+```"

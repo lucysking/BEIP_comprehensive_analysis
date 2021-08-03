@@ -1,0 +1,41 @@
+"0","```r
+mod2_test_base <-
+ lmer(
+    scale(cort_clean) ~
+      scale(test_per_cent) +
+      scale(test_av_t1t2) +
+      (1 | ELS_ID),
+    data = cd_clean
+  )
+summary(mod2_test_base)
+
+```"
+"1","Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: scale(cort_clean) ~ scale(test_per_cent) + scale(test_av_t1t2) +      (1 | ELS_ID)
+   Data: cd_clean
+
+REML criterion at convergence: 676.2
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.70678 -0.56209  0.04319  0.56189  2.48626 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ ELS_ID   (Intercept) 0.2249   0.4742  
+ Residual             0.5993   0.7742  
+Number of obs: 256, groups:  ELS_ID, 137
+
+Fixed effects:
+                       Estimate Std. Error         df t value      Pr(>|t|)    
+(Intercept)            0.003143   0.063433 133.358986   0.050      0.960562    
+scale(test_per_cent)   0.313906   0.048834 126.044478   6.428 0.00000000242 ***
+scale(test_av_t1t2)    0.278008   0.069974 136.458734   3.973      0.000114 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) sc(__)
+scl(tst_p_) -0.025       
+scl(ts__12) -0.005 -0.013
+"

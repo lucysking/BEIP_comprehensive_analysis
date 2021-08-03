@@ -1,0 +1,19 @@
+"0","```r
+# extract legend________________________________________________________________
+threat_legend <- get_legend(
+  # create some space to the left of the legend
+  plot_mod2_threat_legend + 
+    theme(
+      legend.box.margin = margin(0, 0, 0, 12)
+    )
+)
+```"
+"1","Removed 25 rows containing missing values (geom_point).
+"
+"0","```r
+# add legend back_______________________________________________________________
+# the width of one plot (via rel_widths).
+plot_grid(plot_mod2_threat_sex, threat_legend, rel_widths = c(1, .2))
+# save plot_____________________________________________________________________
+ggsave(\"~/Box/lucy_king_files/ELS/cort_dhea/dhea_cort_threat_sex.png\", width = 12, height = 6)
+```"

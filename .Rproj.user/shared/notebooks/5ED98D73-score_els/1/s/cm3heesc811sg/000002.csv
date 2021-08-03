@@ -1,0 +1,10 @@
+"0","```r
+els_t1_wf <-
+  els_t1_wf %>% 
+  mutate(
+    sumsev_threat_t1 = pmap_dbl(
+      select(., threat_vars_t1),
+      function(...) sum(c(...), na.rm = TRUE)
+    )
+  )
+```"

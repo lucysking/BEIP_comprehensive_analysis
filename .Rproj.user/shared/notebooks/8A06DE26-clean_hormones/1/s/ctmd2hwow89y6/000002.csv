@@ -1,0 +1,32 @@
+"0","```r
+hormones_all <-
+  testos %>% 
+  bind_rows(dhea) %>% 
+  bind_rows(estrad) %>% 
+  bind_rows(progest) %>% 
+  bind_rows(cortisol) %>% 
+  mutate(
+    comment = case_when(
+      mean == \"qns\" | rep1 == \"qns\" | rep2 == \"qns\" ~ \"qns\",
+      mean == \"ND\" | rep1 == \"ND\" | rep2 == \"ND\" ~ \"none detected\",
+      str_detect(mean, \"\\*\") | str_detect(rep1, \"\\*\") | str_detect(rep2, \"\\*\")  ~ \"mean/rep1/rep2 below lower limit or interference\",
+      TRUE ~ NA_character_
+    ),
+    timepoint = if_else(
+      timepoint == \"TMID\" | timepoint == \"Tmid\",
+      \"Tmid\", timepoint
+    )
+  ) %>% 
+  # coercing hormone values to be numeric; will result in NAs for those
+  # marked as \"qns\", \"ND\", \"*\" (below lower limit of sensitivity), or ** (interference likely)
+  # those marked as above are noted in comments variables
+  mutate_at(
+    vars(
+      ELS_ID, assay_id, rep1:mean
+    ),
+    as.numeric
+  ) %>% 
+  filter(ELS_ID != 7) #removing participant who withdrew
+```"
+"1","NAs introduced by coercionNAs introduced by coercionNAs introduced by coercion
+"

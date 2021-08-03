@@ -1,0 +1,10 @@
+"0","```r
+everyone %>% 
+  group_by(wave, construct) %>% 
+  summarise(
+    n = n()
+  ) %>% 
+  mutate(
+    per = n / sum(n)
+  )
+```"

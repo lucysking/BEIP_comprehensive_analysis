@@ -1,0 +1,96 @@
+"0","```r
+hormone_info <-
+  read_xlsx(
+    hormone_info_file, 
+    sheet = \"T1\",
+    na = c(\"999\",\"888\")
+  ) %>% 
+  mutate(
+    Assay_ID = as.numeric(Assay_ID),
+    Corticosteroid = as.numeric(Corticosteroid)
+  ) %>% 
+  bind_rows(
+    read_xlsx(
+      hormone_info_file, 
+      sheet = \"TK1\",
+      na = c(\"999\",\"888\")
+    )
+  ) %>% 
+  bind_rows(
+    read_xlsx(
+      hormone_info_file, 
+      sheet = \"Tmid\",
+      na = c(\"999\",\"888\")
+    ) %>% 
+      mutate(Assay_ID = as.numeric(Assay_ID))
+  ) %>% 
+  bind_rows(
+    read_xlsx(
+      hormone_info_file, 
+      sheet = \"T2\",
+      na = c(\"999\",\"888\")
+    )
+  ) %>% 
+  bind_rows(
+    read_xlsx(
+      hormone_info_file, 
+      sheet = \"TK3\",
+      na = c(\"999\",\"888\")
+    )
+  ) %>% 
+  bind_rows(
+    read_xlsx(
+      hormone_info_file, 
+      sheet = \"T3\",
+      na = c(\"999\",\"888\")
+    )
+  ) %>% 
+  mutate(
+    timepoint = str_extract(Timepoint_ID, \"T\\d|TK\\d|Tmid\")
+  ) %>% 
+  rename_at(
+    vars(-ELS_ID),
+    str_to_lower
+  ) %>% 
+  mutate(
+    # convert hormone collection time to hours from 12AM
+    time_collection = hour(time_collection) + minute(time_collection) / 60,
+    ELS_ID = as.numeric(ELS_ID),
+    # create 1/0 variable for medication
+    medication_binary = if_else(
+      str_detect(medication, \"None\"), 
+      0, 1
+    )
+  ) %>% 
+  select(
+    ELS_ID,
+    timepoint,
+    everything(),
+    -timepoint_id
+  )
+```"
+"1","
+-
+/
+                                                                                                          
+
+-
+/
+                                                                                                          
+
+-
+/
+                                                                                                          
+
+-
+/
+                                                                                                          
+
+-
+/
+                                                                                                          
+
+-
+/
+                                                                                                          
+"

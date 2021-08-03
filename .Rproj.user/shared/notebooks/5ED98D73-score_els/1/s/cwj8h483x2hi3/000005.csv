@@ -1,0 +1,100 @@
+"1","
+Non missing response frequency for each item
+                                            0  0.5    1  1.5    2  2.5    3  3.5    4
+animal_panel_objective_decision_re       0.93 0.06 0.01 0.00 0.00 0.00 0.00 0.00 0.00
+bully_panel_objective_decision_re        0.67 0.01 0.08 0.23 0.01 0.00 0.00 0.00 0.00
+comm_arg_panel_objective_decision_re     0.95 0.03 0.01 0.00 0.00 0.00 0.00 0.00 0.00
+comm_inst_panel_objective_decision_re    0.89 0.05 0.03 0.02 0.00 0.01 0.00 0.00 0.00
+comm_phys_panel_objective_decision_re    0.90 0.07 0.02 0.00 0.00 0.00 0.00 0.00 0.00
+death_panel_objective_decision_re        0.66 0.02 0.06 0.07 0.16 0.00 0.01 0.01 0.00
+disaster_panel_objective_decision_re     0.95 0.02 0.02 0.00 0.00 0.00 0.00 0.00 0.00
+divorce_panel_objective_decision_re      0.68 0.00 0.00 0.11 0.04 0.16 0.00 0.00 0.00
+dom_viol_panel_objective_decision_re     0.91 0.00 0.02 0.00 0.00 0.02 0.04 0.01 0.00
+emo_ab_panel_objective_decision_re       0.95 0.01 0.00 0.02 0.01 0.00 0.00 0.00 0.00
+exp_acc_panel_objective_decision_re      0.78 0.03 0.14 0.02 0.01 0.01 0.00 0.00 0.00
+exp_ill_panel_objective_decision_re      0.70 0.03 0.19 0.05 0.03 0.00 0.00 0.00 0.00
+finance_panel_objective_decision_re      0.87 0.00 0.00 0.08 0.02 0.02 0.00 0.00 0.00
+kidnap_panel_objective_decision_re       0.99 0.00 0.01 0.00 0.00 0.00 0.00 0.00 0.00
+legal_prob_panel_objective_decision_re   0.88 0.03 0.01 0.02 0.00 0.02 0.04 0.00 0.00
+mental_ill_panel_objective_decision_re   0.81 0.00 0.02 0.05 0.07 0.00 0.01 0.01 0.01
+moved_panel_objective_decision_re        0.52 0.18 0.16 0.06 0.07 0.01 0.00 0.00 0.00
+mug_rob_panel_objective_decision_re      0.97 0.01 0.01 0.00 0.00 0.01 0.00 0.00 0.00
+neglect_panel_objective_decision_re      0.94 0.00 0.00 0.02 0.00 0.00 0.00 0.01 0.02
+other_panel_objective_decision_re        0.93 0.03 0.01 0.01 0.01 0.00 0.00 0.00 0.00
+parent_arg_panel_objective_decision_re   0.61 0.04 0.03 0.01 0.14 0.14 0.01 0.00 0.00
+phys_ab_panel_objective_decision_re      0.95 0.00 0.01 0.01 0.00 0.01 0.00 0.01 0.00
+sep_rfd_panel_objective_decision_re      0.87 0.00 0.01 0.02 0.03 0.04 0.02 0.00 0.00
+sep_wt_panel_objective_decision_re       0.89 0.01 0.01 0.05 0.02 0.01 0.01 0.00 0.00
+sex_ab_panel_objective_decision_re       0.98 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.01
+suicide_panel_objective_decision_re      0.93 0.00 0.00 0.02 0.01 0.02 0.00 0.01 0.00
+thrt_domvio_panel_objective_decision_re  0.98 0.00 0.00 0.00 0.00 0.01 0.00 0.00 0.00
+thrt_phys_ab_panel_objective_decision_re 0.98 0.00 0.00 0.00 0.01 0.00 0.00 0.00 0.00
+war_terr_panel_objective_decision_re     0.97 0.03 0.00 0.00 0.00 0.00 0.00 0.00 0.00
+wit_acc_panel_objective_decision_re      0.74 0.07 0.16 0.03 0.00 0.00 0.00 0.00 0.00
+wit_ill_panel_objective_decision_re      0.52 0.22 0.10 0.07 0.06 0.03 0.00 0.00 0.00
+wit_sexab_panel_objective_decision_re    1.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00
+                                         miss
+animal_panel_objective_decision_re          0
+bully_panel_objective_decision_re           0
+comm_arg_panel_objective_decision_re        0
+comm_inst_panel_objective_decision_re       0
+comm_phys_panel_objective_decision_re       0
+death_panel_objective_decision_re           0
+disaster_panel_objective_decision_re        0
+divorce_panel_objective_decision_re         0
+dom_viol_panel_objective_decision_re        0
+emo_ab_panel_objective_decision_re          0
+exp_acc_panel_objective_decision_re         0
+exp_ill_panel_objective_decision_re         0
+finance_panel_objective_decision_re         0
+kidnap_panel_objective_decision_re          0
+legal_prob_panel_objective_decision_re      0
+mental_ill_panel_objective_decision_re      0
+moved_panel_objective_decision_re           0
+mug_rob_panel_objective_decision_re         0
+neglect_panel_objective_decision_re         0
+other_panel_objective_decision_re           0
+parent_arg_panel_objective_decision_re      0
+phys_ab_panel_objective_decision_re         0
+sep_rfd_panel_objective_decision_re         0
+sep_wt_panel_objective_decision_re          0
+sex_ab_panel_objective_decision_re          0
+suicide_panel_objective_decision_re         0
+thrt_domvio_panel_objective_decision_re     0
+thrt_phys_ab_panel_objective_decision_re    0
+war_terr_panel_objective_decision_re        0
+wit_acc_panel_objective_decision_re         0
+wit_ill_panel_objective_decision_re         0
+wit_sexab_panel_objective_decision_re       0
+"
+"0","```r
+#T2
+els_t2_wf_alpha <-
+  els_t2_wf %>% 
+  mutate_all(
+    as.double
+  ) %>% 
+  mutate_all(
+    . %>% 
+      if_else(
+        is.na(.),
+        0, .
+      )
+  ) %>% 
+  select(
+    contains(\"panel\")
+  )
+psych::alpha(els_t2_wf_alpha)
+```"
+"1","Item = nothing_reported_panel_objective_decision_re had no variance and was deletedSome items were negatively correlated with the total scale and probably 
+should be reversed.  
+To do this, run the function again with the 'check.keys=TRUE' option
+"
+"1","Some items ( disaster_panel_objective_decision_re exp_acc_panel_objective_decision_re war_terr_panel_objective_decision_re ) were negatively correlated with the total scale and 
+probably should be reversed.  
+To do this, run the function again with the 'check.keys=TRUE' option
+Reliability analysis   
+Call: psych::alpha(x = els_t2_wf_alpha)
+
+ 
+"

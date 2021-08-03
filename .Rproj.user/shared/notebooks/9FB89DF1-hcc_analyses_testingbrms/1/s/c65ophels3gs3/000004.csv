@@ -1,0 +1,162 @@
+"0","d <-"
+"0","  read_csv(hcc_data_file) %>% "
+"0","  filter(ID >= 1000) %>% "
+"0","  left_join("
+"0","    read_csv(demo_file) %>% "
+"0","      select("
+"0","        ID,"
+"0","        education_t1,"
+"0","        education_t1_txt,"
+"0","        mom_race,"
+"0","        mom_latinx,"
+"0","        annual_income_t1,"
+"0","        annual_income_t1_txt,"
+"0","        mom_age_t1,"
+"0","        income_needs_t1"
+"0","      ),"
+"0","    by = ""ID"""
+"0","  ) %>% "
+"0","  left_join("
+"0","    read_csv(prams_file) %>% "
+"0","      select("
+"0","        ID,"
+"0","        preg_previous,"
+"0","        prev_preg_total,"
+"0","        preg_weight_chg,"
+"0","        labor_status,"
+"0","        labor_mode,"
+"0","        mom_preg_bmi,"
+"0","        mom_newborn_bmi,"
+"0","        preg_weight_chg,"
+"0","        preg_weight_gain,"
+"0","        preg_weight_loss,"
+"0","        n_prenatal_cigarettes,"
+"0","        n_newborn_cigarettes,"
+"0","        n_prenatal_drinks,"
+"0","        n_newborn_drinks,"
+"0","        birth_weight_total_lbs"
+"0","      ),"
+"0","    by = ""ID"""
+"0","  )  %>% "
+"0","  left_join("
+"0","    read_csv(lsc_file), by = ""ID"""
+"0","  ) %>% "
+"0","  left_join("
+"0","    read_csv(cesd_file), by = ""ID"""
+"0","  ) %>% "
+"0","  left_join("
+"0","    read_csv(epds_file), by = ""ID"""
+"0","  ) %>% "
+"0","  group_by(ID) %>% "
+"0","  mutate("
+"0","    seg_week_preg_mean = mean(seg_week_preg),"
+"0","    seg_week_preg_pc = seg_week_preg - seg_week_preg_mean,"
+"0","    seg_week_post_mean = mean(seg_week_post),"
+"0","    seg_week_post_pc = seg_week_post - seg_week_post_mean"
+"0","  ) %>% "
+"0","  ungroup()"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  timepoint = [31mcol_character()[39m,
+  comments = [31mcol_character()[39m,
+  due_date = [34mcol_date(format = """")[39m,
+  baby_dob = [34mcol_date(format = """")[39m,
+  visit_date_t1 = [34mcol_date(format = """")[39m,
+  scan_date_t2 = [34mcol_date(format = """")[39m,
+  behav_visit_date_t3 = [34mcol_date(format = """")[39m,
+  conception_date = [34mcol_date(format = """")[39m,
+  steroid_notes = [31mcol_character()[39m,
+  phase = [31mcol_character()[39m
+)
+"
+"2","See spec(...) for full column specifications.
+"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  educ_describe_t1 = [33mcol_logical()[39m,
+  employment_explain_t1 = [33mcol_logical()[39m,
+  mom_pob_t1 = [31mcol_character()[39m,
+  mom_native_lang_t1 = [31mcol_character()[39m,
+  primarylang_t1 = [31mcol_character()[39m,
+  secondlang_type_t1 = [31mcol_character()[39m,
+  marital_explain_t1 = [31mcol_character()[39m,
+  partner_educ_describe_t1 = [33mcol_logical()[39m,
+  partner_employ_describe_t1 = [31mcol_character()[39m,
+  partner_pob_t1 = [31mcol_character()[39m,
+  ppl_in_home_describe_t1 = [31mcol_character()[39m,
+  second_childage_t1 = [33mcol_logical()[39m,
+  second_childsex_t1 = [33mcol_logical()[39m,
+  third_childage_t1 = [33mcol_logical()[39m,
+  third_childsex_t1 = [33mcol_logical()[39m,
+  fourth_childage_t1 = [33mcol_logical()[39m,
+  fourth_childsex_t1 = [33mcol_logical()[39m,
+  fifth_childage_t1 = [33mcol_logical()[39m,
+  fifth_childsex_t1 = [33mcol_logical()[39m,
+  sixth_childage_t1 = [33mcol_logical()[39m
+  # ... with 98 more columns
+)
+"
+"2","See spec(...) for full column specifications.
+"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  preg_prev_describe = [31mcol_character()[39m,
+  gotpreg_contra_reasons_describe = [31mcol_character()[39m,
+  gotpreg_contra_method_describe = [33mcol_logical()[39m,
+  planb_ever = [31mcol_character()[39m,
+  perscription_type = [31mcol_character()[39m,
+  prenatal_otherdrug_type = [31mcol_character()[39m,
+  now_contra_reasons_describe = [31mcol_character()[39m,
+  newborn_contra_method_describe = [31mcol_character()[39m,
+  n_newborn_cigarettes = [31mcol_character()[39m,
+  n_newborn_drinks = [31mcol_character()[39m,
+  preg_weight_chg = [31mcol_character()[39m,
+  labor_status = [31mcol_character()[39m,
+  labor_mode = [31mcol_character()[39m,
+  nicu_describe = [31mcol_character()[39m,
+  apgar_score = [31mcol_character()[39m,
+  congenital_describe = [31mcol_character()[39m,
+  n_prenatal_cigarettes = [31mcol_character()[39m,
+  n_prenatal_drinks = [31mcol_character()[39m,
+  n_prenatal_mostdrinks = [31mcol_character()[39m,
+  redcap_event_name = [31mcol_character()[39m
+  # ... with 9 more columns
+)
+"
+"2","See spec(...) for full column specifications.
+"
+"2","Parsed with column specification:
+cols(
+  .default = col_double()
+)
+"
+"2","See spec(...) for full column specifications.
+"
+"2","Parsed with column specification:
+cols(
+  ID = [32mcol_double()[39m,
+  cesd_t1 = [32mcol_double()[39m,
+  cesd_t2 = [32mcol_double()[39m,
+  cesd_t3 = [32mcol_double()[39m,
+  cesd_t4 = [32mcol_double()[39m,
+  cesd_t1_concern = [31mcol_character()[39m,
+  cesd_t2_concern = [31mcol_character()[39m,
+  cesd_t3_concern = [31mcol_character()[39m,
+  cesd_t4_concern = [31mcol_character()[39m
+)
+"
+"2","Parsed with column specification:
+cols(
+  ID = [32mcol_double()[39m,
+  epds_t1 = [32mcol_double()[39m,
+  epds_t2 = [32mcol_double()[39m,
+  epds_t3 = [32mcol_double()[39m,
+  epds_t1_concern = [31mcol_character()[39m,
+  epds_t2_concern = [31mcol_character()[39m,
+  epds_t3_concern = [31mcol_character()[39m,
+  max_epds_t1t2 = [32mcol_double()[39m
+)
+"

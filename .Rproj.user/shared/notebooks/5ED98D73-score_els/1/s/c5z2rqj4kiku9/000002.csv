@@ -1,0 +1,22 @@
+"0","```r
+els_t1_early_7 <-
+  els_t1 %>% 
+  select(
+    ELS_ID,
+    event_domain_re,
+    age_onset = Age_onset,
+    panel_objective_decision_re
+  ) %>% 
+  group_by(ELS_ID, event_domain_re) %>% 
+  filter(
+    panel_objective_decision_re == max(
+      panel_objective_decision_re, na.rm = TRUE
+    ),
+    age_onset >= 6
+  ) %>% 
+  distinct(event_domain_re, panel_objective_decision_re) %>% 
+  gather(key1, value, panel_objective_decision_re) %>% 
+  unite(key2, event_domain_re, key1, sep = \"_\") %>% 
+  spread(key2, value) %>% 
+  ungroup()
+```"

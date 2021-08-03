@@ -1,0 +1,3608 @@
+---
+title: "meta-analysis_updated"
+author: "Lucy King"
+date: "1/6/2020"
+output: html_document
+---
+
+https://docs.google.com/spreadsheets/d/1TubH73N8ZpJwILDFGZ6qtvvQM0gqGrzcYEVapVomFaQ/edit?ts=5e0e38bf#gid=0
+
+# Set up environment
+```{r}
+#Libraries
+library(lme4)
+library(lmerTest)
+library(tidyverse)
+library(sjstats)
+library(labelled)
+library(papaja)
+library(ggResidpanel)
+library(effectsize)
+library(ggsci)
+library(gt)
+
+#Files
+BEIP_MA_file <- "~/Box/lucy_king_share_files/BEIP/data/Datarequest_Humphreys_12.7.19_updated.sav"
+EEG_ages_file <- "~/Box/lucy_king_share_files/BEIP/data/All EEG ages.sav"
+# 16 yr wave EEG age incorrect in main file; use age in file below
+EEG_16yr_age_file <- "~/Box/lucy_king_share_files/BEIP/data/ages16eeg_update.sav"
+EEG_data_file <- "~/Box/lucy_king_share_files/BEIP/data/EYESOPEN_EYESCLOSED_EEG_ALL_USE_forKate.sav"
+
+theme_beip <-
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text = element_text(size = 18),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 16),
+    legend.position = "bottom"
+  )
+
+options(scipen = 999)
+```
+
+# Overview
+
+All children residing in six institutional settings in Bucharest, Romania who were less than age 31 months (n = 187) were assessed for participation in the study. Exclusion criteria for the study included medical conditions (e.g., genetic syndromes, signs of fetal alcohol syndrome, and microcephaly) and resulted in the exclusion of 51 children. Thus, the final sample was comprised of 136 children between 6 and 31 months of age (mean 22 months) who had been abandoned at or shortly after birth and placed in institutions. Half of these children were randomized to the foster care intervention (foster care group [FCG]) and half were randomized to the care as usual group (CAUG), which typically meant prolonged exposure to institutional care. Importantly, no children were required to remain in institutional care and the majority of children in the CAUG were eventually placed into family care (e.g., reunited with their biological families, adopted, or placed into a government sponsored foster care).In addition, a comparison group of never institutionalized children (the never institutionalized group [NIG]) was assessed when they entered the study, either at baseline or at the age 8 follow-up assessment. 
+
+Assessment waves:
+Baseline = 6-31 months
+30 months
+42 months
+54 months
+* intervention officially ended
+8 years
+12 years
+16 years
+
+# Specific Aims
+1.	To examine the overall effect of the high-quality foster care intervention on broad outcomes assessed across the 7 waves of assessments using an intent-to-treat design.
+2.	To examine whether the effect of the intervention is moderated by predetermined factors of interest, including wave of assessment (e.g., age 42 months vs. 54 months), type of domain (e.g., externalizing vs. internalizing symptoms), informant (e.g., caregiver vs. teacher report), and participant sex (e.g., boys vs. girls).
+3.	Examine degree of recovery among those randomized to the intervention (i.e., do those in the foster care group have similar outcomes than the never institutionalized comparison group), and moderators of recovery (see specific aim 2 for domains of interest).
+
+# Data Analysis
+Given the nested structure of the data (domain nested within inform, nested within wave [or age]), we used multi-level modeling. 
+
+Aim 1a: Test of intervention, i.e., FCG vs. CAUG
+
+value ~ FCG/CAUG + wave + domain + informant + sex + (random slopes | ID)
+and/or
+value ~ FCG/CAUG + mean age + person-centered age + domain + informant + sex + (random slopes | ID)
+
+Aim 1b: Test moderators of intervention effects
+
+value ~ FCG/CAUG \* wave + FCG/CAUG \* domain + FCG/CAUG \* informant + FCG/CAUG \* sex + (random slopes | ID)
+
+Aim 2a: Test of recovery
+
+value ~ FCG/NIG + wave + domain + informant + sex + (random slopes | ID)
+
+Aim 2b: Test moderators of recovery effects 
+
+value ~ FCG/NIG \* wave + FCG/NIG \* domain + FCG/NIG \* informant + FCG/NIG \* sex + (random slopes | ID)
+
+# Read in data
+
+```{r}
+d0 <- 
+  haven::read_sav(BEIP_MA_file) %>% 
+  rename(
+    ID = Subject,
+    bl_age_end = FinEvalAgeM,
+    bl_age_start = bslevalAgeM,
+    sex = Gender,
+    group = Group
+  )
+```
+-
+## EEG data
+
+```{r}
+eeg_ages <-
+  haven::read_sav(EEG_ages_file) %>% 
+  rename(
+    ID = Subject
+  ) %>%
+  select(-EEG_ageM_16, -EEG_ageY_16) %>% 
+  left_join(d0 %>% select(ID, bl_age_end), by = "ID") %>% 
+  left_join(
+    haven::read_sav(EEG_16yr_age_file) %>% 
+      select(
+        ID = Subject,
+        EEG_ageM_16 = ageM_EEG_16
+      ),
+    by = "ID"
+  ) %>% 
+  gather(
+    eeg_key, 
+    age, 
+    EEG_ageM_0, EEG_ageM_1:EEG_ageM_5, EEG_ageM_8, EEG_ageM_12, EEG_ageM_16
+  ) %>% 
+  select(-c(EEG_ageY_8:EEG_ageY_12)) %>% 
+  separate(eeg_key, into = c("domain", "x", "eeg_key")) %>% 
+  select(-x) %>% 
+  mutate_all(str_to_lower) %>% 
+  mutate_at(
+    vars(ID, bl_age_end, age),
+    as.double
+  ) %>% 
+  mutate(
+    age_diff_BL = abs(age - bl_age_end),
+    age_diff_30 = abs(age - 30),
+    age_diff_42 = abs(age - 42)
+  ) %>% 
+  group_by(ID) %>% 
+  mutate(
+    min_age_diff = pmin(
+      age_diff_BL, 
+      age_diff_30, 
+      age_diff_42
+    )
+  ) %>% 
+  mutate(
+    wave = case_when(
+      eeg_key == "8" ~ "8",
+      eeg_key == "12" ~ "12",
+      eeg_key == "16" ~ "16",
+      eeg_key == "0" ~ "BL",
+      eeg_key == "1" & age >= 29 & age < 37 ~ "30",
+      eeg_key == "1" & age >= 41 & age < 54 ~ "42",
+      eeg_key == "2" & age >= 29 & age < 37 ~ "30",
+      eeg_key == "3" & age >= 29 & age < 37 ~ "30",
+      eeg_key == "4" & age >= 29 & age < 37 ~ "30",
+      eeg_key == "2" & age >= 41 & age < 54 ~ "42",
+      eeg_key == "3" & age >= 41 & age < 54 ~ "42",
+      eeg_key == "4" & age >= 41 & age < 54 ~ "42",
+      eeg_key == "5" & age >= 41 & age < 54 ~ "42"
+    )
+  ) %>% 
+  #filter(!is.na(age)) %>% 
+  arrange(ID) %>% 
+  select(ID, age, wave)
+```   
+
+```{r}
+eeg_data <-
+  haven::read_sav(EEG_data_file) %>% 
+  select(Subject, contains("alpha")) %>% 
+  rename(
+    ID = Subject
+  ) %>% 
+  gather(eeg_key, value, -ID) %>% 
+  separate(eeg_key, c("eyes", "wave", "drop", "measure")) %>% 
+  select(-drop) %>% 
+  mutate(
+    wave = case_when(
+      wave == "BS" ~ "BL",
+      wave == "30M" ~ "30",
+      wave == "42M" ~ "42",
+      wave == "8y" ~ "8",
+      wave == "12y" ~ "12",
+      wave == "16y" ~ "16"
+    ),
+    informant = "O",
+    domain = "eeg"
+  ) %>% 
+  filter(!is.na(value))
+```
+
+```{r}
+eeg <-
+  eeg_data %>% 
+  left_join(eeg_ages, by = c("ID", "wave")) %>% 
+  filter(ID != "0", ID < 800) %>% 
+  unite(measure, measure, eyes, sep = "") 
+```
+
+## ITSEA data
+Use earliest observation as baseline. For subsequent, take closes to the intended wave. 
+```{r}
+itsea_ages <-
+  d0 %>% 
+  select(
+    ID,
+    bl_age_end,
+    starts_with("ageitsea")
+  ) %>% 
+  gather(itsea_key, age, ageitsea..00:ageitsea.5.00) %>% 
+  mutate(
+    itsea_key = recode(
+      itsea_key,
+      "ageitsea..00" = "0",
+      "ageitsea.1.00" = "1",
+      "ageitsea.2.00" = "2",
+      "ageitsea.3.00" = "3",
+      "ageitsea.4.00" = "4",
+      "ageitsea.5.00" = "5"
+    )
+  ) %>% 
+  mutate(
+    age_diff_BL = abs(age - bl_age_end),
+    age_diff_30 = abs(age - 30),
+    age_diff_42 = abs(age - 42),
+    age_diff_54 = abs(age - 54)
+  ) %>% 
+  group_by(ID) %>% 
+  mutate(
+    min_age_diff = pmin(
+      age_diff_BL, 
+      age_diff_30, 
+      age_diff_42, 
+      age_diff_54
+    ),
+    wave = case_when(
+      min_age_diff == age_diff_BL ~ "0",
+      min_age_diff == age_diff_30 ~ "30",
+      min_age_diff == age_diff_42 ~ "42",
+      min_age_diff == age_diff_54 ~ "54"
+    ),
+    wave = if_else(
+      itsea_key == "0", "0", wave
+    )
+  ) %>% 
+  filter(!is.na(age)) %>% 
+  arrange(ID, wave, age) %>% 
+  group_by(ID) %>% 
+  mutate(
+    wave = case_when(
+      lag(wave) == "0" & wave == "0" ~ "30",
+      is.na(wave) & itsea_key == "0" ~ "0",
+      lead(wave) == "42" & wave == "42" & age < lead(age) ~ "drop",
+      TRUE ~ wave
+    ),
+    wave = case_when(
+      lead(wave) == "30" & wave == "30" & age < lead(age) ~ "drop",
+      wave == "0" ~ "BL",
+      TRUE ~ wave
+    ),
+    wave = if_else(
+      wave == "30" & age < 20,
+      "drop", wave
+    )
+  ) %>% 
+  ungroup() %>% 
+  filter(wave != "drop", !is.na(wave)) %>% 
+  select(-c(age_diff_BL:min_age_diff))
+```  
+
+
+```{r}
+itsea_domains <- 
+  d0 %>% 
+  select(
+    ID,
+    starts_with("activmen"),
+    starts_with("agdefmen"),
+    starts_with("intermen")
+  ) %>% 
+  gather(
+    itsea_key, 
+    value, 
+    activmen..00:intermen.5.00
+  ) %>% 
+  mutate(
+    domain = case_when(
+      str_detect(itsea_key, "activmen") == TRUE ~ "adhd",
+      str_detect(itsea_key, "agdefmen") == TRUE ~ "extern",
+      str_detect(itsea_key, "intermen") == TRUE ~ "intern"
+    ),
+    itsea_key = case_when(
+      str_detect(itsea_key, "\\.\\.") == TRUE ~ "0",
+      str_detect(itsea_key, "1") == TRUE ~ "1",
+      str_detect(itsea_key, "2") == TRUE ~ "2",
+      str_detect(itsea_key, "3") == TRUE ~ "3",
+      str_detect(itsea_key, "4") == TRUE ~ "4",
+      str_detect(itsea_key, "5") == TRUE~ "5"
+    )
+  ) 
+```
+
+```{r}
+itsea <-
+  itsea_domains %>% 
+  left_join(itsea_ages, by = c("ID", "itsea_key")) %>% 
+  mutate(
+    measure = "itsea",
+    informant = "P"
+  ) %>% 
+  select(-itsea_key, -bl_age_end) %>% 
+  filter(!is.na(value), !is.na(wave))
+```
+
+    
+## All other data
+```{r}
+d0_domains <- 
+  d0 %>% 
+  mutate(
+    adhd_hbq_8_T = HBQT8_Inatt + HBQT8_Impuls
+  ) %>% 
+  select(
+    ID,
+    adhd_hbq_8_T,
+    adhd_disc_12_P = DISC_ADHDtotalP_12,
+    adhd_hbq_12_P = HBQP12_ADHD,
+    adhd_hbq_12_T = HBQT12_ADHD,
+    adhd_disc_16_P = ADHDtotalP16,
+    adhd_hbq_16_P = HBQP16_ADHD,
+    adhd_hbq_16_T = HBQT16_ADHD,
+    adhd_p4nadz_54_P = p4nadz,
+    dsed_dai_8_P = raddis_8yr,
+    dsed_dai_12_P = DAI_dis_12,
+    dsed_dai_16_P = Inhibited_16y,
+    dsed_dai_30_P = raddis_30c,
+    dsed_dai_42_P = raddis_42c,
+    dsed_dai_54_P = raddis_54c,
+    dsed_dai_BL_P = raddis_blc,
+    extern_hbq_8_T = HBQT8_Extern,
+    extern_disc_12_P = DISC_ODDandCDP_12, # data looks empty
+    extern_hbq_12_P = HBQP12_Extern,
+    extern_hbq_12_T = HBQT12_Extern,
+    extern_disc_16_P = ODDandCDtotalP16,
+    extern_hbq_16_P = HBQP16_Extern,
+    extern_hbq_16_T = HBQT16_Extern,
+    extern_oddcdsx_54_P = oddcdsx,
+    head_ofc_8_O = OFC_8yr,
+    head_ofc_12_O = OFC_12yr,
+    head_ofc_16_O = OFC_16yr,
+    head_ofc_30_O = OFC_30mo,
+    head_ofc_42_O = OFC_42mo,
+    head_ofc_BL_O = OFC_BL,
+    height_cm_8_O = height_8yr,
+    height_cm_12_O = height_12yr,
+    height_cm_16_O = height_16yr,
+    height_cm_30_O = height_30mo,
+    height_cm_42_O = height_42mo,
+    height_cm_BL_O = height_BL,
+    intern_hbq_8_T = HBQT8_Intern,
+    intern_disc_12_P = DISC_inttotalP_12,
+    intern_hbq_12_P = HBQP12_Intern,
+    intern_hbq_12_T = HBQT12_Intern,
+    intern_disc_16_P = inttotalnospphP16,
+    intern_hbq_16_P = HBQP16_Intern,
+    intern_hbq_16_T = HBQT16_Intern,
+    intern_intsx_54_P = intsx,
+    iq_wisc_8_O = FSISUMSC_8,
+    iq_wisc_12_O = FSIQ_COMP_12,
+    iq_wisc_16_O = IQ_fullscale_age18,
+    iq_bayley_30_O = mdi_30mo,
+    iq_bayley_42_O = mdi_42mo,
+    iq_wppsi_54_O = fulliq,
+    iq_bayley_BL_O = mdi_bl,
+    rad_dai_8_P = radinh_8yr,
+    rad_dai_12_P = DAI_inh_12,
+    rad_dai_16_P = Disinhibited_16y,
+    rad_dai_30_P = radinh_30c,
+    rad_dai_42_P = radinh_42c,
+    rad_dai_54_P = radinh_54c,
+    rad_dai_BL_P = radinh_blc,
+    weight_kg_8_O = weight_8yr,
+    weight_kg_12_O = weight_12yr,
+    weight_kg_16_O = weight_16yr,
+    weight_kg_30_O = weight_30mo,
+    weight_kg_42_O = weight_42mo,
+    weight_kg_BL_O = weight_BL
+  ) %>% 
+  gather(domain_key, value, adhd_hbq_8_T:weight_kg_BL_O) %>% 
+  filter(!is.na(value)) 
+```
+
+```{r}
+d0_ages <-
+  d0 %>% 
+  mutate(
+    adhd_hbq_8_T = hbqt8_ageyrs * 12,
+    adhd_disc_12_P = DISC_age_12 * 12,
+    adhd_hbq_12_P = ageM_hbqp,
+    adhd_hbq_12_T = ageM_hbqt,
+    adhd_disc_16_P = ageDisc16 * 12,
+    adhd_hbq_16_P = age_HBQ16p_M,
+    adhd_hbq_16_T = age_HBQ16t_M,
+    adhd_p4nadz_54_P = jage * 12,
+    dsed_dai_8_P = ageM_8_dai,
+    dsed_dai_12_P = ageM_12,
+    dsed_dai_16_P = ageM_DAI16,
+    dsed_dai_30_P = ageM_30_dai,
+    dsed_dai_42_P = ageM_42_dai,
+    dsed_dai_54_P = ageM_54_dai,
+    dsed_dai_BL_P = ageM_bsl_dai,
+    extern_hbq_8_T = hbqt8_agemos,
+    extern_disc_12_P = DISC_age_12 * 12, # data looks empty
+    extern_hbq_12_P = ageM_hbqp, # check this is correct; blank on spredsheet
+    extern_hbq_12_T = ageM_hbqt, # check this is correct; blank on spredsheet
+    extern_disc_16_P = ageDisc16 * 12,
+    extern_hbq_16_P = age_HBQ16p_M,
+    extern_hbq_16_T = age_HBQ16t_M,
+    extern_oddcdsx_54_P = jage * 12,
+    head_ofc_8_O = ageM_8yr,
+    head_ofc_12_O = ageM_12yr,
+    head_ofc_16_O = ageM_16yr_physical,
+    head_ofc_30_O = ageM_30mo,
+    head_ofc_42_O = ageM_42mo,
+    head_ofc_BL_O = ageM_BL,
+    height_cm_8_O = ageM_8yr,
+    height_cm_12_O = ageM_12yr,
+    height_cm_16_O = ageM_16yr_physical,
+    height_cm_30_O = ageM_30mo,
+    height_cm_42_O = ageM_42mo,
+    height_cm_BL_O = ageM_BL,
+    intern_hbq_8_T = hbqt8_agemos,
+    intern_disc_12_P = DISC_age_12 * 12,
+    intern_hbq_12_P = ageM_hbqp, # check this is correct; blank on spredsheet
+    intern_hbq_12_T = ageM_hbqt, # check this is correct; blank on spredsheet
+    intern_disc_16_P = ageDisc16 * 12,
+    intern_hbq_16_P = age_HBQ16p_M,
+    intern_hbq_16_T = age_HBQ16t_M,
+    intern_intsx_54_P = jage * 12,
+    iq_wisc_8_O = wisc8_agemos,
+    iq_wisc_12_O = Age * 12,
+    iq_wisc_16_O = Age_WISC_16 * 12,
+    iq_bayley_30_O = age_bay_30mo,
+    iq_bayley_42_O = age_bay_42mo,
+    iq_wppsi_54_O = wppsiage,
+    iq_bayley_BL_O = age_bay_bl,
+    rad_dai_8_P = ageM_8_dai,
+    rad_dai_12_P = ageM_12,
+    rad_dai_16_P = ageM_DAI16,
+    rad_dai_30_P = ageM_30_dai,
+    rad_dai_42_P = ageM_42_dai,
+    rad_dai_54_P = ageM_54_dai,
+    rad_dai_BL_P = ageM_bsl_dai,
+    weight_kg_8_O = ageM_8yr,
+    weight_kg_12_O = ageM_12yr,
+    weight_kg_16_O = ageM_16yr_physical,
+    weight_kg_30_O = ageM_30mo,
+    weight_kg_42_O = ageM_42mo,
+    weight_kg_BL_O = ageM_BL
+  ) %>% 
+  select(ID, adhd_hbq_8_T:weight_kg_BL_O) %>% 
+  mutate_all(as.numeric) %>% 
+  gather(domain_key, age, -ID) %>% 
+  filter(!is.na(age)) 
+```
+
+## Create combined final dataset
+
+```{r}
+d0_tidy <-
+  d0_domains %>% 
+  ungroup() %>% 
+  full_join(d0_ages, by = c("ID", "domain_key")) %>% 
+  separate(domain_key, into = c("domain", "measure", "wave", "informant")) %>%   select(
+    ID,
+    wave,
+    age,
+    domain,
+    measure,
+    informant,
+    value
+  ) %>% 
+  bind_rows(itsea) %>% 
+  bind_rows(eeg) %>% 
+  mutate(
+    domain = as.factor(domain),
+    informant = as.factor(informant),
+    wave = factor(
+      wave,
+      levels = c("BL", "30", "42", "54", "8", "12", "16"),
+      labels = c("BL", "30", "42", "54", "8", "12", "16")
+    )
+  ) %>% 
+  mutate(
+    construct = case_when(
+      domain == "adhd" | domain == "dsed" | domain == "extern" | 
+        domain == "intern" | domain == "rad" ~ "psychopathology",
+      domain == "head" | domain == "height" | domain == "weight" ~ "physical",
+      domain == "iq" ~ "intelligence",
+      domain == "eeg" ~ "brain"
+    ),
+    measure = if_else(
+      (measure == "intsx" | measure == "p4nadz" | measure == "oddcdsx"),
+      "papa", measure
+    )
+  ) %>% 
+  # standardized within domain (standardizing within wave will elimiate age effects; see Kevin King et al. DCN article)
+  # then multiply "negative" outcomes (symptoms) by -1 so that higher scores = better
+  group_by(measure) %>% 
+  mutate(
+    ## 2020/04/14 identified error in data: IQ at 16-year wave for 150 is actually 160's score
+    value = case_when(
+      ID == 150 & wave == "16" & construct == "intelligence" ~ 81 #(150's IQ score),
+      ID == 150 & wave == "16" & construct == "intelligence" ~ NA_real_
+    ),
+    value_z = scale(value)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    wave = fct_relevel(
+      wave,
+      "BL", "30", "42", "54", "8", "12", "16"
+    )
+  ) %>% 
+  # IDs not part of the sample
+  filter(ID != 0 & ID < 800) %>% 
+  arrange(ID, wave)
+```
+
+### Tidy and visualize age variables
+```{r}
+d0_tidy <- 
+  d0_tidy %>% 
+  rename(age_months = age) %>% 
+  mutate(
+    age_years = age_months / 12
+  )
+```
+
+#### Missing age data; impute
+```{r}
+d0_tidy %>% 
+  filter(is.na(age_months)) %>% 
+  arrange(ID, wave, domain, measure)
+
+d0_tidy %>% 
+  filter(is.na(age_months)) %>% 
+  arrange(ID, wave, domain, measure) %>% 
+  distinct(ID) %>% 
+  arrange(ID) 
+
+d0_tidy <-
+  d0_tidy %>% 
+  group_by(ID, wave) %>% 
+  mutate(
+    mean_age_years_wave = mean(age_years, na.rm = TRUE),
+    mean_age_months_wave = mean(age_months, na.rm = TRUE),
+    age_years = if_else(
+      is.na(age_years), 
+      mean_age_years_wave, age_years
+    ),
+    age_months = if_else(
+      is.na(age_months), 
+      mean_age_months_wave, age_months
+    )
+  ) %>% 
+  ungroup()
+```
+
+
+### Add additional predictors
+
+```{r}
+# remove SPSS labels from  variables
+var_label(d0$group) <- NULL
+var_label(d0$sex) <- NULL
+var_label(d0$Ethnic) <- NULL
+
+# select predictors
+d_pred <-
+  d0 %>% 
+  select(
+    ID,
+    male = sex,
+    ethnic = Ethnic,
+    gestation_weeks = Gestation,
+    birth_weight = BW,
+    inst_entry_age = Inst_ageM,
+    FC_placement_age = FC_ageM,
+    group,
+    bl_age_start,
+    bl_age_end
+  ) %>% 
+  mutate(
+    male = as.factor(male),
+    group = as.factor(
+      recode(
+        group,
+        "0" = "CAUG",
+        "1" = "FCG",
+        "2" = "NIG"
+      )
+    )
+  )
+```
+
+```{r}
+# tidy percent in institution variables 
+d_pct_time <-
+  d0 %>% 
+  select(
+    ID, 
+    pctinst_bsl:pctinst_16yr
+  ) %>% 
+  gather(wave, pctinst, -ID) %>% 
+  mutate(
+    wave = case_when(
+      wave == "pctinst_bsl" ~ "BL",
+      wave == "pctinst_30" ~ "30",
+      wave == "pctinst_42" ~ "42",
+      wave == "pctinst_54" ~ "54",
+      wave == "pctinst_8yr" ~ "8",
+      wave == "pctinst_12yr" ~ "12",
+      wave == "pctinst_16yr" ~ "16"
+    )
+  ) %>% 
+  filter(!is.na(pctinst)) %>% 
+  arrange(ID, wave)
+```
+
+```{r}
+d <-
+  d0_tidy %>% 
+  left_join(d_pred, by = "ID") %>% 
+  left_join(d_pct_time, by = c("ID", "wave")) %>% 
+  mutate(wave = as.factor(wave)) %>% 
+  select(
+    ID,
+    group,
+    male,
+    ethnic,
+    gestation_weeks,
+    birth_weight,
+    inst_entry_age,
+    FC_placement_age,
+    wave,
+    bl_age_start,
+    bl_age_end,
+    age_months, 
+    age_years,
+    mean_age_months_wave,
+    mean_age_years_wave,
+    construct,
+    domain,
+    measure,
+    informant,
+    value,
+    value_z,
+    pctinst
+  )  %>% 
+  group_by(ID) %>% 
+  # disaggregate b/w and within-individual effects of age and % time in institution
+  mutate(
+    wave = factor(
+      wave,
+      levels = c("BL", "30", "42", "54", "8", "12", "16"),
+      labels = c("BL", "30", "42", "54", "8", "12", "16")
+    ),
+    age_mean = mean(age_months, na.rm = TRUE),
+    age_per_cent = age_months - mean(age_months, na.rm = TRUE),
+    pctinst_mean = mean(pctinst, na.rm = TRUE),
+    pctinst_per_cent = pctinst - mean(pctinst, na.rm = TRUE)
+  ) %>% 
+  ungroup() 
+```
+
+# Descriptives
+
+## Age
+```{r}
+d %>% 
+  group_by(wave, group) %>% 
+  summarise_at(
+    vars(mean_age_months_wave, mean_age_years_wave),
+    funs(mean, min, max, sd), na.rm = TRUE
+  )
+
+d %>% 
+  distinct(ID, mean_age_months_wave, wave) %>% 
+  ggplot(aes(mean_age_months_wave, fill = wave)) +
+  geom_density(alpha = 1/2) +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text = element_text(size = 18),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 16),
+    legend.position = "right"
+  ) +
+  labs(x = "Age (months)")
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/age_months_wave_density.png",
+  width = 9, 
+  height = 7
+)
+
+d %>% 
+  distinct(ID, mean_age_years_wave, wave) %>% 
+  ggplot(aes(mean_age_years_wave, fill = wave)) +
+  geom_density(alpha = 1/2) +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text = element_text(size = 18),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 16),
+    legend.position = "right"
+  ) +
+  labs(x = "Age (years)")
+
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/age_years_wave_density.png",
+  width = 9, 
+  height = 7
+)
+
+
+d %>% 
+  group_by(wave, group) %>% 
+  summarise_at(
+    vars(mean_age_months_wave),
+    funs(min, max), na.rm = TRUE
+  )
+
+d %>% 
+  group_by(wave, group) %>% 
+  summarise_at(
+    vars(mean_age_years_wave),
+    funs(min, max), na.rm = TRUE
+  )
+
+```
+
+## Percent per group and sex 
+```{r}
+# at initial assessments
+d %>% 
+  filter(wave != "8", wave != "12", wave != "16") %>% 
+  distinct(ID, group) %>% 
+  count(group) 
+
+### NIG wave of entry
+NIG_IDs_BL <-
+  d %>% 
+  filter(group == "NIG", wave == "BL") %>% 
+  select(ID, wave_BL = wave)
+
+NIG_IDs_8 <-
+  d %>% 
+  filter(group == "NIG", wave == "8") %>% 
+  select(ID, wave_8 = wave)
+
+NIG_IDs_12 <-
+  d %>% 
+  filter(group == "NIG", wave == "12") %>% 
+  select(ID, wave_12 = wave)
+
+NIG_IDs_16 <-
+  d %>% 
+  filter(group == "NIG", wave == "16") %>% 
+  select(ID, wave_16 = wave)
+
+NIG_IDs_BL %>% 
+  full_join(NIG_IDs_8, by = "ID") %>% 
+  full_join(NIG_IDs_12, by = "ID") %>% 
+  full_join(NIG_IDs_16, by = "ID") %>% 
+  distinct(ID, wave_BL, wave_8, wave_12, wave_16) %>% 
+  count(wave_BL)
+
+### sex
+d %>% 
+  filter(wave == "BL", group != "NIG") %>% 
+  distinct(ID, male) %>% 
+  count(male) %>% 
+  mutate(per = n / sum(n))
+
+d %>% 
+  filter(group == "NIG") %>% 
+  distinct(ID, wave)
+
+d %>% 
+  filter(group == "NIG", ID < 300) %>% 
+  distinct(ID, group, wave, mean_age_months_wave) %>% 
+  spread(wave, mean_age_months_wave)
+
+
+d %>% 
+  filter(wave != "8", wave != "12", wave != "16") %>% 
+  distinct(ID, group)
+```
+
+## Measures per construct per wave
+```{r}
+d %>% 
+  distinct(ID, wave) %>% 
+  count(wave)
+
+d %>% 
+  count(group, wave)
+
+d %>% 
+  distinct(ID, group, wave) %>% 
+  count(group, wave)
+
+d %>% 
+  count(construct)
+
+d %>% 
+  count(wave, construct) %>% 
+  arrange(construct, wave)
+
+d %>% 
+  count(wave, construct) %>% 
+  arrange(construct, wave) %>% 
+  ggplot(aes(wave, n, color = construct)) +
+  geom_point(size = 5) +
+  labs(
+    y = "Number of observations"
+  ) +
+  theme_beip
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/wave_construct_n.png",
+  width = 10,
+  height = 7
+)
+
+d %>% 
+  filter(group == "NIG", !is.na(value), ID < 300) %>% 
+  distinct(ID, wave, mean_age_years_wave) %>% 
+  spread(wave, mean_age_years_wave) %>% 
+  count(`30`, `42`, `54`, `8`, `12`, `16`) %>% 
+  arrange(`30`)
+
+```
+
+```{r}
+d %>% 
+  filter(wave != "BL") %>% 
+  count(wave) 
+
+d %>% 
+  filter(wave != "BL") %>% 
+  distinct(ID, group, wave) %>% 
+  count(wave, group) 
+
+d %>% 
+  filter(wave != "BL") %>% 
+   distinct(ID, group, wave, construct, measure) %>% 
+  count(wave, group, construct) %>% 
+  arrange(wave, desc(n))
+
+d %>% 
+  filter(wave != "BL") %>% 
+  filter(construct == "psychopathology") %>% 
+  count(wave, measure, informant) %>% 
+  arrange(wave, desc(n))
+
+d %>% 
+  filter(wave != "BL") %>% 
+  filter(construct == "intelligence") %>% 
+  count(wave, measure) %>% 
+  arrange(wave, desc(n))
+
+d %>% 
+  filter(wave != "BL") %>% 
+  filter(construct == "brain") %>% 
+  count(group, wave, measure) %>% 
+  arrange(group, wave, desc(n))
+```
+
+## Percent time in institution descriptives 
+```{r}
+d %>% 
+  group_by(wave, group) %>% 
+  summarise_at(
+    vars(pctinst),
+    funs(mean, sd), na.rm = TRUE
+  )
+```
+
+
+## Subset psychopathology data
+```{r}
+d_psy <-
+  d %>% 
+  filter(construct == "psychopathology")
+```
+
+## Contrast code binary variables and categorical variables
+
+```{r}
+d <-
+  d %>% 
+  filter(construct != "psychopathology") %>% 
+  mutate_at(
+    vars(construct, domain, informant, group),
+    as.factor
+  ) %>% 
+  mutate(
+    construct = droplevels(construct),
+    domain = droplevels(domain)
+  )
+
+contrasts(d$male) = c(-.5, .5) #allows interpretation of other coefficients as average across sexes
+
+contrasts(d$wave) = cbind(   # every categorical response coded 1 – 1/m instead of 1, and –1/m instead of 0 (m = number of "dummy" variables)
+  "30vBL" = c(-1/7, 1 - (1/7), -1/7, -1/7, -1/7, -1/7, -1/7),
+  "40vBL" = c(-1/7, -1/7, 1 - (1/7), -1/7, -1/7, -1/7, -1/7),
+  "54vBL" = c(-1/7, -1/7, -1/7, 1 - (1/7), -1/7, -1/7, -1/7),
+  "8vBL" = c(-1/7, -1/7, -1/7, -1/7, 1 - (1/7), -1/7, -1/7),
+  "12vBL" = c(-1/7, -1/7, -1/7, -1/7, -1/7, 1 - (1/7), -1/7),
+  "16vBL" = c(-1/7, -1/7, -1/7, -1/7, -1/7, -1/7, 1 - (1/7))
+)
+
+contrasts(d$construct) <- cbind(
+  "IQvEEG" = c(-1/3, 1 - (1/3), -1/3),
+  "PHYSvEEG" = c(-1/3, -1/3, 1 - (1/3))
+)
+
+contrasts(d$domain) = cbind( 
+  HDvEEG = c(-1/5, 1 - (1/5), -1/5, -1/5, -1/5),
+  HTvEEG = c(-1/5, -1/5, 1 - (1/5), -1/5, -1/5),
+  IQvEEG = c(-1/5, -1/5, -1/5, 1 - (1/5), -1/5),
+  WTvEEG = c(-1/5, -1/5, -1/5, -1/5, 1 - (1/5))
+)
+```
+
+```{r}
+d_psy <-
+  d_psy %>% 
+  select(-construct) %>% 
+  mutate(
+    domain = droplevels(domain),
+    informant = droplevels(informant)
+  )
+
+contrasts(d_psy$male) = c(-.5, .5)
+
+contrasts(d_psy$informant) = c(-.5, .5)
+
+contrasts(d_psy$domain) = cbind(
+  DESDvADHD = c(-1/5, 1 - (1/5), -1/5, -1/5, -1/5),
+  EXTvADHD = c(-1/5, -1/5, 1 - (1/5), -1/5, -1/5),
+  INTvADHD = c(-1/5, -1/5, -1/5, 1 - (1/5), -1/5),
+  RADvADHD = c(-1/5, -1/5, -1/5, -1/5, 1 - (1/5))
+)
+```
+
+## CAUG vs. FCG dataset (intervention effect)
+```{r}
+d_int <-
+  d %>% 
+  filter(group == "CAUG" | group == "FCG", wave != "BL") %>% 
+  mutate(
+    group = droplevels(group)
+  )
+
+contrasts(d_int$group) = c(-.5, .5)
+
+d_int_psy <-
+  d_psy %>% 
+  filter(group == "CAUG" | group == "FCG", wave != "BL") %>% 
+  mutate(
+    group = droplevels(group)
+  )
+
+contrasts(d_int_psy$group) = c(-.5, .5)
+```
+
+## NIG vs. FCG dataset (recovery effect)
+```{r}
+d_rec <-
+  d %>% 
+  filter(group == "FCG" | group == "NIG", wave != "BL") %>% 
+  mutate(
+    group = droplevels(group)
+  )
+
+contrasts(d_rec$group) = c(-.5, .5)
+
+d_rec_psy <-
+  d_psy %>% 
+  filter(group == "FCG" | group == "NIG", wave != "BL") %>% 
+  mutate(
+    group = droplevels(group)
+  )
+
+contrasts(d_rec_psy$group) = c(-.5, .5)
+```
+
+# Visualize distributions of outcomes
+```{r}
+d %>% 
+  ggplot(aes(value_z)) +
+  geom_histogram() +
+  facet_grid(wave~construct, scale = "free") +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text = element_text(size = 18),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 16),
+    legend.position = "right"
+  ) +
+  labs(x = "Standardized outcome score")
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/wave_construct_fact_hist.png",
+  width = 11,
+  height = 9
+)
+
+d %>% 
+  ggplot(aes(value_z, fill = construct)) +
+  geom_histogram(alpha = 1/2) +
+  facet_wrap(.~wave, scale = "free") +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text = element_text(size = 18),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 16),
+    legend.position = "right"
+  ) +
+  labs(x = "Standardized outcome score")
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/wave_construct_fill_hist.png",
+  width = 11,
+  height = 7
+)
+
+
+d_psy %>% 
+  ggplot(aes(value_z, fill = domain)) +
+  geom_histogram(alpha = 1/2) +
+  facet_wrap(.~wave, scale = "free") +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text = element_text(size = 18),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 16),
+    legend.position = "right"
+  ) +
+  labs(x = "Standardized outcome score")
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/wave_construct_fill_hist_psy.png",
+  width = 11,
+  height = 7
+)
+
+```
+
+# Visualize group effects
+```{r}
+d %>% 
+  filter(!is.na(group)) %>% 
+  filter(value_z > -10) %>% 
+  ggplot(aes(construct, value_z, fill = group)) +
+  geom_boxplot() +
+  facet_wrap(.~wave) +
+  theme_bw() +
+  theme(
+    axis.text = element_text(angle = 320, hjust = .1)
+  )
+
+ggsave("~/Box/lucy_king_share_files/BEIP/boxplot_construct_wave_group.png", width = 10, height = 7)
+
+d %>% 
+  filter(!is.na(group)) %>% 
+  filter(value_z > -10) %>% 
+  ggplot(aes(domain, value_z, fill = group)) +
+  geom_boxplot() +
+  facet_wrap(.~wave) +
+  theme_bw() +
+  theme(
+    axis.text = element_text(angle = 320, hjust = .1)
+  )
+
+ggsave("~/Box/lucy_king_share_files/BEIP/boxplot_domain_wave_group.png", width = 10, height = 7)
+
+d_int %>% 
+  filter(!is.na(group)) %>%
+  filter(value_z > -10) %>% 
+  ggplot(aes(wave, value_z, fill = group)) +
+  geom_boxplot() +
+  facet_wrap(.~domain) +
+  theme_bw()
+
+ggsave("~/Box/lucy_king_share_files/BEIP/boxplot_domain_wave_FCGvCAUG.png", width = 10, height = 7)
+
+d_int %>% 
+  filter(!is.na(group)) %>%
+  filter(value_z > -10) %>% 
+  ggplot(aes(wave, value_z, fill = group)) +
+  geom_boxplot() +
+  facet_wrap(.~construct) +
+  theme_bw()
+
+ggsave("~/Box/lucy_king_share_files/BEIP/boxplot_construct_wave_FCGvCAUG.png", width = 10, height = 7)
+
+d %>%
+  mutate(
+    construct = factor(
+      construct,
+      levels = c("brain", "intelligence", "physical"),
+      labels = c("EEG power", "IQ", "Physical size")
+    )
+  ) %>% 
+  ggplot(aes(age_years, value_z, color = group)) +
+  geom_smooth(method = "lm", size = 2) +
+  facet_wrap(.~construct, scale = "free") +
+  theme_beip +
+  labs(
+    color = NULL,
+    x = "Child age (years)",
+    y = "Score (standardized)\n within domain"
+  )
+
+ggsave("~/Box/lucy_king_share_files/BEIP/lmplot_construct_age_group.png", width = 10, height = 7)
+
+```
+
+For some IQ wasn't tested because staff determined IQ too low to test (e.g., they were nonverbal): could impute lowest value in sample
+
+New NIGs came in at age 8 -- new and old NIGs have 10-pt IQ difference; new NIGs came from low-income neighborhoods; so I might see a different age effect for IQ compared to everything else for this reason
+
+# Results
+
+Given the nested structure of the data (construct nested within informant, nested within wave [or age]), we used multi-level modeling. 
+Aim 1a: Test of intervention, i.e., FCG vs. CAUG
+
+value ~ FCG/CAUG + mean age + person-centered age + construct + informant + sex + (random slopes | ID)
+
+
+## Aim 1: EEG, IQ, physical size
+
+## Main effect of group (with main effect covariates)
+```{r}
+a1_base1 <- lmer(
+  value_z ~ 
+    group +
+    male +
+    scale(age_years, scale = FALSE) +
+    construct +
+    (1 |ID), 
+  data = d_int
+)
+
+
+a1_base2 <- lmer(
+  value_z ~ 
+    group +
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    construct +
+    (1 |ID), 
+  data = d_int
+)
+
+a1_base3 <- lmer(
+  value_z ~ 
+    group +
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    I(scale(age_years, scale = FALSE)^3) +
+    construct +
+    (1 |ID), 
+  data = d_int
+)
+
+anova(a1_base1, a1_base2, a1_base3)
+
+anova(a1_base3)
+summary(a1_base3)
+standardize_parameters(a1_base3)
+```
+### Diagnostics
+
+There are four key assumptions to check for this model.
+
+Independence of observations
+Linearity between the response variable and the predictor variables
+Constant variance of the residuals
+Normality of the residuals
+https://cran.r-project.org/web/packages/ggResidpanel/vignettes/introduction.html
+
+```{r}
+resid_panel(a1_base)
+
+ggsave("~/Box/lucy_king_share_files/BEIP/aim1A_diagnostics.png")
+```
+
+### Visualize
+```{r}
+d_int %>% 
+  ggplot(aes(group, value_z)) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = seq.int(-5, 5, 1)) +
+  theme_beip +
+  labs(
+    x = NULL,
+    y = "Standardized outcome score\n(EEG power, IQ, physical size)"
+  )
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/aim1A_boxplot.png",
+  width = 7,
+  height = 6
+)
+```
+
+## Moderation by construct
+```{r}
+a1_construct <- lmer(
+  value_z ~ 
+    group * construct +
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    I(scale(age_years, scale = FALSE)^3) +
+    (1 |ID), 
+  data = d_int
+)
+anova(a1_construct)
+summary(a1_construct)
+standardize_parameters(a1_construct)
+```
+
+```{r}
+# brain = baseline
+contrasts(d_int$construct) <- cbind(
+  "IQvEEG" = c(0, 1, 0),
+  "PHYSvEEG" = c(0, 0, 1)
+)
+
+# CAUG = baseline
+contrasts(d_int$group) = c(0, 1)
+
+a1_construct_EEG <- lmer(
+  value_z ~ 
+    group * construct +
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    I(scale(age_years, scale = FALSE)^3) +
+    (1 |ID), 
+  data = d_int
+)
+summary(a1_construct_EEG)
+standardize_parameters(a1_construct_EEG)
+```
+
+```{r}
+# IQ = baseline
+contrasts(d_int$construct) <- cbind(
+  "EEGvIQ" = c(1, 0, 0),
+  "PHYSvIQ" = c(0, 0, 1)
+)
+
+# CAUG = baseline
+contrasts(d_int$group) = c(0, 1)
+
+a1_construct_IQ <- lmer(
+  value_z ~ 
+    group * construct +
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    I(scale(age_years, scale = FALSE)^3) +
+    (1 |ID), 
+  data = d_int
+)
+summary(a1_construct_IQ)
+standardize_parameters(a1_construct_IQ)
+```
+
+```{r}
+# PHYS = baseline
+contrasts(d_int$construct) <- cbind(
+  "EEGvPHYS" = c(1, 0, 0),
+  "IQvPHYS" = c(0, 1, 0)
+)
+
+# CAUG = baseline
+contrasts(d_int$group) = c(0, 1)
+
+a1_construct_PHY <- lmer(
+  value_z ~ 
+    group * construct +
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    I(scale(age_years, scale = FALSE)^3) +
+    (1 |ID), 
+  data = d_int
+)
+summary(a1_construct_PHY)
+standardize_parameters(a1_construct_PHY)
+```
+### Visualize
+```{r}
+d_int %>% 
+  ggplot(aes(construct, value_z, fill = group)) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = seq.int(-5, 5, 1)) +
+  scale_fill_npg() +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text.y = element_text(size = 18),
+    axis.text.x = element_text(size = 18, angle = 320, hjust = .1),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 16),
+    legend.position = "right"
+  ) +
+  labs(
+    title = "Effects of intervention significant only for IQ",
+    fill = NULL,
+    x = NULL,
+    y = "Standardized outcome score"
+  )
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/aim1_construct_boxplot.png",
+  width = 8,
+  height = 7
+)
+```
+
+
+## Moderation by age
+
+```{r}
+contrasts(d_int$construct) <- cbind(
+  "IQvEEG" = c(-1/3, 1 - (1/3), -1/3),
+  "PHYSvEEG" = c(-1/3, -1/3, 1 - (1/3))
+)
+
+contrasts(d_int$group) = c(-.5, .5)
+```
+
+```{r}
+a1_age1 <- lmer(
+  value_z ~ 
+    group * construct * scale(age_years, scale = FALSE) +
+    male +
+    I(scale(age_years, scale = FALSE)^2) +
+    I(scale(age_years, scale = FALSE)^3) +
+    (1 |ID), 
+  data = d_int
+)
+anova(a1_age1)
+
+a1_age2 <- lmer(
+  value_z ~ 
+    group * construct * I(scale(age_years, scale = FALSE)^2) +
+    construct * scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^3) +
+    male +
+    (1 |ID),
+  data = d_int
+)
+anova(a1_age2)
+
+a1_age3 <- lmer(
+  value_z ~ 
+    group * construct * I(scale(age_years, scale = FALSE)^3) +
+    construct * scale(age_years, scale = FALSE) +
+    construct * I(scale(age_years, scale = FALSE)^2) +
+    male +
+    (1 |ID),
+  data = d_int
+)
+anova(a1_age3)
+
+a1_age4 <- lmer(
+  value_z ~ 
+    group * construct +
+    construct * scale(age_years, scale = FALSE) +
+    construct * I(scale(age_years, scale = FALSE)^2) +
+    I(scale(age_years, scale = FALSE)^3) +
+    male +
+    (1 |ID),
+  data = d_int
+)
+anova(a1_age4)
+```
+- Effect of group depends on within-individual increases in age (but not average levels of age)
+- Effect of construct depends on within-individual increases in age and average levels of age
+
+### Visualize
+
+```{r}
+d_int %>% 
+  ggplot(aes(age_years, value_z, color = group)) +
+  geom_smooth(method = "loess", span = 1) +
+  #scale_y_continuous(breaks = seq.int(-5, 5, 1)) +
+  scale_color_npg() +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text.y = element_text(size = 18),
+    axis.text.x = element_text(size = 18, angle = 320, hjust = .1),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 14),
+    legend.position = "right"
+  ) +
+  labs(
+    title = "Effects of intervention do not depend on age",
+    color = NULL,
+    x = "Age (years)",
+    y = "Standardized outcome score"
+  ) +
+  facet_grid(.~construct)
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/aim1_age_construct_LMloess.png",
+  width = 10,
+  height = 8
+)
+```
+
+
+```{r}
+d_int %>% 
+  ggplot(aes(age_years, value_z, color = group)) +
+  geom_smooth(method = "loess", span = 1) +
+  #scale_y_continuous(breaks = seq.int(-5, 5, 1)) +
+  scale_color_npg() +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text.y = element_text(size = 18),
+    axis.text.x = element_text(size = 18, angle = 320, hjust = .1),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 16),
+    legend.position = "right"
+  ) +
+  labs(
+    title = "Effect of intervention does not depend on age",
+    color = NULL,
+    x = "Age (years)",
+    y = "Standardized outcome score\n(EEG power, IQ, physical size)"
+  )
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/aim1_age_LOESSsmooth.png",
+  width = 8,
+  height = 7
+)
+```
+
+## Moderation by sex
+```{r}
+contrasts(d_int$group) = c(-1, 1)
+
+a1_sex1 <- lmer(
+  value_z ~ 
+    group * construct * male +
+    construct * scale(age_years, scale = FALSE) * male +
+    construct * I(scale(age_years, scale = FALSE)^2) * male +
+    I(scale(age_years, scale = FALSE)^3) * male +
+    (1 |ID), 
+  data = d_int
+)
+anova(a1_sex1)
+
+a1_sex2 <- lmer(
+  value_z ~ 
+    group * construct * male +
+    construct * scale(age_years, scale = FALSE) +
+    construct * I(scale(age_years, scale = FALSE)^2) * male +
+    I(scale(age_years, scale = FALSE)^3) * male +
+    (1 |ID), 
+  data = d_int
+)
+anova(a1_sex2)
+```
+
+```{r}
+# brain = baseline
+contrasts(d_int$construct) <- cbind(
+  "IQvEEG" = c(0, 1, 0),
+  "PHYSvEEG" = c(0, 0, 1)
+)
+
+# baseline = CAUG
+contrasts(d_int$group) <- c(0, 1)
+
+# baseline = female
+contrasts(d_int$male) <- c(0, 1)
+
+a1_sex2_EEG <- lmer(
+  value_z ~ 
+    group * construct * male +
+    construct * scale(age_years, scale = FALSE) +
+    construct * I(scale(age_years, scale = FALSE)^2) * male +
+    I(scale(age_years, scale = FALSE)^3) * male +
+    (1 |ID), 
+  data = d_int
+)
+summary(a1_sex2_EEG)
+standardize_parameters(a1_sex2_EEG)
+
+# baseline = male
+contrasts(d_int$male) <- c(1, 0)
+
+a1_sex2_EEG <- lmer(
+  value_z ~ 
+    group * construct * male +
+    construct * scale(age_years, scale = FALSE) +
+    construct * I(scale(age_years, scale = FALSE)^2) * male +
+    I(scale(age_years, scale = FALSE)^3) * male +
+    (1 |ID), 
+  data = d_int
+)
+summary(a1_sex2_EEG)
+standardize_parameters(a1_sex2_EEG)
+```
+```{r}
+# IQ = baseline
+contrasts(d_int$construct) <- cbind(
+  "EEGvIQ" = c(1, 0, 0),
+  "PHYSvIQ" = c(0, 0, 1)
+)
+
+# baseline = CAUG
+contrasts(d_int$group) <- c(0, 1)
+
+# baseline = female
+contrasts(d_int$male) <- c(0, 1)
+
+a1_sex_IQ <- lmer(
+  value_z ~ 
+    group * construct * male +
+    construct * scale(age_years, scale = FALSE) +
+    construct * I(scale(age_years, scale = FALSE)^2) * male +
+    I(scale(age_years, scale = FALSE)^3) * male +
+    (1 |ID), 
+  data = d_int
+)
+summary(a1_sex_IQ)
+standardize_parameters(a1_sex_IQ)
+
+# baseline = male
+contrasts(d_int$male) <- c(1, 0)
+
+a1_sex2_IQ <- lmer(
+  value_z ~ 
+    group * construct * male +
+    construct * scale(age_years, scale = FALSE) +
+    construct * I(scale(age_years, scale = FALSE)^2) * male +
+    I(scale(age_years, scale = FALSE)^3) * male +
+    (1 |ID), 
+  data = d_int
+)
+summary(a1_sex2_IQ)
+standardize_parameters(a1_sex2_IQ)
+```
+
+```{r}
+# physical = baseline
+contrasts(d_int$construct) <- cbind(
+  "EEGvPHYS" = c(1, 0, 0),
+  "IQvPHYS" = c(0, 1, 0)
+)
+
+# baseline = CAUG
+contrasts(d_int$group) <- c(0, 1)
+
+# baseline = female
+contrasts(d_int$male) <- c(0, 1)
+
+a1_sex_PHY <- lmer(
+  value_z ~ 
+    group * construct * male +
+    construct * scale(age_years, scale = FALSE) +
+    construct * I(scale(age_years, scale = FALSE)^2) * male +
+    I(scale(age_years, scale = FALSE)^3) * male +
+    (1 |ID), 
+  data = d_int
+)
+summary(a1_sex_PHY)
+standardize_parameters(a1_sex_PHY)
+
+# baseline = male
+contrasts(d_int$male) <- c(1, 0)
+
+a1_sex2_IQ <- lmer(
+  value_z ~ 
+    group * construct * male +
+    construct * scale(age_years, scale = FALSE) +
+    construct * I(scale(age_years, scale = FALSE)^2) * male +
+    I(scale(age_years, scale = FALSE)^3) * male +
+    (1 |ID), 
+  data = d_int
+)
+summary(a1_sex2_IQ)
+standardize_parameters(a1_sex2_IQ)
+```
+
+### Visualize
+```{r}
+d_int %>% 
+  ggplot(aes(male, value_z, fill = group)) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = seq.int(-5, 5, 1)) +
+  scale_x_discrete(
+    breaks = c(0, 1),
+    labels = c("Girls", "Boys")
+  ) +
+  scale_fill_npg() +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text.y = element_text(size = 18),
+    axis.text.x = element_text(size = 18, angle = 320, hjust = .1),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 16),
+    legend.position = "right"
+  ) +
+  labs(
+    title = "Effects of intervention depend on biological sex",
+    color = NULL,
+    x = NULL,
+    y = "Standardized outcome score"
+  ) +
+  facet_grid(.~ construct)
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/male_construct_boxplot.png",
+  width = 9,
+  height = 7
+)
+```
+
+## Aim 1: Psychopathology
+
+## Main effect of group (with main effect covariates)
+```{r}
+a1_psy_base1 <- lmer(
+  value_z ~ 
+    group +
+    male +
+    scale(age_years, scale = FALSE) +
+    domain +
+    (1 |ID), 
+  data = d_int_psy
+)
+
+a1_psy_base2 <- lmer(
+  value_z ~ 
+    group +
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    domain +
+    (1 |ID), 
+  data = d_int_psy
+)
+
+a1_psy_base3 <- lmer(
+  value_z ~ 
+    group +
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    I(scale(age_years, scale = FALSE)^3) +
+    domain +
+    (1 |ID), 
+  data = d_int_psy
+)
+
+anova(a1_psy_base1, a1_psy_base2, a1_psy_base3)
+
+anova(a1_psy_base2)
+summary(a1_psy_base2)
+standardize_parameters(a1_psy_base2)
+```
+
+### Visualize
+```{r}
+d_int_psy %>% 
+  ggplot(aes(group, value_z)) +
+  geom_boxplot() +
+  #scale_y_continuous(breaks = seq.int(-5, 5, 1)) +
+  theme_beip +
+  labs(
+    x = NULL,
+    y = "Standardized psychopathology  score"
+  )
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/aim1A_psy_boxplot.png",
+  width = 7,
+  height = 6
+)
+```
+
+## Moderation by domain 
+```{r}
+a1_psy_domain <- lmer(
+  value_z ~ 
+    group * domain + 
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    (1 |ID), 
+  data = d_int_psy
+)
+
+anova(a1_psy_domain)
+```
+
+```{r}
+# CAUG = basleine
+contrasts(d_int_psy$group) = c(0, 1)
+
+# ADHD = baseline
+contrasts(d_int_psy$domain) = cbind(
+  DESDvADHD = c(0, 1, 0, 0, 0),
+  EXTvADHD = c(0, 0, 1, 0, 0),
+  INTvADHD = c(0, 0, 0, 1, 0),
+  RADvADHD = c(0, 0, 0, 0, 1)
+)
+
+a1_psy_domain_ADHD <- lmer(
+  value_z ~ 
+    group * domain + 
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    (1 |ID), 
+  data = d_int_psy
+)
+
+summary(a1_psy_domain_ADHD)
+```
+
+```{r}
+# CAUG = basleine
+contrasts(d_int_psy$group) = c(0, 1)
+
+# DESD = baseline
+contrasts(d_int_psy$domain) = cbind(
+  ADHDvDESD = c(1, 0, 0, 0, 0),
+  EXTvDESD = c(0, 0, 1, 0, 0),
+  INTvDESD = c(0, 0, 0, 1, 0),
+  RADvDESD = c(0, 0, 0, 0, 1)
+)
+
+a1_psy_domain_DESD <- lmer(
+  value_z ~ 
+    group * domain + 
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    (1 |ID), 
+  data = d_int_psy
+)
+
+summary(a1_psy_domain_DESD)
+standardize_parameters(a1_psy_domain_DESD)
+```
+
+```{r}
+# CAUG = basleine
+contrasts(d_int_psy$group) = c(0, 1)
+
+# EXT = baseline
+contrasts(d_int_psy$domain) = cbind(
+  ADHDvEXT = c(1, 0, 0, 0, 0),
+  DESDvEXT = c(0, 1, 0, 0, 0),
+  INTvEXT = c(0, 0, 0, 1, 0),
+  RADvEXT = c(0, 0, 0, 0, 1)
+)
+
+a1_psy_domain_EXT <- lmer(
+  value_z ~ 
+    group * domain + 
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    (1 |ID), 
+  data = d_int_psy
+)
+
+summary(a1_psy_domain_EXT)
+standardize_parameters(a1_psy_domain_EXT)
+```
+
+```{r}
+# CAUG = basleine
+contrasts(d_int_psy$group) = c(0, 1)
+
+# INT = baseline
+contrasts(d_int_psy$domain) = cbind(
+  ADHDvINT = c(1, 0, 0, 0, 0),
+  DESDvINT = c(0, 1, 0, 0, 0),
+  INTvINT = c(0, 0, 1, 0, 0),
+  RADvINT = c(0, 0, 0, 0, 1)
+)
+
+a1_psy_domain_INT <- lmer(
+  value_z ~ 
+    group * domain + 
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    (1 |ID), 
+  data = d_int_psy
+)
+
+summary(a1_psy_domain_INT)
+standardize_parameters(a1_psy_domain_INT)
+```
+
+
+```{r}
+# CAUG = basleine
+contrasts(d_int_psy$group) = c(0, 1)
+
+# RAD = baseline
+contrasts(d_int_psy$domain) = cbind(
+  ADHDvRAD = c(1, 0, 0, 0, 0),
+  DESDvRAD = c(0, 1, 0, 0, 0),
+  EXTvRAD = c(0, 0, 1, 0, 0),
+  INTvRAD = c(0, 0, 0, 1, 0)
+)
+
+a1_psy_domain_RAD <- lmer(
+  value_z ~ 
+    group * domain + 
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    (1 |ID), 
+  data = d_int_psy
+)
+
+summary(a1_psy_domain_RAD)
+standardize_parameters(a1_psy_domain_RAD)
+```
+
+### Visualize
+```{r}
+d_int_psy %>% 
+  ggplot(aes(domain, value_z, fill = group)) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = seq.int(-2, 12, 2)) +
+  scale_fill_npg() +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text.y = element_text(size = 18),
+    axis.text.x = element_text(size = 18, angle = 320, hjust = .1),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 16),
+    legend.position = "right"
+  ) +
+  labs(
+    title = "Effects of intervention significant only for RAD and DESD\nLargest effect on RAD",
+    fill = NULL,
+    x = NULL,
+    y = "Standardized outcome score"
+  )
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/aim1_construct_psy_boxplot.png",
+  width = 9,
+  height = 7
+)
+```
+
+## Moderation by age 
+
+```{r}
+contrasts(d_int_psy$male) = c(-.5, .5)
+
+contrasts(d_int_psy$group) = c(-.5, .5)
+
+contrasts(d_int_psy$informant) = c(-.5, .5)
+
+contrasts(d_psy$domain) = cbind(
+  DESDvADHD = c(-1/5, 1 - (1/5), -1/5, -1/5, -1/5),
+  EXTvADHD = c(-1/5, -1/5, 1 - (1/5), -1/5, -1/5),
+  INTvADHD = c(-1/5, -1/5, -1/5, 1 - (1/5), -1/5),
+  RADvADHD = c(-1/5, -1/5, -1/5, -1/5, 1 - (1/5))
+)
+```
+
+```{r}
+a1_psy_age1 <- lmer(
+  value_z ~ 
+    group * domain * scale(age_years, scale = FALSE) +
+    male +
+    I(scale(age_years, scale = FALSE)^2) +
+    (1 |ID), 
+  data = d_int_psy
+)
+
+anova(a1_psy_age1)
+
+a1_psy_age2 <- lmer(
+  value_z ~ 
+    group * domain * I(scale(age_years, scale = FALSE)^2) +
+    domain * scale(age_years, scale = FALSE) +
+    group * scale(age_years, scale = FALSE) +
+    male +
+    (1 |ID), 
+  data = d_int_psy
+)
+
+anova(a1_psy_age2)
+
+a1_psy_age3 <- lmer(
+  value_z ~ 
+    group * domain +
+    domain * I(scale(age_years, scale = FALSE)^2) +
+    domain * scale(age_years, scale = FALSE) +
+    group * scale(age_years, scale = FALSE) +
+    male +
+    (1 |ID), 
+  data = d_int_psy
+)
+
+anova(a1_psy_age3)
+```
+
+### Visualize
+```{r}
+d_int_psy %>% 
+  ggplot(aes(wave, value_z, fill = group)) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = seq.int(-2, 12, 2)) +
+  scale_fill_npg() +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text.y = element_text(size = 18),
+    axis.text.x = element_text(size = 18, angle = 320, hjust = .1),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 16),
+    legend.position = "right"
+  ) +
+  labs(
+    fill = NULL,
+    x = "Wave",
+    y = "Standardized outcome score"
+  ) +
+  facet_grid(.~domain)
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/aim1_construct_psy_wave_boxplot.png",
+  width = 12,
+  height = 7
+)
+```
+
+## Moderation by sex
+
+```{r}
+a1_psy_sex1 <- lmer(
+  value_z ~ 
+    group * domain * male +
+    scale(age_years, scale = FALSE) * male +
+    I(scale(age_years, scale = FALSE)^2) * male +
+    (1 |ID), 
+  data = d_int_psy
+)
+
+anova(a1_psy_sex1)
+
+a1_psy_sex2 <- lmer(
+  value_z ~ 
+    group * domain +
+    domain * male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    (1 |ID), 
+  data = d_int_psy
+)
+
+anova(a1_psy_sex2)
+```
+
+
+## Aim 2: EEG, IQ, physical size
+
+## Main effect of group (with main effect covariates)
+```{r}
+a2_base1 <- lmer(
+  value_z ~ 
+    group +
+    male +
+    scale(age_years, scale = FALSE) +
+    construct +
+    (1 |ID), 
+  data = d_rec
+)
+
+
+a2_base2 <- lmer(
+  value_z ~ 
+    group +
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    construct +
+    (1 |ID), 
+  data = d_rec
+)
+
+a2_base3 <- lmer(
+  value_z ~ 
+    group +
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    I(scale(age_years, scale = FALSE)^3) +
+    construct +
+    (1 |ID), 
+  data = d_rec
+)
+
+anova(a2_base1, a2_base2, a2_base3)
+
+anova(a2_base3)
+summary(a2_base3)
+standardize_parameters(a2_base3)
+```
+
+### Visualize
+```{r}
+d_rec %>% 
+  ggplot(aes(group, value_z)) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = seq.int(-5, 5, 1)) +
+  theme_beip +
+  labs(
+    x = NULL,
+    y = "Standardized outcome score\n(EEG power, IQ, physical size)"
+  )
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/aim2_boxplot.png",
+  width = 7,
+  height = 7
+)
+```
+
+## Moderation by construct
+```{r}
+a2_base_construct <- lmer(
+  value_z ~ 
+    group * construct +
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    I(scale(age_years, scale = FALSE)^3) +
+    (1 |ID), 
+  data = d_rec
+)
+
+anova(a2_base_construct)
+```
+
+```{r}
+# brain = baseline
+contrasts(d_rec$construct) = cbind(
+  IQvEEG = c(0, 1, 0),
+  PHYvEEG = c(0, 0, 1)
+)
+
+#FCG = baseline
+contrasts(d_rec$group) = c(0, 1)
+
+a2_base_EEG <- lmer(
+  value_z ~ 
+    group * construct +
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    I(scale(age_years, scale = FALSE)^3) +
+    (1 |ID), 
+  data = d_rec
+)
+
+summary(a2_base_EEG)
+standardize_parameters(a2_base_EEG)
+```
+
+```{r}
+# IQ = baseline
+contrasts(d_rec$construct) = cbind(
+  EEGvIQ = c(1, 0, 0),
+  PHYvIQ = c(0, 0, 1)
+)
+
+#FCG = baseline
+contrasts(d_rec$group) = c(0, 1)
+
+a2_base_IQ <- lmer(
+  value_z ~ 
+    group * construct +
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    I(scale(age_years, scale = FALSE)^3) +
+    (1 |ID), 
+  data = d_rec
+)
+
+summary(a2_base_IQ)
+standardize_parameters(a2_base_IQ)
+```
+
+```{r}
+# physical = baseline
+contrasts(d_rec$construct) = cbind(
+  EEGvPHY = c(1, 0, 0),
+  IQvPHY = c(0, 1, 0)
+)
+
+#FCG = baseline
+contrasts(d_rec$group) = c(0, 1)
+
+a2_base_PHY <- lmer(
+  value_z ~ 
+    group * construct +
+    male +
+    scale(age_years, scale = FALSE) +
+    I(scale(age_years, scale = FALSE)^2) +
+    I(scale(age_years, scale = FALSE)^3) +
+    (1 |ID), 
+  data = d_rec
+)
+
+summary(a2_base_PHY)
+standardize_parameters(a2_base_PHY)
+```
+
+### Visualize
+```{r}
+d_rec %>% 
+  ggplot(aes(construct, value_z, fill = group)) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = seq.int(-5, 5, 1)) +
+  scale_fill_npg() +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text.y = element_text(size = 18),
+    axis.text.x = element_text(size = 18, angle = 320, hjust = .1),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 16),
+    legend.position = "right"
+  ) +
+  labs(
+    title = "FCG significantly lower IQ and EEG\nLargest effect on IQ",
+    fill = NULL,
+    x = NULL,
+    y = "Standardized outcome score"
+  )
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/aim2_construct_boxplot.png",
+  width = 8,
+  height = 7
+)
+```
+
+## Moderation by age
+```{r}
+a2_base_age1 <- lmer(
+  value_z ~ 
+    group * construct * scale(age_years, scale = FALSE) +
+    male +
+    group * construct *  I(scale(age_years, scale = FALSE)^2) +
+    group * construct * I(scale(age_years, scale = FALSE)^3) +
+    (1 |ID), 
+  data = d_rec
+)
+
+anova(a2_base_age1)
+
+a2_base_age1 <- lmer(
+  value_z ~ 
+    group * construct +
+    scale(age_years, scale = FALSE) +
+    male +
+    I(scale(age_years, scale = FALSE)^2) +
+    I(scale(age_years, scale = FALSE)^3) +
+    (1 |ID), 
+  data = d_rec
+)
+
+anova(a2_base_age1)
+```
+
+
+
+
+
+
+
+
+
+
+## Aim 2
+
+## Main effect of group (with main effect covariates)
+```{r}
+d_rec <-
+  d_rec %>% 
+  mutate(
+    age_years_scale = scale(age_years, scale = FALSE)
+  )
+
+a2_base <- lmer(
+  value_z ~ 
+    group +
+    male +
+    age_years_scale +
+    I(age_years_scale^2) +
+    I(age_years_scale^3) +
+    construct +
+    (1 |ID), 
+  data = d_rec
+)
+anova(a2_base)
+summary(a2_base)
+standardize_parameters(a2_base)
+```
+### Diagnostics
+
+There are four key assumptions to check for this model.
+
+Independence of observations
+Linearity between the response variable and the predictor variables
+Constant variance of the residuals
+Normality of the residuals
+https://cran.r-project.org/web/packages/ggResidpanel/vignettes/introduction.html
+
+```{r}
+resid_panel(a2_base)
+
+ggsave("~/Box/lucy_king_share_files/BEIP/aim2_diagnostics.png")
+```
+Need to figure out missing ages, mostly EEG
+
+### Visualize
+```{r}
+d_rec %>% 
+  ggplot(aes(group, value_z)) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = seq.int(-5, 5, 1)) +
+  theme_beip +
+  labs(
+    x = NULL,
+    y = "Standardized outcome score"
+  )
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/aim2_boxplot.png",
+  width = 7,
+  height = 7
+)
+```
+
+## Moderation by construct
+```{r}
+# baseline = brain
+a2_construct <- lmer(
+  value_z ~ 
+    group * construct +
+    male +
+    age_years_scale +
+    I(age_years_scale^2) +
+    I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_rec
+)
+anova(a2_construct)
+summary(a2_construct)
+standardize_parameters(a2_construct)
+```
+- Effect of group
+- Effect of construct
+- Effect of individual increases and b/w individual levels of age
+- Effect of group depends on construct
+
+```{r}
+#baseline = IQ
+contrasts(d_rec$construct) <- cbind(
+  "EEGvIQ" = c(1 - (1/4), -1/4, -1/4, -1/4),
+  "PHYSvIQ" = c(-1/4, -1/4, 1 - (1/4), -1/4),
+  "PSYvIQ" = c(-1/4, -1/4, -1/4, 1 - (1/4))
+)
+
+a2_construct_IQ <- lmer(
+  value_z ~ 
+    group * construct +
+    male +
+    scale(age_per_cent, scale = FALSE) +
+    scale(age_mean, scale = FALSE) +
+    (1 |ID), 
+  data = d_rec
+)
+summary(a2_construct_IQ)
+standardize_parameters(a1_construct_IQ)
+```
+
+```{r}
+#baseline = psychopathology
+contrasts(d_rec$construct) <- cbind(
+  "EEGvPSY" = c(1 - (1/4), -1/4, -1/4, -1/4),
+  "IQvPSY" = c(-1/4, 1 - (1/4),-1/4, -1/4),
+  "PHYSvPSY" = c(-1/4, -1/4, 1 - (1/4), -1/4)
+)
+
+a2_construct_PSY <- lmer(
+  value_z ~ 
+    group * construct +
+    male +
+    scale(age_years, scale = FALSE) +
+    (1 |ID), 
+  data = d_rec
+)
+summary(a2_construct_PSY)
+```
+### Visualize
+```{r}
+d_rec %>% 
+  ggplot(aes(construct, value_z, fill = group)) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = seq.int(-5, 5, 1)) +
+  scale_fill_npg() +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text.y = element_text(size = 18),
+    axis.text.x = element_text(size = 18, angle = 320, hjust = .1),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 16),
+    legend.position = "right"
+  ) +
+  labs(
+    fill = NULL,
+    x = NULL,
+    y = "Standardized outcome score"
+  )
+
+ggsave("~/Box/lucy_king_share_files/BEIP/aim2_construct_boxplot.png")
+```
+
+## Moderation by age
+```{r}
+contrasts(d_rec$construct) <- cbind(
+  "IQvEEG" = c(-1/4, 1 - (1/4), -1/4, -1/4),
+  "PHYSvEEG" = c(-1/4, -1/4, 1 - (1/4), -1/4),
+  "PSYvEEG" = c(-1/4, -1/4, -1/4, 1 - (1/4))
+)
+contrasts(d_rec$male) = c(-.5, .5)
+contrasts(d_rec$group) = c(-.5, .5)
+
+a2_age1 <- lmer(
+  value_z ~ 
+    group * construct * age_years_scale +
+    group * construct * I(age_years_scale^2) +
+    group * construct * I(age_years_scale^3) +
+    male +
+    (1 |ID), 
+  data = d_rec
+)
+anova(a2_age1)
+
+
+a2_age2 <- lmer(
+  value_z ~ 
+    group * construct + 
+    construct * age_years_scale +
+    construct * I(age_years_scale^2) +
+    construct * I(age_years_scale^3) +
+    male +
+    (1 | ID), 
+  data = d_rec
+)
+anova(a2_age2)
+```
+
+```{r}
+# baseline = brain
+contrasts(d_rec$construct) <- cbind(
+  "IQvEEG" = c(0, 1, 0, 0),
+  "PHYSvEEG" = c(0, 0, 1, 0),
+  "PSYvEEG" = c(0, -0, 0, 1)
+)
+
+contrasts(d_rec$male) <- c(-.5, .5)
+contrasts(d_rec$group) <- c(-.5, .5)
+
+a2_age2_EEG <- lmer(
+  value_z ~ 
+    group * construct + 
+    construct * age_years_scale +
+    construct * I(age_years_scale^2) +
+    construct * I(age_years_scale^3) +
+    male +
+    (1 | ID), 
+  data = d_rec
+)
+summary(a2_age2_EEG)
+```
+
+### Visualize
+```{r}
+d_rec %>% 
+  ggplot(aes(age_years, value_z, color = construct)) +
+  geom_smooth(method = "loess", span = 1) +
+  #scale_y_continuous(breaks = seq.int(-5, 5, 1)) +
+  scale_color_npg() +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text.y = element_text(size = 18),
+    axis.text.x = element_text(size = 18, angle = 320, hjust = .1),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 14),
+    legend.position = "right"
+  ) +
+  labs(
+    color = NULL,
+    x = "Age (years)",
+    y = "Standardized outcome score"
+  ) 
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/aim2_age_construct_LMloess.png",
+  width = 10,
+  height = 8
+)
+```
+
+## Moderation by sex
+```{r}
+contrasts(d_rec$construct) <- cbind(
+  "IQvEEG" = c(-1/4, 1 - (1/4), -1/4, -1/4),
+  "PHYSvEEG" = c(-1/4, -1/4, 1 - (1/4), -1/4),
+  "PSYvEEG" = c(-1/4, -1/4, -1/4, 1 - (1/4))
+)
+contrasts(d_rec$male) = c(-.5, .5)
+contrasts(d_rec$group) = c(-.5, .5)
+
+a2_sex1 <- lmer(
+  value_z ~ 
+    group * construct * male +
+    construct * age_years_scale * male +
+    construct * I(age_years_scale^2) * male +
+    construct * I(age_years_scale^3) * male +
+    (1 | ID), 
+  data = d_rec
+)
+anova(a2_sex1)
+
+a2_sex2 <- lmer(
+  value_z ~ 
+    group * construct +
+    construct * male +
+    construct * age_years_scale +
+    construct * I(age_years_scale^2) +
+    construct * I(age_years_scale^3)  +
+    (1 | ID), 
+  data = d_rec
+)
+anova(a2_sex2)
+summary(a2_sex2)
+```
+
+```{r}
+# baseline = brain
+contrasts(d_rec$construct) <- cbind(
+  "IQvEEG" = c(0, 1, 0, 0),
+  "PHYSvEEG" = c(0, 0, 1, 0),
+  "PSYvEEG" = c(0, -0, 0, 1)
+)
+
+#female is baseline
+contrasts(d_rec$male) <- c(0, 1)
+
+#centered group
+contrasts(d_rec$group) <- c(-.5, .5)
+
+a2_sex2_EEG <- lmer(
+  value_z ~ 
+    group * construct +
+    construct * male +
+    construct * age_years_scale +
+    construct * I(age_years_scale^2) +
+    construct * I(age_years_scale^3)  +
+    (1 | ID), 
+  data = d_rec
+)
+summary(a2_sex2_EEG)
+```
+
+```{r}
+# baseline = IQ
+contrasts(d_rec$construct) <- cbind(
+  "EEGvIQ" = c(1, 0, 0, 0),
+  "PHYSvIQ" = c(0, 0, 1, 0),
+  "PSYvIQ" = c(0, 0, 0, 1)
+)
+
+#female is baseline
+contrasts(d_rec$male) <- c(0, 1)
+
+#centered group
+contrasts(d_rec$group) <- c(-.5, .5)
+
+a2_sex2_IQ <- lmer(
+  value_z ~ 
+    group * construct +
+    construct * male +
+    construct * age_years_scale +
+    construct * I(age_years_scale^2) +
+    construct * I(age_years_scale^3)  +
+    (1 | ID), 
+  data = d_rec
+)
+summary(a2_sex2_IQ)
+```
+
+```{r}
+# baseline = physical
+contrasts(d_rec$construct) <- cbind(
+  "EEGvPHYS" = c(1, 0, 0, 0),
+  "IQvPHYS" = c(0, 1, 0, 0),
+  "PSYvPHYS" = c(0, 0, 0, 1)
+)
+
+#female is baseline
+contrasts(d_rec$male) <- c(0, 1)
+
+#centered group
+contrasts(d_rec$group) <- c(-.5, .5)
+
+a2_sex2_phys <- lmer(
+  value_z ~ 
+    group * construct +
+    construct * male +
+    construct * age_years_scale +
+    construct * I(age_years_scale^2) +
+    construct * I(age_years_scale^3)  +
+    (1 | ID), 
+  data = d_rec
+)
+summary(a2_sex2_phys)
+```
+
+```{r}
+# baseline = psychopathology
+contrasts(d_rec$construct) <- cbind(
+  "EEGvPSY" = c(1, 0, 0, 0),
+  "IQvPSY" = c(0, 1, 0, 0),
+  "PHYSvPSY" = c(0, 0, 1, 0)
+)
+
+#female is baseline
+contrasts(d_rec$male) <- c(0, 1)
+
+#centered group
+contrasts(d_rec$group) <- c(-.5, .5)
+
+a2_sex2_psy <- lmer(
+  value_z ~ 
+    group * construct +
+    construct * male +
+    construct * age_years_scale +
+    construct * I(age_years_scale^2) +
+    construct * I(age_years_scale^3)  +
+    (1 | ID), 
+  data = d_rec
+)
+summary(a2_sex2_psy)
+```
+
+### Visualize
+```{r}
+d_rec %>% 
+  ggplot(aes(construct, value_z, fill = fct_rev(male))) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = seq.int(-5, 5, 1)) +
+  scale_fill_igv(breaks = c(0, 1), labels = c("Girls", "Boys")) +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text.y = element_text(size = 18),
+    axis.text.x = element_text(size = 18, angle = 320, hjust = .1),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 16),
+    legend.position = "right"
+  ) +
+  labs(
+    fill = NULL,
+    color = NULL,
+    x = NULL,
+    y = "Standardized outcome score"
+  )
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/aim2_male_construct_boxplot.png",
+  width = 8,
+  height = 7
+)
+```
+
+# Aim 1: Within-construct analyses
+
+## Psychopathology
+```{r}
+d_int_psy <-
+  d_int %>% 
+  filter(construct == "psychopathology") %>% 
+  mutate(
+    domain = droplevels(domain),
+    informant = droplevels(informant)
+  )
+```
+
+### contrast codes
+```{r}
+contrasts(d_int_psy$group) = c(-.5, .5) 
+
+contrasts(d_int_psy$male) = c(-.5, .5) 
+
+contrasts(d_int_psy$domain) = cbind( 
+  c(-1/5, 1 - (1/5), -1/5, -1/5, -1/5),
+  c(-1/5, -1/5, 1 - (1/5), -1/5, -1/5),
+  c(-1/5, -1/5, -1/5, 1 - (1/5), -1/5),
+  c(-1/5, -1/5, -1/5, -1/5, 1 - (1/5))
+)
+
+contrasts(d_int_psy$informant) = c(-.5, .5)
+```
+
+### group * domain 
+```{r}
+a1_psy_domain <- lmer(
+  value_z ~ 
+    group * domain +
+    male +
+    age_years_scale +
+    I(age_years_scale^2) +
+    I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_psy
+)
+anova(a1_psy_domain)
+summary(a1_psy_domain)
+standardize_parameters(a1_psy_domain)
+```
+
+```{r}
+# ADHD is baseline
+contrasts(d_int_psy$domain) = cbind( 
+  DESDvADHD = c(0, 1, 0, 0, 0),
+  EXTvADHD = c(0, 0, 1, 0, 0),
+  INTvADHD = c(0, 0, 0, 1, 0),
+  RADvADHD = c(0, 0, 0, 0, 1)
+)
+
+# CAUG is baseline
+contrasts(d_int_psy$group) = c(0, 1)
+
+a1_psy_domain_ADHD <- lmer(
+  value_z ~ 
+    group * domain +
+    male +
+    age_years_scale +
+    I(age_years_scale^2) +
+    I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_psy
+)
+summary(a1_psy_domain_ADHD)
+```
+
+```{r}
+# DESD is baseline
+contrasts(d_int_psy$domain) = cbind( 
+  ADHDvDESD = c(1, 0, 0, 0, 0),
+  EXTvDESD = c(0, 0, 1, 0, 0),
+  INTvDESD = c(0, 0, 0, 1, 0),
+  RADvDESD = c(0, 0, 0, 0, 1)
+)
+
+# CAUG is baseline
+contrasts(d_int_psy$group) = c(0, 1)
+
+a1_psy_domain_DESD <- lmer(
+  value_z ~ 
+    group * domain +
+    male +
+    age_years_scale +
+    I(age_years_scale^2) +
+    I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_psy
+)
+summary(a1_psy_domain_DESD)
+```
+
+```{r}
+# extern is baseline
+contrasts(d_int_psy$domain) = cbind( 
+  ADHDvEXT = c(1, 0, 0, 0, 0),
+  DESDvEXT = c(0, 1, 0, 0, 0),
+  INTvEXT = c(0, 0, 0, 1, 0),
+  RADvEXT = c(0, 0, 0, 0, 1)
+)
+
+# CAUG is baseline
+contrasts(d_int_psy$group) = c(0, 1)
+
+a1_psy_domain_EXT <- lmer(
+  value_z ~ 
+    group * domain +
+    male +
+    age_years_scale +
+    I(age_years_scale^2) +
+    I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_psy
+)
+summary(a1_psy_domain_EXT)
+```
+
+```{r}
+# intern is baseline
+contrasts(d_int_psy$domain) = cbind( 
+  ADHDvINT = c(1, 0, 0, 0, 0),
+  DESDvINT = c(0, 1, 0, 0, 0),
+  EXTvINT = c(0, 0, 1, 0, 0),
+  RADvINT = c(0, 0, 0, 0, 1)
+)
+
+# CAUG is baseline
+contrasts(d_int_psy$group) = c(0, 1)
+
+a1_psy_domain_INT <- lmer(
+  value_z ~ 
+    group * domain +
+    male +
+    age_years_scale +
+    I(age_years_scale^2) +
+    I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_psy
+)
+summary(a1_psy_domain_INT)
+```
+### sex, age 
+```{r}
+a1_psy_age <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    male * domain + 
+    I(age_years_scale^2) +
+    I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_psy
+)
+anova(a1_psy_age)
+summary(a1_psy_age)
+standardize_parameters(a1_psy_age)
+```
+
+```{r}
+# ADHD is baseline
+contrasts(d_int_psy$domain) = cbind( 
+  DESDvADHD = c(0, 1, 0, 0, 0),
+  EXTvADHD = c(0, 0, 1, 0, 0),
+  INTvADHD = c(0, 0, 0, 1, 0),
+  RADvADHD = c(0, 0, 0, 0, 1)
+)
+
+# CAUG is baseline
+contrasts(d_int_psy$group) = c(0, 1)
+
+a1_psy_age_ADHD <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    male * domain + 
+    I(age_years_scale^2) +
+    I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_psy
+)
+summary(a1_psy_age_ADHD)
+```
+
+```{r}
+# DESD is baseline
+contrasts(d_int_psy$domain) = cbind( 
+  ADHDvDESD = c(1, 0, 0, 0, 0),
+  EXTvDESD = c(0, 0, 1, 0, 0),
+  INTvDESD = c(0, 0, 0, 1, 0),
+  RADvDESD = c(0, 0, 0, 0, 1)
+)
+
+
+# CAUG is baseline
+contrasts(d_int_psy$group) = c(0, 1)
+
+a1_psy_age_DESD <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    male * domain + 
+    I(age_years_scale^2) +
+    I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_psy
+)
+summary(a1_psy_age_DESD)
+```
+
+```{r}
+# extern is baseline
+contrasts(d_int_psy$domain) = cbind( 
+  ADHDvEXT = c(1, 0, 0, 0, 0),
+  DESDvEXT = c(0, 1, 0, 0, 0),
+  INTvEXT = c(0, 0, 0, 1, 0),
+  RADvEXT = c(0, 0, 0, 0, 1)
+) 
+# CAUG is baseline
+contrasts(d_int_psy$group) = c(0, 1)
+
+a1_psy_age_EXT <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    male * domain + 
+    I(age_years_scale^2) +
+    I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_psy
+)
+summary(a1_psy_age_EXT)
+```
+
+```{r}
+# intern is baseline
+contrasts(d_int_psy$domain) = cbind( 
+  ADHDvINT = c(1, 0, 0, 0, 0),
+  DESDvINT = c(0, 1, 0, 0, 0),
+  EXTvINT = c(0, 0, 1, 0, 0),
+  RADvINT = c(0, 0, 0, 0, 1)
+)
+
+# CAUG is baseline
+contrasts(d_int_psy$group) = c(0, 1)
+
+a1_psy_age_INT <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    male * domain + 
+    I(age_years_scale^2) +
+    I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_psy
+)
+summary(a1_psy_age_INT)
+```
+
+
+```{r}
+# RAD is baseline
+contrasts(d_int_psy$domain) = cbind( 
+  ADHDvRAD = c(1, 0, 0, 0, 0),
+  DESDvRAD = c(0, 1, 0, 0, 0),
+  EXTvRAD = c(0, 0, 1, 0, 0),
+  INTvRAD = c(0, 0, 0, 1, 0)
+)
+
+# CAUG is baseline
+contrasts(d_int_psy$group) = c(0, 1)
+
+a1_psy_age_RAD <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    male * domain + 
+    I(age_years_scale^2) +
+    I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_psy
+)
+summary(a1_psy_age_RAD)
+```
+
+### visualize 
+```{r}
+d_int_psy %>% 
+  ggplot(aes(domain, value_z, fill = group)) +
+  geom_boxplot() +
+  scale_fill_npg() +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text.y = element_text(size = 18),
+    axis.text.x = element_text(size = 18, angle = 320, hjust = .1),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 14),
+    legend.position = "right"
+  ) +
+  labs(
+    color = NULL,
+    x = NULL,
+    y = "Standardized outcome score"
+  ) 
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/psy_domain_group.png",
+  width = 8,
+  height = 7
+)
+```
+
+```{r}
+d_int_psy %>% 
+  ggplot(aes(age_years, value_z, color = group)) +
+  geom_smooth(method = "lm", span = 1.5) +
+  scale_color_npg() +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text.y = element_text(size = 18),
+    axis.text.x = element_text(size = 18, angle = 320, hjust = .1),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 14),
+    legend.position = "right"
+  ) +
+  labs(
+    color = NULL,
+    x = "Age (years)",
+    y = "Standardized outcome score"
+  ) +
+  facet_grid(.~domain)
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/psy_domain_age_group.png",
+  width = 10,
+  height = 7
+)
+```
+
+## Physical
+```{r}
+d_int_phys <-
+  d_int %>% 
+  filter(construct == "physical") %>% 
+  mutate(
+    domain = droplevels(domain),
+    informant = droplevels(informant)
+  )
+```
+
+### contrast codes
+```{r}
+contrasts(d_int_phys$group) = c(-.5, .5) 
+
+contrasts(d_int_phys$male) = c(-.5, .5) 
+
+contrasts(d_int_phys$domain) = cbind( 
+  HTvHD = c(-1/3, 1 - (1/3), -1/3),
+  WTvHD = c(-1/3, -1/3, 1 - (1/3))
+)
+```
+
+### group * domain 
+```{r}
+a1_phys_domain <- lmer(
+  value_z ~ 
+    group * domain +
+    male +
+    age_years_scale +
+    I(age_years_scale^2) +
+    I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_phys
+)
+summary(a1_phys_domain)
+anova(a1_phys_domain)
+```
+
+### group * domain * age
+```{r}
+a1_phys_domain <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    male +
+    I(age_years_scale^2) +
+    I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_phys
+)
+summary(a1_phys_domain)
+anova(a1_phys_domain)
+```
+
+### sex
+```{r}
+a1_phys_domain <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    group * I(age_years_scale^2) +
+    domain * I(age_years_scale^2) +
+    domain * male +
+    age_years_scale * male +
+    male * I(age_years_scale^2) +
+    male * I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_phys
+)
+summary(a1_phys_domain)
+anova(a1_phys_domain)
+```
+
+```{r}
+# baseline = CAUG 
+contrasts(d_int_phys$group) = c(0, 1) 
+
+contrasts(d_int_phys$male) = c(-.5, .5) 
+
+# baseline = head
+contrasts(d_int_phys$domain) = cbind( 
+  HTvHD = c(0, 1, 0),
+  WTvHD = c(0, 0, 1)
+)
+
+a1_phys_domain <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    group * I(age_years_scale^2) +
+    domain * I(age_years_scale^2) +
+    domain * male +
+    age_years_scale * male +
+    male * I(age_years_scale^2) +
+    male * I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_phys
+)
+summary(a1_phys_domain)
+```
+
+```{r}
+# baseline = CAUG 
+contrasts(d_int_phys$group) = c(0, 1) 
+
+contrasts(d_int_phys$male) = c(-.5, .5) 
+
+# baseline = height
+contrasts(d_int_phys$domain) = cbind( 
+  HDvHT = c(1, 0, 0),
+  WTvHT = c(0, 0, 1)
+)
+
+a1_phys_domain <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    group * I(age_years_scale^2) +
+    domain * I(age_years_scale^2) +
+    domain * male +
+    age_years_scale * male +
+    male * I(age_years_scale^2) +
+    male * I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_phys
+)
+summary(a1_phys_domain)
+```
+
+```{r}
+# baseline = CAUG 
+contrasts(d_int_phys$group) = c(0, 1) 
+
+contrasts(d_int_phys$male) = c(-.5, .5) 
+
+# baseline = weight
+contrasts(d_int_phys$domain) = cbind( 
+  HDvWT = c(1, 0, 0),
+  HTvWT = c(0, 1, 0)
+)
+
+a1_phys_domain <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    group * I(age_years_scale^2) +
+    domain * I(age_years_scale^2) +
+    domain * male +
+    age_years_scale * male +
+    male * I(age_years_scale^2) +
+    male * I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_phys
+)
+summary(a1_phys_domain)
+```
+
+### visualize
+
+```{r}
+d_int_phys %>% 
+  ggplot(aes(age_years, value_z, color = group)) +
+  geom_smooth(method = "lm") +
+  scale_fill_npg() +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text.y = element_text(size = 18),
+    axis.text.x = element_text(size = 18, angle = 320, hjust = .1),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 14),
+    legend.position = "right"
+  ) +
+  labs(
+    color = NULL,
+    x = NULL,
+    y = "Standardized outcome score"
+  ) +
+  facet_grid(.~domain)
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/phys_domain_age_group.png",
+  width = 9,
+  height = 7
+)
+```
+
+## Brain
+```{r}
+d_int_brain <-
+  d_int %>% 
+  filter(construct == "brain") %>% 
+  mutate(
+    measure = as.factor(measure)
+  )
+```
+
+### contrast codes
+```{r}
+contrasts(d_int_brain$group) = c(-.5, .5) 
+
+contrasts(d_int_brain$male) = c(-.5, .5) 
+
+contrasts(d_int_brain$measure) = c(-.5, .5)
+```
+
+### group * measure 
+```{r}
+a1_eeg_measure <- lmer(
+  value_z ~ 
+    group * measure +
+    male +
+    age_years_scale +
+    I(age_years_scale^2) +
+    I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_brain
+)
+summary(a1_eeg_measure)
+anova(a1_eeg_measure)
+```
+
+### group * measure * age
+```{r}
+a1_eeg_measure <- lmer(
+  value_z ~ 
+    group * measure * age_years_scale +
+    male +
+    measure * I(age_years_scale^2) +
+    I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_brain
+)
+summary(a1_eeg_measure)
+anova(a1_eeg_measure)
+```
+
+### group * measure * age * sex 
+```{r}
+a1_eeg_measure <- lmer(
+  value_z ~ 
+    group +
+    age_years_scale +
+    group * measure * male + 
+    measure * age_years_scale * male +
+    measure * I(age_years_scale^2) +
+    I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_int_brain
+)
+summary(a1_eeg_measure)
+anova(a1_eeg_measure)
+```
+
+```{r}
+d_int_brain %>% 
+  ggplot(aes(measure, value_z, fill = group)) +
+  geom_boxplot() +
+  scale_fill_npg() +
+  scale_x_discrete(
+    breaks = c("alphaEC", "alphaEO"),
+    labels = c("Eyes closed", "Eyes open")
+  ) +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text.y = element_text(size = 18),
+    axis.text.x = element_text(size = 18, angle = 320, hjust = .1),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 14),
+    legend.position = "right"
+  ) +
+  labs(
+    fill = NULL,
+    x = "EEG method",
+    y = "Standardized outcome score"
+  ) 
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/eeg_domain_group.png",
+  width = 8,
+  height = 7
+)
+```
+
+# Aim 2: Within-construct analyses
+
+## Psychopathology
+```{r}
+d_rec_psy <-
+  d_rec %>% 
+  filter(construct == "psychopathology") %>% 
+  mutate(
+    domain = droplevels(domain),
+    informant = droplevels(informant)
+  )
+```
+
+### contrast codes
+```{r}
+contrasts(d_rec_psy$group) = c(-.5, .5) 
+
+contrasts(d_rec_psy$male) = c(-.5, .5) 
+
+contrasts(d_rec_psy$domain) = cbind( 
+  c(-1/5, 1 - (1/5), -1/5, -1/5, -1/5),
+  c(-1/5, -1/5, 1 - (1/5), -1/5, -1/5),
+  c(-1/5, -1/5, -1/5, 1 - (1/5), -1/5),
+  c(-1/5, -1/5, -1/5, -1/5, 1 - (1/5))
+)
+
+contrasts(d_rec_psy$informant) = c(-.5, .5)
+```
+
+### group * domain 
+```{r}
+a2_psy_domain <- lmer(
+  value_z ~ 
+    group * domain +
+    male +
+    age_years_scale +
+    I(age_years_scale^2) +
+    I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_rec_psy
+)
+anova(a2_psy_domain)
+```
+
+### group * domain * age
+```{r}
+a2_psy_domain <- lmer(
+  value_z ~ 
+    group * domain *  age_years_scale +
+    group * I(age_years_scale^2) +
+    domain * I(age_years_scale^2) +
+    group * domain * I(age_years_scale^3) +
+    male +
+    (1 | ID), 
+  data = d_rec_psy
+)
+anova(a2_psy_domain)
+```
+
+### sex
+```{r}
+a2_psy_domain <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    group * age_years_scale * male +
+    group * I(age_years_scale^2) +
+    domain * I(age_years_scale^2) +
+    group * domain * I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_rec_psy
+)
+anova(a2_psy_domain)
+```
+
+```{r}
+# ADHD is baseline
+contrasts(d_rec_psy$domain) = cbind( 
+  DESDvADHD = c(0, 1, 0, 0, 0),
+  EXTvADHD = c(0, 0, 1, 0, 0),
+  INTvADHD = c(0, 0, 0, 1, 0),
+  RADvADHD = c(0, 0, 0, 0, 1)
+)
+
+# FCG is baseline
+contrasts(d_rec_psy$group) = c(0, 1)
+
+a2_psy_age_ADHD <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    group * age_years_scale * male +
+    group * I(age_years_scale^2) +
+    domain * I(age_years_scale^2) +
+    group * domain * I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_rec_psy
+)
+summary(a2_psy_age_ADHD)
+
+# NIG is baseline
+contrasts(d_rec_psy$group) = c(1, 0)
+
+a2_psy_age_ADHD <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    group * age_years_scale * male +
+    group * I(age_years_scale^2) +
+    domain * I(age_years_scale^2) +
+    group * domain * I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_rec_psy
+)
+summary(a2_psy_age_ADHD)
+```
+```{r}
+# DESD is baseline
+contrasts(d_rec_psy$domain) = cbind( 
+  ADHDvDESD = c(1, 0, 0, 0, 0),
+  EXTvDESD = c(0, 0, 1, 0, 0),
+  INTvDESD = c(0, 0, 0, 1, 0),
+  RADvDESD = c(0, 0, 0, 0, 1)
+)
+
+# FCG is baseline
+contrasts(d_rec_psy$group) = c(0, 1)
+
+a2_psy_age_DESD <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    group * age_years_scale * male +
+    group * I(age_years_scale^2) +
+    domain * I(age_years_scale^2) +
+    group * domain * I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_rec_psy
+)
+summary(a2_psy_age_DESD)
+```
+```{r}
+# extern is baseline
+contrasts(d_rec_psy$domain) = cbind( 
+  ADHDvEXT = c(1, 0, 0, 0, 0),
+  DESDvEXT = c(0, 1, 0, 0, 0),
+  INTvEXT = c(0, 0, 0, 1, 0),
+  RADvEXT = c(0, 0, 0, 0, 1)
+) 
+
+# FCG is baseline
+contrasts(d_rec_psy$group) = c(0, 1)
+
+a2_psy_age_EXT <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    group * age_years_scale * male +
+    group * I(age_years_scale^2) +
+    domain * I(age_years_scale^2) +
+    group * domain * I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_rec_psy
+)
+summary(a2_psy_age_EXT)
+
+# NIG is baseline
+contrasts(d_rec_psy$group) = c(1, 0)
+
+a2_psy_age_EXT <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    group * age_years_scale * male +
+    group * I(age_years_scale^2) +
+    domain * I(age_years_scale^2) +
+    group * domain * I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_rec_psy
+)
+summary(a2_psy_age_EXT)
+```
+
+```{r}
+# intern is baseline
+contrasts(d_rec_psy$domain) = cbind( 
+  ADHDvINT = c(1, 0, 0, 0, 0),
+  DESDvINT = c(0, 1, 0, 0, 0),
+  EXTvINT = c(0, 0, 1, 0, 0),
+  RADvINT = c(0, 0, 0, 0, 1)
+)
+
+# FCG is baseline
+contrasts(d_rec_psy$group) = c(0, 1)
+
+a2_psy_age_INT <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    group * age_years_scale * male +
+    group * I(age_years_scale^2) +
+    domain * I(age_years_scale^2) +
+    group * domain * I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_rec_psy
+)
+summary(a2_psy_age_INT)
+
+
+# NIG is baseline
+contrasts(d_rec_psy$group) = c(1, 0)
+
+a2_psy_age_INT <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    group * age_years_scale * male +
+    group * I(age_years_scale^2) +
+    domain * I(age_years_scale^2) +
+    group * domain * I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_rec_psy
+)
+summary(a2_psy_age_INT)
+```
+
+FCG linear age = 0.21838418
+FCG age3 = -0.00366905 
+
+NIG linear age = 0.16001104 
+NIG age3 = -0.00242162   
+
+```{r}
+# RAD is baseline
+contrasts(d_rec_psy$domain) = cbind( 
+  ADHDvRAD = c(1, 0, 0, 0, 0),
+  DESDvRAD = c(0, 1, 0, 0, 0),
+  EXTvRAD = c(0, 0, 1, 0, 0),
+  INTvRAD = c(0, 0, 0, 1, 0)
+)
+
+# FCG is baseline
+contrasts(d_rec_psy$group) = c(0, 1)
+
+a2_psy_age_RAD <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    group * age_years_scale * male +
+    group * I(age_years_scale^2) +
+    domain * I(age_years_scale^2) +
+    group * domain * I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_rec_psy
+)
+summary(a2_psy_age_RAD)
+
+
+# NIG is baseline
+contrasts(d_rec_psy$group) = c(1, 0)
+
+a2_psy_age_RAD <- lmer(
+  value_z ~ 
+    group * domain * age_years_scale +
+    group * age_years_scale * male +
+    group * I(age_years_scale^2) +
+    domain * I(age_years_scale^2) +
+    group * domain * I(age_years_scale^3) +
+    (1 | ID), 
+  data = d_rec_psy
+)
+summary(a2_psy_age_RAD)
+
+```
+
+### visualize
+```{r}
+d_rec_psy %>% 
+  ggplot(aes(age_years, value_z, color = group)) +
+  geom_smooth(method = "loess") +
+  scale_color_aaas() +
+  theme_apa() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18, hjust = .5),
+    axis.title = element_text(size = 20),
+    axis.text.y = element_text(size = 18),
+    axis.text.x = element_text(size = 18, angle = 320, hjust = .1),
+    legend.title = element_text(size = 20), 
+    legend.text = element_text(size = 18),
+    strip.text = element_text(size = 14),
+    legend.position = "right"
+  ) +
+  labs(
+    color = NULL,
+    x = "Age (years)",
+    y = "Standardized outcome score"
+  ) +
+  facet_grid(.~domain)
+
+ggsave(
+  "~/Box/lucy_king_share_files/BEIP/aim2_psy_domain_age_group.png",
+  width = 11,
+  height = 7
+)
+```

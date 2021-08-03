@@ -1,0 +1,15 @@
+"0","itsea_fa2 <- fa("
+"0","  itsea_subscales, "
+"0","  nfactors = 2, "
+"0","  rotate = ""varimax"""
+"0","  )"
+"0","itsea_fa2"
+"1","Factor Analysis using method = "
+"1"," "
+"1","minres"
+"1","
+Call: "
+"1","fa(r = itsea_subscales, nfactors = 2, rotate = ""varimax"")
+"
+"1","Standardized loadings (pattern matrix) based upon correlation matrix
+"

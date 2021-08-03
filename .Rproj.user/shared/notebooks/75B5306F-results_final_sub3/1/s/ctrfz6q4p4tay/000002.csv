@@ -1,0 +1,6 @@
+"0","```r
+write_csv(cd_clean, \"~/Box/lucy_king_files/ELS/cort_dhea/data_final/els_cort_hormones_final.csv\")
+
+```"
+"1","cannot open file '/Users/lucyking/Box/lucy_king_files/ELS/cort_dhea/data_final/els_cort_hormones_final.csv': No such file or directoryError in open.connection(path, \"wb\") : cannot open the connection
+"

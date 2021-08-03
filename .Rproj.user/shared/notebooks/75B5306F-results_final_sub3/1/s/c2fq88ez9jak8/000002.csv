@@ -1,0 +1,42 @@
+"0","```r
+dhea_sex_mod <-
+  lmer(
+    dhea_clean ~
+      male * timepoint +
+      (1|ELS_ID),
+    data = cd_clean
+  )
+summary(dhea_sex_mod)
+
+```"
+"1","Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: dhea_clean ~ male * timepoint + (1 | ELS_ID)
+   Data: cd_clean
+
+REML criterion at convergence: 779.7
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.9416 -0.4327 -0.0045  0.4631  3.7827 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ ELS_ID   (Intercept) 0.4257   0.6525  
+ Residual             0.3685   0.6070  
+Number of obs: 314, groups:  ELS_ID, 176
+
+Fixed effects:
+                  Estimate Std. Error        df t value             Pr(>|t|)    
+(Intercept)        4.61537    0.10150 252.58631  45.474 < 0.0000000000000002 ***
+male1              0.08284    0.13675 250.37416   0.606             0.545209    
+timepoint1         0.38343    0.10323 140.45332   3.714             0.000293 ***
+male1:timepoint1  -0.20481    0.14232 142.56740  -1.439             0.152311    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) male1  tmpnt1
+male1       -0.742              
+timepoint1  -0.478  0.355       
+mal1:tmpnt1  0.347 -0.462 -0.725
+"

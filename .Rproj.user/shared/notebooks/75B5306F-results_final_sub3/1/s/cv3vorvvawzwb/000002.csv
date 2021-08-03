@@ -1,0 +1,16 @@
+"0","```r
+confint.merMod(mod2_threat, method = \"boot\")
+
+```"
+"1","Computing bootstrap confidence intervals ...
+"
+"1","                                                   2.5 %      97.5 %
+.sig01                                        0.24469321  0.59114865
+.sigma                                        0.66745456  0.85811543
+(Intercept)                                  -0.12704630  0.11913730
+scale(dhea_per_cent)                          0.22204888  0.42586189
+scale(sumsev_threat_t1)                      -0.17067610  0.06726760
+scale(dhea_av_t1t2)                           0.24381887  0.51815200
+scale(dhea_per_cent):scale(sumsev_threat_t1) -0.24636331 -0.02804225
+scale(sumsev_threat_t1):scale(dhea_av_t1t2)  -0.06632965  0.17856716
+"

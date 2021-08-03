@@ -1,0 +1,51 @@
+"0","```r
+cd_clean_nosteroid <-
+  cd_clean %>% 
+  filter(corticosteroid == 0)
+mod1_nosteroid <- lmer(
+  scale(cort_clean) ~ 
+    scale(dhea_clean) * scale(tan_per_cent) +
+    scale(dhea_clean) * scale(tanner_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean_nosteroid
+)
+summary(mod1_nosteroid)
+```"
+"1","Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: scale(cort_clean) ~ scale(dhea_clean) * scale(tan_per_cent) +      scale(dhea_clean) * scale(tanner_av_t1t2) + (1 | ELS_ID)
+   Data: cd_clean_nosteroid
+
+REML criterion at convergence: 606.7
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.51331 -0.54110  0.07302  0.49285  2.19475 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ ELS_ID   (Intercept) 0.1508   0.3883  
+ Residual             0.6433   0.8021  
+Number of obs: 228, groups:  ELS_ID, 129
+
+Fixed effects:
+                                         Estimate Std. Error        df t value         Pr(>|t|)    
+(Intercept)                              -0.02427    0.06608 125.24502  -0.367           0.7140    
+scale(dhea_clean)                         0.49534    0.06751 209.02477   7.337 0.00000000000475 ***
+scale(tan_per_cent)                       0.08991    0.05751 131.93692   1.563           0.1204    
+scale(tanner_av_t1t2)                    -0.05783    0.07160 122.85670  -0.808           0.4208    
+scale(dhea_clean):scale(tan_per_cent)     0.13037    0.06348 167.32342   2.054           0.0416 *  
+scale(dhea_clean):scale(tanner_av_t1t2)   0.01792    0.07107 221.68331   0.252           0.8012    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) scl(_) sc(__) s(__12 s(_):(__)
+scl(dh_cln) -0.029                               
+scl(tn_pr_) -0.006 -0.224                        
+scl(tn__12) -0.134 -0.207  0.069                 
+scl(_):(__) -0.125  0.191 -0.262 -0.110          
+s(_):(__12) -0.190  0.119 -0.134 -0.024  0.094   
+"
+"0","```r
+#confint.merMod(t1t2_mod1_nosteroid, method = \"boot\")
+```"

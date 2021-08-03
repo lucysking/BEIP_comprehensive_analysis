@@ -1,0 +1,34 @@
+"1","
+Non missing response frequency for each item
+             0    1 miss
+crisys_2  0.93 0.07 0.00
+crisys_3  0.82 0.18 0.00
+crisys_4  0.80 0.20 0.00
+crisys_5  0.97 0.03 0.01
+crisys_6  0.98 0.02 0.00
+crisys_7  0.99 0.01 0.00
+crisys_8  0.97 0.03 0.01
+crisys_10 0.99 0.01 0.01
+crisys_11 0.97 0.03 0.00
+crisys_12 0.99 0.01 0.01
+"
+"0","```r
+crisys %>% 
+  filter(timepoint == \"neonatal\") %>% 
+  select(
+    crisys_ses_vars
+  ) %>% 
+  psych::alpha()
+```"
+"1","Item = crisys_11 had no variance and was deletedItem = crisys_12 had no variance and was deletedSome items were negatively correlated with the total scale and probably 
+should be reversed.  
+To do this, run the function again with the 'check.keys=TRUE' option
+"
+"1","Some items ( crisys_66 crisys_70 ) were negatively correlated with the total scale and 
+probably should be reversed.  
+To do this, run the function again with the 'check.keys=TRUE' option
+Reliability analysis   
+Call: psych::alpha(x = .)
+
+ 
+"

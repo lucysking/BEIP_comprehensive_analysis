@@ -1,0 +1,40 @@
+"0","```r
+summary(mod1_base)
+
+```"
+"1","Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: scale(cort_clean) ~ scale(dhea_clean) * scale(tan_per_cent) +  
+    scale(dhea_clean) * scale(tanner_av_t1t2) + (1 | ELS_ID)
+   Data: cd_clean
+
+REML criterion at convergence: 643.2
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.48820 -0.54027  0.07244  0.52780  2.16167 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ ELS_ID   (Intercept) 0.1522   0.3901  
+ Residual             0.6340   0.7962  
+Number of obs: 243, groups:  ELS_ID, 132
+
+Fixed effects:
+                                         Estimate Std. Error        df t value         Pr(>|t|)    
+(Intercept)                              -0.03150    0.06401 130.55905  -0.492           0.6235    
+scale(dhea_clean)                         0.51806    0.06545 225.75770   7.915 0.00000000000011 ***
+scale(tan_per_cent)                       0.06189    0.05458 133.96739   1.134           0.2588    
+scale(tanner_av_t1t2)                    -0.05293    0.06943 128.96335  -0.762           0.4473    
+scale(dhea_clean):scale(tan_per_cent)     0.14579    0.06168 178.72244   2.364           0.0192 *  
+scale(dhea_clean):scale(tanner_av_t1t2)   0.03832    0.06862 236.88212   0.558           0.5771    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) scl(_) sc(__) s(__12 s(_):(__)
+scl(dh_cln) -0.038                               
+scl(tn_pr_) -0.004 -0.214                        
+scl(tn__12) -0.136 -0.206  0.065                 
+scl(_):(__) -0.118  0.193 -0.248 -0.109          
+s(_):(__12) -0.190  0.124 -0.134 -0.020  0.085   
+"

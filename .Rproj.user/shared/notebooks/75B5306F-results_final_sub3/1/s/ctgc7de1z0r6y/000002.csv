@@ -1,0 +1,16 @@
+"0","```r
+confint.merMod(mod1_test_fin_lo, method = \"boot\")
+
+```"
+"1","Computing bootstrap confidence intervals ...
+"
+"1","                                                                                   2.5 %      97.5 %
+.sig01                                                                         0.3010394  0.65844977
+.sigma                                                                         0.6714998  0.87579900
+(Intercept)                                                                   -0.1185596  0.26024616
+scale(test_clean)                                                              0.4092759  0.77080184
+scale(tan_per_cent)                                                           -0.1125931  0.10436265
+I(scale(tanner_av_t1t2) + sd(tanner_av_t1t2, na.rm = TRUE))                   -0.2151385  0.08814345
+scale(test_clean):scale(tan_per_cent)                                         -0.1048126  0.13354803
+scale(test_clean):I(scale(tanner_av_t1t2) + sd(tanner_av_t1t2, na.rm = TRUE)) -0.3210396 -0.03443752
+"

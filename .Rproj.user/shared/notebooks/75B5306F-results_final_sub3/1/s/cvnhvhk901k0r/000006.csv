@@ -1,0 +1,5 @@
+"0","```r
+# save DHEA and testosterone plots together
+plot_mod2 <-
+  grid.arrange(plot_mod2_threat_sex, plot_mod2_test_threat_sex)
+```"

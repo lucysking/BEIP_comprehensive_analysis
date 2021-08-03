@@ -1,0 +1,12 @@
+"0","```r
+contrasts(everyone$construct) <- ADHD
+
+fcg_caug_adhd <- rma(
+  abs_smd, 
+  variance, 
+  mods = ~ construct,
+  method = \"REML\", 
+  data = everyone
+)
+summary(fcg_caug_adhd)
+```"

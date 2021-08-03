@@ -1,0 +1,17 @@
+"0","read_csv(severity_file) %>% "
+"0","  filter(ELS_ID %in% included_IDs) %>% "
+"0","  filter(timepoint == ""T2"") %>% "
+"0","  group_by(event, timepoint) %>% "
+"0","  summarise_at("
+"0","    vars(rating),"
+"0","    funs(sum(!is.na(.)), (sum(!is.na(.))/143)*100,  mean, sd)"
+"0","  ) %>% "
+"0","  arrange(timepoint)"
+"2","Parsed with column specification:
+cols(
+  ELS_ID = [32mcol_double()[39m,
+  timepoint = [31mcol_character()[39m,
+  event = [31mcol_character()[39m,
+  rating = [32mcol_double()[39m
+)
+"

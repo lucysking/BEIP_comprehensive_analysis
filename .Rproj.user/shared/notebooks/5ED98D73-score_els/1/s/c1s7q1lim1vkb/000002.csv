@@ -1,0 +1,30 @@
+"0","```r
+els_t1t2_obj <- 
+  els_t1_obj %>% 
+  select(-ends_with(\"t1\")) %>% 
+  bind_rows(
+    els_t2_obj %>% 
+      select(-ends_with(\"t2\"))
+  ) %>% 
+  gather(type, rating, -ELS_ID) %>% 
+  mutate_at(
+    vars(rating),
+    as.double
+  ) %>% 
+  mutate_at(
+    vars(rating),
+    funs(
+      if_else(
+        is.na(.),
+        0, .
+      )
+    )
+  ) %>% 
+  group_by(ELS_ID, type) %>% 
+  filter(
+    rating == max(rating, na.rm = TRUE)
+  ) %>% 
+  distinct(type, rating) %>% 
+  spread(type, rating) %>% 
+  ungroup()
+```"

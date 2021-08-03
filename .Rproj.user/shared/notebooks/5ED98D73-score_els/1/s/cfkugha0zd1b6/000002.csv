@@ -1,0 +1,5 @@
+"0","```r
+els_t2_wf <-
+  els_t2_obj %>% 
+  left_join(els_t2_subj, by = \"ELS_ID\")
+```"

@@ -1,0 +1,35 @@
+"0","```r
+mod2_test_med <-
+ lmer(
+    cort_clean ~
+      test_per_cent +
+      test_av_t1t2 +
+      medication_binary +
+      (1 | ELS_ID),
+    data = cd_clean
+  )
+
+anova(mod2_test_base, mod2_test_med)
+
+mod2_test_medX1 <-
+ lmer(
+    cort_clean ~
+      test_per_cent * medication_binary +
+      test_av_t1t2 +
+      (1 | ELS_ID),
+    data = cd_clean
+  )
+
+anova(mod2_test_base, mod2_test_medX1)
+
+mod2_test_medX2 <-
+ lmer(
+    cort_clean ~
+      test_per_cent +
+      test_av_t1t2 * medication_binary +
+      (1 | ELS_ID),
+    data = cd_clean
+  )
+
+anova(mod2_test_base, mod2_test_medX2)
+```"

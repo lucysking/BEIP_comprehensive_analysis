@@ -1,0 +1,15 @@
+"0","```r
+els_t1_subj <-
+  els_t1_subj %>% 
+  mutate(
+    sumsub_type_t1 = pmap_dbl(
+      select(., sub_sev_rating_vars_T1),
+      function(...) sum(c(...), na.rm = TRUE)
+    ),
+    z_sumsub_type_t1  = scale(sumsub_type_t1, scale = TRUE),
+    maxsub_t1 = pmap_dbl(
+      select(., sub_sev_rating_vars_T1),
+      function(...) max(c(...), na.rm = TRUE)
+    )
+  ) 
+```"

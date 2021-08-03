@@ -1,0 +1,4 @@
+"0","# remove 30 observations contemporaneous with corticosteroid use"
+"0","d <-"
+"0","  d %>% "
+"0","  filter(steroid_recent != 1)"

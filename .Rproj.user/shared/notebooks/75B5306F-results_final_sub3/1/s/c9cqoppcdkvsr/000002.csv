@@ -1,0 +1,18 @@
+"0","```r
+confint.merMod(mod2_test_threat, method = \"boot\")
+
+```"
+"1","Computing bootstrap confidence intervals ...
+
+1 warning(s): Model failed to converge with max|grad| = 0.00253107 (tol = 0.002, component 1)
+"
+"1","                                                  2.5 %      97.5 %
+.sig01                                        0.3154895  0.66061863
+.sigma                                        0.6670611  0.85778966
+(Intercept)                                  -0.1261734  0.14042704
+scale(test_per_cent)                          0.2164492  0.40035091
+scale(sumsev_threat_t1)                      -0.1559008  0.09747200
+scale(test_av_t1t2)                           0.1595182  0.43561248
+scale(test_per_cent):scale(sumsev_threat_t1) -0.2123697 -0.02130992
+scale(sumsev_threat_t1):scale(test_av_t1t2)  -0.1321208  0.10965877
+"

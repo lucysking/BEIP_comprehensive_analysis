@@ -1,0 +1,14 @@
+"0","```r
+els_t1_frequency_table <- 
+  els_t1_types %>% 
+  gather(type, endorsed, -ELS_ID) %>% 
+  count(type, endorsed) %>% 
+  group_by(type) %>% 
+  mutate(
+    percent = round(((n / sum(n)) * 100), 0)
+  ) %>% 
+  filter(endorsed == 1) %>% 
+  arrange(desc(percent)) %>% 
+  select(-endorsed)
+knitr::kable(els_t1_frequency_table)
+```"

@@ -1,0 +1,18 @@
+"0","```r
+confint.merMod(mod1_test_girls, method = \"boot\")
+
+```"
+"1","Computing bootstrap confidence intervals ...
+
+36 message(s): boundary (singular) fit: see ?isSingular
+"
+"1","                                             2.5 %     97.5 %
+.sig01                                   0.0000000 0.65765525
+.sigma                                   0.6736694 0.99478709
+(Intercept)                             -0.1539868 0.19480789
+scale(test_clean)                        0.1826737 0.57292116
+scale(tan_per_cent)                     -0.2242877 0.08144782
+scale(tanner_av_t1t2)                   -0.2631407 0.15904266
+scale(test_clean):scale(tan_per_cent)   -0.1797972 0.16223477
+scale(test_clean):scale(tanner_av_t1t2) -0.1925920 0.28689632
+"

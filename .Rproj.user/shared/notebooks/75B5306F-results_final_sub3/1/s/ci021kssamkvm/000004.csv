@@ -1,0 +1,7 @@
+"0","```r
+plot_grid(plot_mod1_sex_tp, plot_mod1_test_sex, rows = 2)
+ggsave(
+  \"~/Box/lucy_king_files/ELS/cort_dhea/cort_dhea_sync/cort_hormone_tan_sex_grid.png\",
+  height = 7, width = 5
+)
+```"

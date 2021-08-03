@@ -1,0 +1,8 @@
+"0","itsea_subscales <- "
+"0","  itsea %>% "
+"0","  arrange(ID) %>% "
+"0","  select( "
+"0","    itsea_activity:itsea_social"
+"0","  ) "
+"0","itsea_sub_corr <-"
+"0","  cor(itsea_subscales)"

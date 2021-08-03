@@ -1,0 +1,75 @@
+"0","all_els_demo <-"
+"0","  read_csv(els_file) %>% "
+"0","  select(ELS_ID, sumsev_threat_t1, sumsev_threat_t2, sumsev_type_t1) %>% "
+"0","  left_join("
+"0","    read_csv(demo_file, na = c(""999"", ""888"")) %>% "
+"0","      filter(timepoint == ""T1""),"
+"0","    by = ""ELS_ID"""
+"0","  ) %>% "
+"0","  left_join(distinct_IDs_all, by = ""ELS_ID"") %>% "
+"0","  mutate("
+"0","    included = if_else("
+"0","      is.na(included), 0, included"
+"0","    )"
+"0","  ) %>% "
+"0","  mutate_at("
+"0","    vars(bmi, inr_t1),"
+"0","    as.double"
+"0","  ) %>% "
+"0","  left_join("
+"0","    read_csv(tanner_file) %>% "
+"0","      filter(timepoint == ""T1"", early_puberty == TRUE) %>% "
+"0","      distinct(ELS_ID, tanner_av, .keep_all = TRUE),"
+"0","    by = ""ELS_ID"""
+"0","  ) %>% "
+"0","  distinct(ELS_ID, sumsev_threat_t1, .keep_all = TRUE)"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  class = [31mcol_character()[39m
+)
+"
+"2","See spec(...) for full column specifications.
+"
+"2","Parsed with column specification:
+cols(
+  ELS_ID = [32mcol_double()[39m,
+  session_type = [31mcol_character()[39m,
+  timepoint = [31mcol_character()[39m,
+  bmi = [31mcol_character()[39m,
+  race_pr = [31mcol_character()[39m,
+  eth_pr = [31mcol_character()[39m,
+  parent_ed_t1 = [31mcol_character()[39m,
+  inr_t1 = [31mcol_character()[39m,
+  birth_date = [31mcol_character()[39m
+)
+"
+"2","NAs introduced by coercion"
+"2","NAs introduced by coercion"
+"2","Parsed with column specification:
+cols(
+  ELS_ID = [32mcol_double()[39m,
+  timepoint = [31mcol_character()[39m,
+  tanner_date = [34mcol_date(format = """")[39m,
+  tanner_female_pubhair = [32mcol_double()[39m,
+  tanner_female_breasts = [32mcol_double()[39m,
+  tanner_male_pubhair = [32mcol_double()[39m,
+  tanner_male_testes = [32mcol_double()[39m,
+  early_puberty = [33mcol_logical()[39m,
+  tanner_pb = [32mcol_double()[39m,
+  tanner_bt = [32mcol_double()[39m,
+  tanner_av = [32mcol_double()[39m
+)
+"
+"0","all_els_demo %>% "
+"0","  group_by(included) %>% "
+"0","  summarise_at("
+"0","    vars("
+"0","      sumsev_threat_t1,"
+"0","      sumsev_threat_t2,"
+"0","      inr_t1,"
+"0","      bmi,"
+"0","      tanner_av"
+"0","    ),"
+"0","    funs(mean(., na.rm = TRUE))"
+"0","  )"

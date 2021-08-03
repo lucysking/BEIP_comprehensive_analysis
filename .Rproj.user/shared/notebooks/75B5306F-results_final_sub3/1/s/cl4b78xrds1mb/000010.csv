@@ -1,0 +1,5 @@
+"0","cd_wf_clean %>% "
+"0","  summarise("
+"0","    mean(tan_diff, na.rm = TRUE),"
+"0","    sd(tan_diff, na.rm = TRUE)"
+"0","  )"

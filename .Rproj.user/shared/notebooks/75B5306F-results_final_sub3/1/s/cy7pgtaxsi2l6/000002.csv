@@ -1,0 +1,33 @@
+"0","```r
+summary(mod2_boys)
+
+```"
+"1","Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: scale(cort_clean) ~ scale(dhea_per_cent) + scale(dhea_av_t1t2) +      (1 | ELS_ID)
+   Data: cd_clean_boys
+
+REML criterion at convergence: 308.2
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.0536 -0.4515  0.1386  0.5131  1.5122 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ ELS_ID   (Intercept) 0.1729   0.4159  
+ Residual             0.5272   0.7261  
+Number of obs: 123, groups:  ELS_ID, 65
+
+Fixed effects:
+                      Estimate Std. Error        df t value     Pr(>|t|)    
+(Intercept)           0.002491   0.083695 62.856828   0.030        0.976    
+scale(dhea_per_cent)  0.407723   0.066670 59.893555   6.116 0.0000000792 ***
+scale(dhea_av_t1t2)   0.382037   0.092651 71.120602   4.123 0.0000998153 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) sc(__)
+scl(dh_pr_) -0.025       
+scl(dh__12)  0.012 -0.025
+"

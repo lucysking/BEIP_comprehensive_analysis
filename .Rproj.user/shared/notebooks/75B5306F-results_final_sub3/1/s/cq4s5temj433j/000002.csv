@@ -1,0 +1,42 @@
+"0","```r
+# sex differences: BMI
+bmi_sex_mod <-
+  lmer(
+    bmi ~
+      male * timepoint +
+      (1|ELS_ID),
+    data = cd_clean
+  )
+summary(bmi_sex_mod)
+```"
+"1","Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: bmi ~ male * timepoint + (1 | ELS_ID)
+   Data: cd_clean
+
+REML criterion at convergence: 1492.7
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.77290 -0.34487 -0.07338  0.33392  2.92849 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ ELS_ID   (Intercept) 12.538   3.541   
+ Residual              3.662   1.914   
+Number of obs: 284, groups:  ELS_ID, 174
+
+Fixed effects:
+                  Estimate Std. Error       df t value             Pr(>|t|)    
+(Intercept)        18.3217     0.4144 205.7578  44.212 < 0.0000000000000002 ***
+male1               0.7932     0.6197 206.4266   1.280                0.202    
+timepointT2         1.8735     0.3456 122.2739   5.421          0.000000303 ***
+male1:timepointT2  -0.2640     0.5038 121.2448  -0.524                0.601    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) male1  tmpnT2
+male1       -0.669              
+timepointT2 -0.296  0.198       
+ml1:tmpntT2  0.203 -0.305 -0.686
+"

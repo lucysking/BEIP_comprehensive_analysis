@@ -1,0 +1,31 @@
+"0","ibq %>% "
+"0","  # surgency"
+"0","  select("
+"0","    ibq_23, ibq_24, ibq_68, ibq_69, ibq_88, ibq_9,"
+"0","    ibq_1, ibq_26, ibq_41, ibq_56, ibq_57, ibq_58, ibq_66,"
+"0","    ibq_16, ibq_44, ibq_45, ibq_46, ibq_47, ibq_48, ibq_49,"
+"0","    ibq_9, ibq_11, ibq_12, ibq_40, ibq_42, ibq_43, ibq_65,"
+"0","    ibq_33_r, ibq_34, ibq_35, ibq_39, ibq_54, ibq_55, ibq_70,"
+"0","    ibq_20, ibq_27, ibq_28, ibq_29, ibq_30, ibq_31"
+"0","  ) %>% "
+"0","  alpha()"
+"2","Some items were negatively correlated with the total scale and probably 
+should be reversed.  
+To do this, run the function again with the 'check.keys=TRUE' option"
+"1","Some items ("
+"1"," "
+"1","ibq_33_r"
+"1"," "
+"1",") were negatively correlated with the total scale and 
+probably should be reversed.  
+To do this, run the function again with the 'check.keys=TRUE' option"
+"1","
+Reliability analysis "
+"1"," "
+"1"," 
+"
+"1","Call: "
+"1","alpha(x = .)
+"
+"1","
+ "

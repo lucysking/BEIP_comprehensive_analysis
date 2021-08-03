@@ -1,0 +1,16 @@
+"0","```r
+cd_clean_girls <-
+  cd_clean %>% 
+  filter(male == 0)
+
+mod1_girls <- lmer(
+  scale(cort_clean) ~ 
+    scale(dhea_clean) * scale(tan_per_cent) +
+    scale(dhea_clean) * scale(tanner_av_t1t2) +
+    (1 | ELS_ID),
+  data = cd_clean_girls
+)
+
+summary(mod1_girls)
+confint.merMod(mod1_girls, method = \"boot\")
+```"

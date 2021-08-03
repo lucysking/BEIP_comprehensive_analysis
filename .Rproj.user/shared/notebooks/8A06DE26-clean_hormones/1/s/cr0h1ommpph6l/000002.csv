@@ -1,0 +1,18 @@
+"0","```r
+hormones <-
+  hormones %>% 
+  left_join(
+    read_csv(sex_file),
+    by = \"ELS_ID\"
+  ) %>% 
+  mutate(
+    male = as.factor(if_else(T1_Child_Sex == 1, 1, 0))
+  ) %>% 
+  select(-T1_Child_Sex)
+```"
+"1","Parsed with column specification:
+cols(
+  ELS_ID = [32mcol_double()[39m,
+  T1_Child_Sex = [32mcol_double()[39m
+)
+"
