@@ -519,8 +519,8 @@ d_cog_bio <-
 d_psy <-
   d %>% 
   filter(construct == "psychopathology") %>% 
-    # standardized within wave (eliminates within-person growth effects) and measure (puts all data on same scale)
-  group_by(wave, measure) %>%  
+    # standardized within wave (eliminates within-person growth effects), domain, and measure (puts all data on same scale)
+  group_by(wave, measure, domain) %>%  
   mutate(
     value_z = scale(value)
   ) %>% 
@@ -660,6 +660,11 @@ d_psy %>%
 d %>% 
   filter(group == "FCG") %>% 
   distinct(ID, FC_placement_age) %>% 
+  filter(is.na(FC_placement_age))
+
+d %>% 
+  filter(group == "FCG") %>% 
+  distinct(ID, FC_placement_age) %>% 
   ggplot(aes(FC_placement_age)) +
   geom_histogram() +
   theme_beip +
@@ -741,6 +746,16 @@ d_psy_summary <-
   )
 ```
 
+```{r}
+d_cog_bio %>% 
+  filter(domain == "eeg") %>% 
+  group_by(wave_ordered, group) %>% 
+  summarise_at(
+    vars(value, value_z),
+    funs(mean, sd)
+  )
+```
+
 ## Means plots and boxplots
 
 ### IQ
@@ -813,7 +828,7 @@ d_cog_bio %>%
   labs(
     fill = NULL,
     x = NULL,
-    y = "EEG alpha-power"
+    y = "EEG alphalpha-power"
   )
 
 ggsave(
@@ -1158,7 +1173,7 @@ out_corr_plot <-
         "Head circumference",
         "Height",
         "Weight",
-        "EEG alpha-power",
+        "EEG alphalpha-power",
         "DSED",
         "RAD",
         "ADHD",
@@ -1185,7 +1200,7 @@ out_corr_plot <-
         "Head circumference",
         "Height",
         "Weight",
-        "EEG alpha-power",
+        "EEG alphalpha-power",
         "DSED",
         "RAD",
         "ADHD",
@@ -1261,8 +1276,7 @@ a1_cogbio <- lmer(
   data = d_cog_bio
 )
 
-anova(a1_cogbio)
-
+set.seed(123456)
 a1_cogbio_parameters <-
   model_parameters(
   a1_cogbio,
@@ -1272,11 +1286,6 @@ a1_cogbio_parameters <-
 )
 
 a1_cogbio_parameters
-```
-
-```{r, fig.height=10, fig.width=10}
-# diagnostics 
-check_model(a1_cogbio)
 ```
 
 ### Psychopathology
@@ -1311,8 +1320,7 @@ a1_psy <- lmer(
   data = d_psy
 )
 
-anova(a1_psy)
-
+set.seed(123456)
 a1_psy_parameters <-
   model_parameters(
     a1_psy,
@@ -1322,11 +1330,6 @@ a1_psy_parameters <-
   )
 
 a1_psy_parameters
-```
-
-```{r, fig.height=10, fig.width=10}
-# diagnostics 
-check_model(a1_psy)
 ```
 
 ## Aim 2
@@ -1367,6 +1370,7 @@ a2_cogbio_EEG <- lmer(
   data = d_cog_bio
 )
 
+set.seed(123456)
 a2_cogbio_EEG_parameters <-
   model_parameters(
     a2_cogbio_EEG,
@@ -1394,6 +1398,7 @@ a2_cogbio_IQ <- lmer(
   data = d_cog_bio
 )
 
+set.seed(123456)
 a2_cogbio_IQ_parameters <-
   model_parameters(
     a2_cogbio_IQ,
@@ -1422,6 +1427,7 @@ a2_cogbio_PHY <- lmer(
   data = d_cog_bio
 )
 
+set.seed(123456)
 a2_cogbio_PHY_parameters <- 
   model_parameters(
     a2_cogbio_PHY,
@@ -1479,6 +1485,7 @@ a2_cogbio_EEG_male <- lmer(
   data = d_cog_bio
 )
 
+set.seed(123456)
 a2_cogbio_EEG_male_parameters <-
   model_parameters(
     a2_cogbio_EEG_male,
@@ -1509,6 +1516,7 @@ a2_cogbio_EEG_female <- lmer(
   data = d_cog_bio
 )
 
+set.seed(123456)
 a2_cogbio_EEG_female_parameters <-
   model_parameters(
     a2_cogbio_EEG_female,
@@ -1539,6 +1547,7 @@ a2_cogbio_IQ_male <- lmer(
   data = d_cog_bio
 )
 
+set.seed(123456)
 a2_cogbio_IQ_male_parameters <-
   model_parameters(
     a2_cogbio_IQ_male,
@@ -1569,6 +1578,7 @@ a2_cogbio_IQ_female <- lmer(
   data = d_cog_bio
 )
 
+set.seed(123456)
 a2_cogbio_IQ_female_parameters <-
   model_parameters(
     a2_cogbio_IQ_female,
@@ -1599,6 +1609,7 @@ a2_cogbio_PHYS_male <- lmer(
   data = d_cog_bio
 )
 
+set.seed(123456)
 a2_cogbio_PHYS_male_parameters <-
   model_parameters(
     a2_cogbio_PHYS_male,
@@ -1629,6 +1640,7 @@ a2_cogbio_PHYS_female <- lmer(
   data = d_cog_bio
 )
 
+set.seed(123456)
 a2_cogbio_PHYS_female_parameters <-
   model_parameters(
     a2_cogbio_PHYS_female,
@@ -1682,6 +1694,7 @@ a2_psy_ADHD <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_psy_ADHD_parameters <- 
   model_parameters(
     a2_psy_ADHD,
@@ -1716,6 +1729,7 @@ a2_psy_DESD <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_psy_DESD_parameters <-
   model_parameters(
     a2_psy_DESD,
@@ -1749,6 +1763,7 @@ a2_psy_EXT <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_psy_EXT_parameters <-
   model_parameters(
     a2_psy_EXT,
@@ -1783,6 +1798,7 @@ a2_psy_INT <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_psy_INT_parameters <-
   model_parameters(
     a2_psy_INT,
@@ -1817,6 +1833,7 @@ a2_psy_RAD <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_psy_RAD_parameters <- 
   model_parameters(
     a2_psy_RAD,
@@ -1879,6 +1896,7 @@ a2_ADHD_age3 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_ADHD_age3_parameters <- 
   model_parameters(
     a2_ADHD_age3,
@@ -1912,6 +1930,7 @@ a2_ADHD_age8 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_ADHD_age8_parameters <- 
   model_parameters(
     a2_ADHD_age8,
@@ -1945,6 +1964,7 @@ a2_ADHD_age16 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_ADHD_age16_parameters <- 
   model_parameters(
     a2_ADHD_age16,
@@ -1978,6 +1998,7 @@ a2_DESD_age3 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_DESD_age3_parameters <-
   model_parameters(
     a2_DESD_age3,
@@ -2010,6 +2031,7 @@ a2_DESD_age8 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_DESD_age8_parameters <-
   model_parameters(
     a2_DESD_age8,
@@ -2042,6 +2064,7 @@ a2_DESD_age16 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_DESD_age16_parameters <-
   model_parameters(
     a2_DESD_age16,
@@ -2074,6 +2097,7 @@ a2_EXT_age3 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_EXT_age3_parameters <-
   model_parameters(
     a2_EXT_age3,
@@ -2107,6 +2131,7 @@ a2_EXT_age8 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_EXT_age8_parameters <-
   model_parameters(
     a2_EXT_age8,
@@ -2140,6 +2165,7 @@ a2_EXT_age16 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_EXT_age16_parameters <-
   model_parameters(
     a2_EXT_age16,
@@ -2173,6 +2199,7 @@ a2_INT_age3 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_INT_age3_parameters <-
   model_parameters(
     a2_INT_age3,
@@ -2206,6 +2233,7 @@ a2_INT_age8 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_INT_age8_parameters <-
   model_parameters(
     a2_INT_age8,
@@ -2239,6 +2267,7 @@ a2_INT_age16 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_INT_age16_parameters <-
   model_parameters(
     a2_INT_age16,
@@ -2272,6 +2301,7 @@ a2_RAD_age3 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_RAD_age3_parameters <- 
   model_parameters(
     a2_RAD_age3,
@@ -2305,6 +2335,7 @@ a2_RAD_age8 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_RAD_age8_parameters <- 
   model_parameters(
     a2_RAD_age8,
@@ -2338,6 +2369,7 @@ a2_RAD_age16 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_RAD_age16_parameters <- 
   model_parameters(
     a2_RAD_age16,
@@ -2371,6 +2403,7 @@ mod_eeg_EO <- lmer(
   data = d_int_eegEO
 )
 
+set.seed(123456)
 mod_eeg_EO_parameters <-
   model_parameters(
     mod_eeg_EO,
@@ -2420,6 +2453,7 @@ a3_age_placement_raw <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_age_placement_parameters_std <-
   model_parameters(
     a3_age_placement_std,
@@ -2430,6 +2464,7 @@ a3_age_placement_parameters_std <-
 
 a3_age_placement_parameters_std
 
+set.seed(123456)
 a3_age_placement_parameters_raw <-
   model_parameters(
     a3_age_placement_raw,
@@ -2483,6 +2518,7 @@ a3_age_placement_EEG_raw <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_construct_EEG_parameters_std <- 
   model_parameters(
     a3_age_placement_EEG_std,
@@ -2492,6 +2528,7 @@ a3_construct_EEG_parameters_std <-
   )
 a3_construct_EEG_parameters_std
 
+set.seed(123456)
 a3_construct_EEG_parameters_raw <- 
   model_parameters(
     a3_age_placement_EEG_raw,
@@ -2528,6 +2565,7 @@ a3_age_placement_IQ_raw <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_construct_IQ_parameters_std <- 
   model_parameters(
     a3_age_placement_IQ_std,
@@ -2537,6 +2575,7 @@ a3_construct_IQ_parameters_std <-
   )
 a3_construct_IQ_parameters_std
 
+set.seed(123456)
 a3_construct_IQ_parameters_raw <- 
   model_parameters(
     a3_age_placement_IQ_raw,
@@ -2573,6 +2612,7 @@ a3_age_placement_PHY_raw <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_construct_PHY_parameters_std <- 
   model_parameters(
     a3_age_placement_PHY_std,
@@ -2582,6 +2622,7 @@ a3_construct_PHY_parameters_std <-
   )
 a3_construct_PHY_parameters_std
 
+set.seed(123456)
 a3_construct_PHY_parameters_raw <- 
   model_parameters(
     a3_age_placement_PHY_raw,
@@ -2619,6 +2660,7 @@ a3_age_placement_age3_raw <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_age_placement_age3_std_parameters <- 
   model_parameters(
     a3_age_placement_age3_std,
@@ -2628,6 +2670,7 @@ a3_age_placement_age3_std_parameters <-
   )
 a3_age_placement_age3_std_parameters
 
+set.seed(123456)
 a3_age_placement_age3_parameters_raw <- 
   model_parameters(
     a3_age_placement_age3_raw,
@@ -2658,6 +2701,7 @@ a3_age_placement_age8_raw <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_age_placement_age8_std_parameters <- 
   model_parameters(
     a3_age_placement_age8_std,
@@ -2667,6 +2711,7 @@ a3_age_placement_age8_std_parameters <-
   )
 a3_age_placement_age8_std_parameters
 
+set.seed(123456)
 a3_age_placement_age8_parameters_raw <- 
   model_parameters(
     a3_age_placement_age8_raw,
@@ -2697,6 +2742,7 @@ a3_age_placement_age16_raw <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_age_placement_age16_std_parameters <- 
   model_parameters(
     a3_age_placement_age16_std,
@@ -2706,6 +2752,7 @@ a3_age_placement_age16_std_parameters <-
   )
 a3_age_placement_age16_std_parameters
 
+set.seed(123456)
 a3_age_placement_age16_parameters_raw <- 
   model_parameters(
     a3_age_placement_age16_raw,
@@ -2756,6 +2803,7 @@ a3_psy_age_placement_raw <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_age_placement_parameters_std <-
   model_parameters(
     a3_psy_age_placement_std,
@@ -2766,6 +2814,7 @@ a3_psy_age_placement_parameters_std <-
 
 a3_psy_age_placement_parameters_std
 
+set.seed(123456)
 a3_psy_age_placement_parameters_raw <-
   model_parameters(
     a3_psy_age_placement_raw,
@@ -2824,6 +2873,7 @@ a3_ADHD_age_placement_raw <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_ADHD_age_placement_parameters_std <-
   model_parameters(
     a3_ADHD_age_placement_std,
@@ -2834,6 +2884,7 @@ a3_ADHD_age_placement_parameters_std <-
 
 a3_ADHD_age_placement_parameters_std
 
+set.seed(123456)
 a3_ADHD_age_placement_parameters_raw <-
   model_parameters(
     a3_ADHD_age_placement_raw,
@@ -2875,6 +2926,7 @@ a3_DESD_age_placement_raw <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_DESD_age_placement_parameters_std <-
   model_parameters(
     a3_DESD_age_placement_std,
@@ -2885,6 +2937,7 @@ a3_DESD_age_placement_parameters_std <-
 
 a3_DESD_age_placement_parameters_std
 
+set.seed(123456)
 a3_DESD_age_placement_parameters_raw <-
   model_parameters(
     a3_DESD_age_placement_raw,
@@ -2927,6 +2980,7 @@ a3_EXT_age_placement_raw <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_EXT_age_placement_parameters_std <-
   model_parameters(
     a3_EXT_age_placement_std,
@@ -2937,6 +2991,7 @@ a3_EXT_age_placement_parameters_std <-
 
 a3_EXT_age_placement_parameters_std
 
+set.seed(123456)
 a3_EXT_age_placement_parameters_raw <-
   model_parameters(
     a3_EXT_age_placement_raw,
@@ -2978,6 +3033,7 @@ a3_INT_age_placement_raw <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_INT_age_placement_parameters_std <-
   model_parameters(
     a3_INT_age_placement_std,
@@ -2988,6 +3044,7 @@ a3_INT_age_placement_parameters_std <-
 
 a3_INT_age_placement_parameters_std
 
+set.seed(123456)
 a3_INT_age_placement_parameters_raw <-
   model_parameters(
     a3_INT_age_placement_raw,
@@ -3029,6 +3086,7 @@ a3_RAD_age_placement_raw <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_RAD_age_placement_parameters_std <-
   model_parameters(
     a3_RAD_age_placement_std,
@@ -3039,6 +3097,7 @@ a3_RAD_age_placement_parameters_std <-
 
 a3_RAD_age_placement_parameters_std
 
+set.seed(123456)
 a3_RAD_age_placement_parameters_raw <-
   model_parameters(
     a3_RAD_age_placement_raw,
@@ -3081,6 +3140,7 @@ a3_psy_age_placement_age3_raw <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_age_placement_age3_std_parameters <- 
   model_parameters(
     a3_psy_age_placement_age3_std,
@@ -3090,6 +3150,7 @@ a3_psy_age_placement_age3_std_parameters <-
   )
 a3_psy_age_placement_age3_std_parameters
 
+set.seed(123456)
 a3_psy_age_placement_age3_parameters_raw <- 
   model_parameters(
     a3_psy_age_placement_age3_raw,
@@ -3122,6 +3183,7 @@ a3_psy_age_placement_age8_raw <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_age_placement_age8_std_parameters <- 
   model_parameters(
     a3_psy_age_placement_age8_std,
@@ -3131,6 +3193,7 @@ a3_psy_age_placement_age8_std_parameters <-
   )
 a3_psy_age_placement_age8_std_parameters
 
+set.seed(123456)
 a3_psy_age_placement_age8_parameters_raw <- 
   model_parameters(
     a3_psy_age_placement_age8_raw,
@@ -3163,6 +3226,7 @@ a3_psy_age_placement_age16_raw <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_age_placement_age16_std_parameters <- 
   model_parameters(
     a3_psy_age_placement_age16_std,
@@ -3172,6 +3236,7 @@ a3_psy_age_placement_age16_std_parameters <-
   )
 a3_psy_age_placement_age16_std_parameters
 
+set.seed(123456)
 a3_psy_age_placement_age16_parameters_raw <- 
   model_parameters(
     a3_psy_age_placement_age16_raw,
@@ -3201,6 +3266,7 @@ contrasts(d_fcg_cog_bio$stable) = c(0, 1) # disrupted is baseline
 
 Stability changes in correspondence with wave/age; therefore, a main effect collapsing across ages of assessment would confound state and trait variance because the parameter estimate represents both a contrast of kids who were ever disrupted vs. not and a contrast of after vs. prior to disruption (i.e., regression estimate would be fit to all disrupted observations vs. all stable observations and some kids are in both groups). To distinguish these sources of variance, only interpret moderated by age so that we can say, at a given age, kids who were disrupted were doing worse/better than kids who were not. 
 
+
 ```{r}
 a3_cogbio_stability <- lmer(
   value_z ~ 
@@ -3211,6 +3277,7 @@ a3_cogbio_stability <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_cogbio_stability_parameters <-
   model_parameters(
     a3_cogbio_stability,
@@ -3240,6 +3307,7 @@ a3_stab_age3 <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age3_parameters <- 
   model_parameters(
     a3_stab_age3,
@@ -3262,6 +3330,7 @@ a3_stab_age8 <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age8_parameters <- 
   model_parameters(
     a3_stab_age8,
@@ -3283,6 +3352,7 @@ a3_stab_age16 <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age16_parameters <- 
   model_parameters(
     a3_stab_age16,
@@ -3294,12 +3364,12 @@ a3_stab_age16_parameters
 
 ```
 
-##### Three-way moderations
+##### Three-way moderation
 ```{r}
 a3_stability_X <- lmer(
   value_z ~ 
     stable * scale(age_years, scale = TRUE) * construct +
-    stable * scale(age_years, scale = TRUE) * male + 
+    male + 
     (1|ID), 
   data = d_fcg_cog_bio
 )
@@ -3325,6 +3395,7 @@ a3_stab_age3_EEG <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age3_EEG_parameters <- 
   model_parameters(
     a3_stab_age3_EEG,
@@ -3346,6 +3417,7 @@ a3_stab_age8_EEG <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age8_EEG_parameters <- 
   model_parameters(
     a3_stab_age8_EEG,
@@ -3366,6 +3438,7 @@ a3_stab_age16_EEG <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age16_EEG_parameters <- 
   model_parameters(
     a3_stab_age16_EEG,
@@ -3392,6 +3465,7 @@ a3_stab_age3_IQ <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age3_IQ_parameters <- 
   model_parameters(
     a3_stab_age3_IQ,
@@ -3413,6 +3487,7 @@ a3_stab_age8_IQ <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age8_IQ_parameters <- 
   model_parameters(
     a3_stab_age8_IQ,
@@ -3433,6 +3508,7 @@ a3_stab_age16_IQ <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age16_IQ_parameters <- 
   model_parameters(
     a3_stab_age16_IQ,
@@ -3459,6 +3535,7 @@ a3_stab_age3_PHYS <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age3_PHYS_parameters <- 
   model_parameters(
     a3_stab_age3_PHYS,
@@ -3479,6 +3556,7 @@ a3_stab_age8_PHYS <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age8_PHYS_parameters <- 
   model_parameters(
     a3_stab_age8_PHYS,
@@ -3499,6 +3577,7 @@ a3_stab_age16_PHYS <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age16_PHYS_parameters <- 
   model_parameters(
     a3_stab_age16_PHYS,
@@ -3539,6 +3618,7 @@ a3_psy_stability <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stability_parameters <-
   model_parameters(
     a3_psy_stability,
@@ -3571,6 +3651,7 @@ a3_psy_stab_age3 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stab_age3_parameters <- 
   model_parameters(
     a3_psy_stab_age3,
@@ -3594,6 +3675,7 @@ a3_psy_stab_age8 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stab_age8_parameters <- 
   model_parameters(
     a3_psy_stab_age8,
@@ -3616,6 +3698,7 @@ a3_psy_stab_age16 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stab_age16_parameters <- 
   model_parameters(
     a3_psy_stab_age16,
@@ -3627,6 +3710,21 @@ a3_psy_stab_age16_parameters
 
 ```
 
+##### Two-way moderation
+
+```{r}
+a3_psy_stability_X <- lmer(
+  value_z ~ 
+    stable * scale(age_years, scale = TRUE) +
+    domain +
+    male +
+    informant +
+    (1|ID), 
+  data = d_fcg_psy
+)
+
+anova(a3_psy_stability_X)
+```
 
 ##### Three-way moderations
 
@@ -3664,6 +3762,7 @@ a3_ADHD_age3 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_ADHD_age3_parameters <- 
   model_parameters(
     a3_ADHD_age3,
@@ -3686,6 +3785,7 @@ a3_ADHD_age8 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_ADHD_age8_parameters <- 
   model_parameters(
     a3_ADHD_age8,
@@ -3708,6 +3808,7 @@ a3_ADHD_age16 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_ADHD_age16_parameters <- 
   model_parameters(
     a3_ADHD_age16,
@@ -3738,6 +3839,7 @@ a3_DESD_age3 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_DESD_age3_parameters <-
   model_parameters(
     a3_DESD_age3,
@@ -3759,6 +3861,7 @@ a3_DESD_age8 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_DESD_age8_parameters <-
   model_parameters(
     a3_DESD_age8,
@@ -3780,6 +3883,7 @@ a3_DESD_age16 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_DESD_age16_parameters <-
   model_parameters(
     a3_DESD_age16,
@@ -3809,6 +3913,7 @@ a3_EXT_age3 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_EXT_age3_parameters <-
   model_parameters(
     a3_EXT_age3,
@@ -3831,6 +3936,7 @@ a3_EXT_age8 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_EXT_age8_parameters <-
   model_parameters(
     a3_EXT_age8,
@@ -3853,6 +3959,7 @@ a3_EXT_age16 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_EXT_age16_parameters <-
   model_parameters(
     a3_EXT_age16,
@@ -3883,6 +3990,7 @@ a3_INT_age3 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a2_INT_age3_parameters <-
   model_parameters(
     a3_INT_age3,
@@ -3905,6 +4013,7 @@ a3_INT_age8 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_INT_age8_parameters <-
   model_parameters(
     a3_INT_age8,
@@ -3927,6 +4036,7 @@ a3_INT_age16 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_INT_age16_parameters <-
   model_parameters(
     a3_INT_age16,
@@ -3957,6 +4067,7 @@ a3_RAD_age3 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_RAD_age3_parameters <- 
   model_parameters(
     a3_RAD_age3,
@@ -3979,6 +4090,7 @@ a3_RAD_age8 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_RAD_age8_parameters <- 
   model_parameters(
     a3_RAD_age8,
@@ -4001,6 +4113,7 @@ a3_RAD_age16 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_RAD_age16_parameters <- 
   model_parameters(
     a3_RAD_age16,
@@ -4034,6 +4147,7 @@ a3_psy_stab_age3_male <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stab_age3_male_parameters <- 
   model_parameters(
     a3_psy_stab_age3_male,
@@ -4055,6 +4169,7 @@ a3_psy_stab_age8_male <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stab_age8_male_parameters <- 
   model_parameters(
     a3_psy_stab_age8_male,
@@ -4076,6 +4191,7 @@ a3_psy_stab_age16_male <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stab_age16_male_parameters <- 
   model_parameters(
     a3_psy_stab_age16_male,
@@ -4099,6 +4215,7 @@ a3_psy_stab_age3_female <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stab_age3_female_parameters <- 
   model_parameters(
     a3_psy_stab_age3_female,
@@ -4120,6 +4237,7 @@ a3_psy_stab_age8_female <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stab_age8_female_parameters <- 
   model_parameters(
     a3_psy_stab_age8_female,
@@ -4141,6 +4259,7 @@ a3_psy_stab_age16_female <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stab_age16_female_parameters <- 
   model_parameters(
     a3_psy_stab_age16_female,
@@ -4250,16 +4369,97 @@ ggsave(
 
 ## Aim 2 moderating effects
 
-#### EEG by gender 
 ```{r}
-d_cog_bio <-
+d_plot <-
   d_cog_bio %>% 
+  dplyr::select(
+    ID, 
+    group, 
+    male,
+    wave_ordered, 
+    age_years, 
+    construct, 
+    value_z
+  ) %>% 
+  bind_rows(
+    d_psy %>% 
+      dplyr::select(
+        ID, 
+        group, 
+        male,
+        wave_ordered, 
+        age_years, 
+        domain, 
+        value_z
+      )
+  ) %>% 
   mutate(
-    gender = if_else(
-      male == 1, "Boys", "Girls"
+    domain_construct_pretty = case_when(
+      construct == "IQ" ~ "IQ",
+      construct == "physical" ~ "Physical growth",
+      construct == "EEG" ~ paste0("EEG alpha-power"),
+      domain == "rad"~ "RAD",
+      domain == "dsed" ~ "DSED",
+      domain == "adhd" ~ "ADHD",
+      domain == "extern" ~ "Externalizing",
+      domain == "intern" ~ "Internalizing"
+    ),
+    domain_construct_pretty = fct_relevel(
+      domain_construct_pretty,
+      "IQ",
+      "Physical growth", 
+      "EEG alpha-power", 
+      "DSED", 
+      "RAD", 
+      "ADHD", 
+      "Externalizing", 
+      "Internalizing"
+    ),
+    male = if_else(
+      male == 1, "Male", "Female"
     )
   )
+```
 
+### Cognitive and biological by gender 
+```{r}
+d_plot %>% 
+  filter(
+    domain_construct_pretty == "IQ" | 
+      domain_construct_pretty == "Physical growth" | 
+      domain_construct_pretty == "EEG alpha-power"
+  ) %>%
+  ggplot(aes(group, value_z, fill = male, color = male)) +
+  geom_boxplot(
+    alpha = 1/2,
+    outlier.shape = NA
+  ) +
+  scale_y_continuous(breaks = seq.int(-3, 3, 1)) +
+  scale_color_viridis_d() +
+  scale_fill_viridis_d() +
+  theme_beip +
+  theme(
+    legend.position = "right",
+    plot.caption = element_text(hjust = .5, size = 14)
+  ) +
+  labs(
+    color = NULL,
+    fill = NULL,
+    x = NULL,
+    y = "Cognitive and biological functioning\n(standardized score)"
+  ) +
+  facet_grid(~domain_construct_pretty)
+
+ggsave(
+  paste0(home, "figures/aim2_cogbio_sex.png"),
+  dpi = 600,
+  width = 9, 
+  height = 5
+)
+```
+
+#### EEG by gender 
+```{r}
 d_cog_bio %>% 
   filter(construct == "EEG") %>% 
   ggplot(aes(group, value_z, fill = group, color = group)) +
@@ -4277,9 +4477,9 @@ d_cog_bio %>%
   ) +
   labs(
     x = NULL,
-    y = "Standardized EEG alpha-power"
+    y = "Standardized EEG alphalpha-power"
   ) +
-  facet_grid(.~gender)
+  facet_grid(.~male)
 
 ggsave(
   paste0(home, "figures/aim2_EEG_sex.png"),
@@ -4291,52 +4491,6 @@ ggsave(
 
 ### By domain by age of assessment
 ```{r}
-d_plot <-
-  d_cog_bio %>% 
-  dplyr::select(
-    ID, 
-    group, 
-    wave_ordered, 
-    age_years, 
-    construct, 
-    value_z
-  ) %>% 
-  bind_rows(
-    d_psy %>% 
-      dplyr::select(
-        ID, 
-        group, 
-        wave_ordered, 
-        age_years, 
-        domain, 
-        value_z
-      )
-  ) %>% 
-  mutate(
-    domain_construct_pretty = case_when(
-      construct == "IQ" ~ "IQ",
-      construct == "physical" ~ "Physical growth",
-      construct == "EEG" ~ "EEG a-power",
-      domain == "rad"~ "RAD",
-      domain == "dsed" ~ "DSED",
-      domain == "adhd" ~ "ADHD",
-      domain == "extern" ~ "Externalizing",
-      domain == "intern" ~ "Internalizing"
-    ),
-    domain_construct_pretty = fct_relevel(
-      domain_construct_pretty,
-      "IQ",
-      "Physical growth", 
-      "EEG a-power", 
-      "DSED", 
-      "RAD", 
-      "ADHD", 
-      "Externalizing", 
-      "Internalizing"
-    )
-  )
-
-
 d_plot %>% 
   ggplot(aes(age_years, value_z, fill = group, color = group)) +
   geom_smooth(method = "lm") +
@@ -4376,6 +4530,7 @@ d_plot_fcg <-
   dplyr::select(
     ID, 
     group, 
+    male,
     wave_ordered, 
     FC_placement_age,
     stable,
@@ -4388,6 +4543,7 @@ d_plot_fcg <-
       dplyr::select(
         ID, 
         group, 
+        male,
         wave_ordered, 
         FC_placement_age,
         stable,
@@ -4400,7 +4556,7 @@ d_plot_fcg <-
     domain_construct_pretty = case_when(
       construct == "IQ" ~ "IQ",
       construct == "physical" ~ "Physical growth",
-      construct == "EEG" ~ "EEG a-power",
+      construct == "EEG" ~ "EEG alpha-power",
       domain == "rad"~ "RAD",
       domain == "dsed" ~ "DSED",
       domain == "adhd" ~ "ADHD",
@@ -4411,7 +4567,7 @@ d_plot_fcg <-
       domain_construct_pretty,
       "IQ",
       "Physical growth", 
-      "EEG a-power", 
+      "EEG alpha-power", 
       "DSED", 
       "RAD", 
       "ADHD", 
@@ -4572,3 +4728,47 @@ ggsave(
 )
 ```
 
+#### Stability by sex (geom_smooth)
+```{r}
+d_plot_fcg %>% 
+  filter(!is.na(stable)) %>% 
+  mutate(
+    male = recode_factor(
+      male,
+      "0" = "Female",
+      "1" = "Male"
+    )
+  ) %>% 
+  ggplot(
+    aes(
+      age_years, 
+      value_z, 
+      color = stable,
+      fill = stable
+    )
+  ) +
+  geom_smooth(method = "lm", size = 2) +
+  #scale_y_continuous(breaks = seq.int(-1, 1.4, .4)) +
+  scale_x_continuous(breaks = seq.int(0, 30, 5)) +
+  scale_color_viridis_d(begin = .5) +
+  scale_fill_viridis_d(guide = FALSE, begin = .5) +
+  theme_beip +
+  theme(
+    legend.position = "right",
+    plot.caption = element_text(hjust = .5, size = 16),
+    axis.title.y = element_text(vjust = 2)
+  ) +
+  labs(
+    color = "Foster care placement",
+    x = "Age of assessment (years)",
+    y = "Symptoms of psychopathology\n(standardized score)"
+  ) +
+  facet_wrap(.~male, ncol = 2)
+
+ggsave(
+  paste0(home, "figures/aim3_all_stability_sex_age.png"),
+  dpi = 600,
+  width = 11, 
+  height = 6
+)
+```

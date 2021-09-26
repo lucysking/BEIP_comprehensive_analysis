@@ -1243,6 +1243,20 @@ d_psy %>%
 d %>% 
   filter(group == "FCG") %>% 
   distinct(ID, FC_placement_age) %>% 
+  filter(is.na(FC_placement_age))
+```
+
+    ## # A tibble: 2 x 2
+    ## # Groups:   ID [2]
+    ##      ID FC_placement_age
+    ##   <dbl>            <dbl>
+    ## 1    82               NA
+    ## 2    98               NA
+
+``` r
+d %>% 
+  filter(group == "FCG") %>% 
+  distinct(ID, FC_placement_age) %>% 
   ggplot(aes(FC_placement_age)) +
   geom_histogram() +
   theme_beip +
@@ -1989,6 +2003,7 @@ anova(a1_cogbio)
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
+set.seed(123456)
 a1_cogbio_parameters <-
   model_parameters(
   a1_cogbio,
@@ -2002,19 +2017,12 @@ a1_cogbio_parameters
 
     ## Parameter         | Coefficient |        95% CI |     p
     ## -------------------------------------------------------
-    ## (Intercept)       |       -0.11 | [-0.24, 0.01] | 0.095
-    ## group1            |        0.22 | [ 0.06, 0.40] | 0.018
-    ## male [1]          |        0.13 | [-0.05, 0.29] | 0.165
-    ## age_years         |    1.65e-03 | [-0.03, 0.03] | 0.930
-    ## constructIQvEEG   |       -0.02 | [-0.10, 0.07] | 0.687
-    ## constructPHYSvEEG |    1.68e-03 | [-0.07, 0.07] | 0.955
-
-``` r
-# diagnostics 
-check_model(a1_cogbio)
-```
-
-![](big_analysis_files/figure-gfm/unnamed-chunk-55-1.png)<!-- -->
+    ## (Intercept)       |       -0.11 | [-0.23, 0.02] | 0.090
+    ## group1            |        0.23 | [ 0.05, 0.40] | 0.014
+    ## male [1]          |        0.13 | [-0.05, 0.31] | 0.171
+    ## age_years         |    1.34e-03 | [-0.03, 0.03] | 0.960
+    ## constructIQvEEG   |       -0.02 | [-0.10, 0.07] | 0.686
+    ## constructPHYSvEEG |    1.15e-03 | [-0.07, 0.07] | 0.976
 
 ### Psychopathology
 
@@ -2068,6 +2076,7 @@ anova(a1_psy)
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
+set.seed(123456)
 a1_psy_parameters <-
   model_parameters(
     a1_psy,
@@ -2081,22 +2090,15 @@ a1_psy_parameters
 
     ## Parameter       | Coefficient |         95% CI |      p
     ## -------------------------------------------------------
-    ## (Intercept)     |        0.11 | [ 0.00,  0.22] | 0.046 
-    ## group1          |       -0.21 | [-0.37, -0.06] | 0.008 
-    ## male [1]        |        0.22 | [ 0.07,  0.38] | 0.008 
-    ## age_years       |       -0.02 | [-0.04,  0.01] | 0.283 
-    ## domainDESDvADHD |       -0.31 | [-0.40, -0.22] | < .001
+    ## (Intercept)     |        0.12 | [ 0.00,  0.23] | 0.048 
+    ## group1          |       -0.22 | [-0.36, -0.06] | 0.008 
+    ## male [1]        |        0.23 | [ 0.08,  0.40] | 0.005 
+    ## age_years       |       -0.02 | [-0.04,  0.01] | 0.231 
+    ## domainDESDvADHD |       -0.30 | [-0.39, -0.21] | < .001
     ## domainEXTvADHD  |       -0.59 | [-0.66, -0.51] | < .001
-    ## domainINTvADHD  |       -0.68 | [-0.75, -0.60] | < .001
+    ## domainINTvADHD  |       -0.67 | [-0.75, -0.60] | < .001
     ## domainRADvADHD  |       -0.53 | [-0.62, -0.45] | < .001
-    ## informant1      |   -4.90e-03 | [-0.08,  0.07] | 0.884
-
-``` r
-# diagnostics 
-check_model(a1_psy)
-```
-
-![](big_analysis_files/figure-gfm/unnamed-chunk-58-1.png)<!-- -->
+    ## informant1      |   -1.68e-03 | [-0.08,  0.07] | 0.917
 
 ## Aim 2
 
@@ -2158,6 +2160,7 @@ a2_cogbio_EEG <- lmer(
   data = d_cog_bio
 )
 
+set.seed(123456)
 a2_cogbio_EEG_parameters <-
   model_parameters(
     a2_cogbio_EEG,
@@ -2170,14 +2173,14 @@ a2_cogbio_EEG_parameters
 
     ## Parameter                  | Coefficient |         95% CI |      p
     ## ------------------------------------------------------------------
-    ## (Intercept)                |       -0.02 | [-0.16,  0.13] | 0.827 
-    ## group1                     |        0.05 | [-0.15,  0.26] | 0.611 
-    ## constructIQvEEG            |       -0.20 | [-0.33, -0.09] | < .001
-    ## constructPHYSvEEG          |       -0.11 | [-0.21, -0.02] | 0.020 
-    ## male [1]                   |        0.12 | [-0.07,  0.30] | 0.188 
-    ## age_years                  |    4.53e-04 | [-0.03,  0.03] | 0.964 
-    ## group1 * constructIQvEEG   |        0.36 | [ 0.19,  0.53] | < .001
-    ## group1 * constructPHYSvEEG |        0.23 | [ 0.09,  0.35] | < .001
+    ## (Intercept)                |   -5.90e-03 | [-0.15,  0.13] | 0.920 
+    ## group1                     |        0.04 | [-0.15,  0.25] | 0.703 
+    ## constructIQvEEG            |       -0.20 | [-0.32, -0.07] | 0.003 
+    ## constructPHYSvEEG          |       -0.12 | [-0.21, -0.01] | 0.013 
+    ## male [1]                   |        0.13 | [-0.05,  0.31] | 0.169 
+    ## age_years                  |    1.11e-03 | [-0.03,  0.03] | 0.968 
+    ## group1 * constructIQvEEG   |        0.36 | [ 0.17,  0.53] | < .001
+    ## group1 * constructPHYSvEEG |        0.23 | [ 0.09,  0.37] | < .001
 
 ###### IQ
 
@@ -2197,6 +2200,7 @@ a2_cogbio_IQ <- lmer(
   data = d_cog_bio
 )
 
+set.seed(123456)
 a2_cogbio_IQ_parameters <-
   model_parameters(
     a2_cogbio_IQ,
@@ -2210,14 +2214,14 @@ a2_cogbio_IQ_parameters
 
     ## Parameter                 | Coefficient |         95% CI |      p
     ## -----------------------------------------------------------------
-    ## (Intercept)               |       -0.22 | [-0.37, -0.07] | 0.010 
-    ## group1                    |        0.41 | [ 0.22,  0.63] | 0.003 
-    ## constructEEGvIQ           |        0.20 | [ 0.08,  0.33] | 0.002 
-    ## constructPHYSvIQ          |        0.09 | [-0.02,  0.21] | 0.106 
+    ## (Intercept)               |       -0.21 | [-0.36, -0.06] | 0.006 
+    ## group1                    |        0.40 | [ 0.19,  0.61] | < .001
+    ## constructEEGvIQ           |        0.20 | [ 0.07,  0.32] | 0.003 
+    ## constructPHYSvIQ          |        0.09 | [-0.02,  0.20] | 0.134 
     ## male [1]                  |        0.13 | [-0.05,  0.31] | 0.169 
-    ## age_years                 |   -5.94e-05 | [-0.03,  0.03] | > .999
-    ## group1 * constructEEGvIQ  |       -0.36 | [-0.53, -0.20] | < .001
-    ## group1 * constructPHYSvIQ |       -0.13 | [-0.29,  0.00] | 0.077
+    ## age_years                 |    1.11e-03 | [-0.03,  0.03] | 0.968 
+    ## group1 * constructEEGvIQ  |       -0.36 | [-0.53, -0.17] | < .001
+    ## group1 * constructPHYSvIQ |       -0.13 | [-0.29,  0.03] | 0.117
 
 ###### Physical size
 
@@ -2237,6 +2241,7 @@ a2_cogbio_PHY <- lmer(
   data = d_cog_bio
 )
 
+set.seed(123456)
 a2_cogbio_PHY_parameters <- 
   model_parameters(
     a2_cogbio_PHY,
@@ -2250,14 +2255,14 @@ a2_cogbio_PHY_parameters
 
     ## Parameter                  | Coefficient |         95% CI |      p
     ## ------------------------------------------------------------------
-    ## (Intercept)                |       -0.13 | [-0.25,  0.01] | 0.061 
-    ## group1                     |        0.27 | [ 0.10,  0.45] | 0.007 
-    ## constructEEGvPHYS          |        0.12 | [ 0.02,  0.21] | 0.024 
-    ## constructIQvPHYS           |       -0.09 | [-0.20,  0.02] | 0.136 
-    ## male [1]                   |        0.12 | [-0.05,  0.30] | 0.182 
-    ## age_years                  |    5.02e-04 | [-0.03,  0.03] | 0.978 
-    ## group1 * constructEEGvPHYS |       -0.23 | [-0.37, -0.10] | < .001
-    ## group1 * constructIQvPHYS  |        0.13 | [-0.03,  0.29] | 0.118
+    ## (Intercept)                |       -0.12 | [-0.26,  0.01] | 0.072 
+    ## group1                     |        0.27 | [ 0.10,  0.47] | 0.007 
+    ## constructEEGvPHYS          |        0.12 | [ 0.01,  0.21] | 0.013 
+    ## constructIQvPHYS           |       -0.09 | [-0.20,  0.02] | 0.134 
+    ## male [1]                   |        0.13 | [-0.05,  0.31] | 0.169 
+    ## age_years                  |    1.11e-03 | [-0.03,  0.03] | 0.968 
+    ## group1 * constructEEGvPHYS |       -0.23 | [-0.37, -0.09] | < .001
+    ## group1 * constructIQvPHYS  |        0.13 | [-0.03,  0.29] | 0.117
 
 #### Three-way moderations
 
@@ -2351,6 +2356,7 @@ a2_cogbio_EEG_male <- lmer(
   data = d_cog_bio
 )
 
+set.seed(123456)
 a2_cogbio_EEG_male_parameters <-
   model_parameters(
     a2_cogbio_EEG_male,
@@ -2364,19 +2370,19 @@ a2_cogbio_EEG_male_parameters
 
     ## Parameter                               | Coefficient |         95% CI |      p
     ## -------------------------------------------------------------------------------
-    ## (Intercept)                             |       -0.16 | [-0.35,  0.04] | 0.109 
-    ## group1                                  |        0.27 | [ 0.00,  0.54] | 0.055 
-    ## constructIQvEEG                         |        0.02 | [-0.15,  0.19] | 0.834 
-    ## constructPHYSvEEG                       |        0.19 | [ 0.05,  0.33] | 0.008 
-    ## male [1]                                |        0.31 | [ 0.02,  0.59] | 0.029 
-    ## age_years                               |    4.78e-04 | [-0.03,  0.03] | 0.993 
-    ## group1 * constructIQvEEG                |       -0.10 | [-0.35,  0.14] | 0.372 
-    ## group1 * constructPHYSvEEG              |        0.04 | [-0.15,  0.22] | 0.670 
-    ## group1 * male [1]                       |       -0.46 | [-0.81, -0.09] | 0.019 
-    ## constructIQvEEG * male [1]              |       -0.46 | [-0.69, -0.23] | 0.002 
-    ## constructPHYSvEEG * male [1]            |       -0.63 | [-0.82, -0.44] | < .001
-    ## (group1 * constructIQvEEG) * male [1]   |        0.94 | [ 0.60,  1.28] | < .001
-    ## (group1 * constructPHYSvEEG) * male [1] |        0.40 | [ 0.12,  0.66] | 0.002
+    ## (Intercept)                             |       -0.15 | [-0.36,  0.04] | 0.139 
+    ## group1                                  |        0.25 | [-0.02,  0.53] | 0.074 
+    ## constructIQvEEG                         |        0.02 | [-0.16,  0.19] | 0.827 
+    ## constructPHYSvEEG                       |        0.19 | [ 0.05,  0.32] | 0.008 
+    ## male [1]                                |        0.29 | [ 0.03,  0.59] | 0.039 
+    ## age_years                               |    1.63e-03 | [-0.03,  0.03] | 0.946 
+    ## group1 * constructIQvEEG                |       -0.09 | [-0.33,  0.15] | 0.442 
+    ## group1 * constructPHYSvEEG              |        0.05 | [-0.15,  0.23] | 0.661 
+    ## group1 * male [1]                       |       -0.43 | [-0.80, -0.06] | 0.023 
+    ## constructIQvEEG * male [1]              |       -0.46 | [-0.71, -0.21] | < .001
+    ## constructPHYSvEEG * male [1]            |       -0.63 | [-0.81, -0.44] | < .001
+    ## (group1 * constructIQvEEG) * male [1]   |        0.93 | [ 0.60,  1.27] | < .001
+    ## (group1 * constructPHYSvEEG) * male [1] |        0.39 | [ 0.14,  0.66] | 0.004
 
 ###### Female, EEG
 
@@ -2398,6 +2404,7 @@ a2_cogbio_EEG_female <- lmer(
   data = d_cog_bio
 )
 
+set.seed(123456)
 a2_cogbio_EEG_female_parameters <-
   model_parameters(
     a2_cogbio_EEG_female,
@@ -2411,19 +2418,19 @@ a2_cogbio_EEG_female_parameters
 
     ## Parameter                               | Coefficient |         95% CI |      p
     ## -------------------------------------------------------------------------------
-    ## (Intercept)                             |        0.15 | [-0.05,  0.36] | 0.147 
-    ## group1                                  |       -0.18 | [-0.47,  0.10] | 0.196 
+    ## (Intercept)                             |        0.15 | [-0.05,  0.36] | 0.144 
+    ## group1                                  |       -0.19 | [-0.46,  0.09] | 0.199 
     ## constructIQvEEG                         |       -0.44 | [-0.62, -0.27] | < .001
-    ## constructPHYSvEEG                       |       -0.44 | [-0.57, -0.30] | < .001
-    ## male [1]                                |       -0.30 | [-0.61, -0.04] | 0.036 
-    ## age_years                               |    1.75e-03 | [-0.03,  0.03] | 0.910 
-    ## group1 * constructIQvEEG                |        0.84 | [ 0.59,  1.08] | < .001
-    ## group1 * constructPHYSvEEG              |        0.43 | [ 0.25,  0.62] | < .001
-    ## group1 * male [1]                       |        0.43 | [ 0.06,  0.85] | 0.029 
-    ## constructIQvEEG * male [1]              |        0.46 | [ 0.24,  0.71] | < .001
-    ## constructPHYSvEEG * male [1]            |        0.63 | [ 0.45,  0.83] | < .001
-    ## (group1 * constructIQvEEG) * male [1]   |       -0.93 | [-1.29, -0.58] | < .001
-    ## (group1 * constructPHYSvEEG) * male [1] |       -0.39 | [-0.67, -0.12] | 0.007
+    ## constructPHYSvEEG                       |       -0.44 | [-0.58, -0.31] | < .001
+    ## male [1]                                |       -0.29 | [-0.59, -0.03] | 0.039 
+    ## age_years                               |    1.63e-03 | [-0.03,  0.03] | 0.946 
+    ## group1 * constructIQvEEG                |        0.84 | [ 0.61,  1.08] | < .001
+    ## group1 * constructPHYSvEEG              |        0.44 | [ 0.24,  0.63] | < .001
+    ## group1 * male [1]                       |        0.43 | [ 0.06,  0.80] | 0.023 
+    ## constructIQvEEG * male [1]              |        0.46 | [ 0.21,  0.71] | < .001
+    ## constructPHYSvEEG * male [1]            |        0.63 | [ 0.44,  0.81] | < .001
+    ## (group1 * constructIQvEEG) * male [1]   |       -0.93 | [-1.27, -0.60] | < .001
+    ## (group1 * constructPHYSvEEG) * male [1] |       -0.39 | [-0.66, -0.14] | 0.004
 
 ###### Male, IQ
 
@@ -2445,6 +2452,7 @@ a2_cogbio_IQ_male <- lmer(
   data = d_cog_bio
 )
 
+set.seed(123456)
 a2_cogbio_IQ_male_parameters <-
   model_parameters(
     a2_cogbio_IQ_male,
@@ -2458,19 +2466,19 @@ a2_cogbio_IQ_male_parameters
 
     ## Parameter                              | Coefficient |         95% CI |      p
     ## ------------------------------------------------------------------------------
-    ## (Intercept)                            |       -0.13 | [-0.36,  0.07] | 0.209 
-    ## group1                                 |        0.17 | [-0.14,  0.47] | 0.273 
-    ## constructEEGvIQ                        |       -0.02 | [-0.18,  0.15] | 0.832 
-    ## constructPHYSvIQ                       |        0.17 | [ 0.02,  0.33] | 0.030 
-    ## male [1]                               |       -0.15 | [-0.45,  0.16] | 0.328 
-    ## age_years                              |    1.08e-03 | [-0.03,  0.03] | 0.938 
-    ## group1 * constructEEGvIQ               |        0.09 | [-0.16,  0.32] | 0.464 
-    ## group1 * constructPHYSvIQ              |        0.13 | [-0.09,  0.33] | 0.213 
-    ## group1 * male [1]                      |        0.49 | [ 0.04,  0.89] | 0.027 
-    ## constructEEGvIQ * male [1]             |        0.46 | [ 0.23,  0.70] | < .001
-    ## constructPHYSvIQ * male [1]            |       -0.17 | [-0.40,  0.04] | 0.125 
-    ## (group1 * constructEEGvIQ) * male [1]  |       -0.93 | [-1.24, -0.58] | < .001
-    ## (group1 * constructPHYSvIQ) * male [1] |       -0.54 | [-0.82, -0.25] | < .001
+    ## (Intercept)                            |       -0.13 | [-0.34,  0.08] | 0.229 
+    ## group1                                 |        0.16 | [-0.13,  0.45] | 0.294 
+    ## constructEEGvIQ                        |       -0.02 | [-0.19,  0.16] | 0.827 
+    ## constructPHYSvIQ                       |        0.17 | [ 0.01,  0.32] | 0.039 
+    ## male [1]                               |       -0.16 | [-0.46,  0.13] | 0.308 
+    ## age_years                              |    1.63e-03 | [-0.03,  0.03] | 0.946 
+    ## group1 * constructEEGvIQ               |        0.09 | [-0.15,  0.33] | 0.442 
+    ## group1 * constructPHYSvIQ              |        0.13 | [-0.07,  0.35] | 0.203 
+    ## group1 * male [1]                      |        0.51 | [ 0.07,  0.90] | 0.019 
+    ## constructEEGvIQ * male [1]             |        0.46 | [ 0.21,  0.71] | < .001
+    ## constructPHYSvIQ * male [1]            |       -0.17 | [-0.38,  0.04] | 0.105 
+    ## (group1 * constructEEGvIQ) * male [1]  |       -0.93 | [-1.27, -0.60] | < .001
+    ## (group1 * constructPHYSvIQ) * male [1] |       -0.54 | [-0.82, -0.23] | 0.002
 
 ###### Female, IQ
 
@@ -2492,6 +2500,7 @@ a2_cogbio_IQ_female <- lmer(
   data = d_cog_bio
 )
 
+set.seed(123456)
 a2_cogbio_IQ_female_parameters <-
   model_parameters(
     a2_cogbio_IQ_female,
@@ -2505,19 +2514,19 @@ a2_cogbio_IQ_female_parameters
 
     ## Parameter                              | Coefficient |         95% CI |      p
     ## ------------------------------------------------------------------------------
-    ## (Intercept)                            |       -0.29 | [-0.50, -0.09] | 0.005 
-    ## group1                                 |        0.65 | [ 0.37,  0.96] | < .001
-    ## constructEEGvIQ                        |        0.44 | [ 0.27,  0.61] | < .001
-    ## constructPHYSvIQ                       |   -4.22e-03 | [-0.17,  0.16] | 0.944 
-    ## male [1]                               |        0.16 | [-0.15,  0.45] | 0.323 
-    ## age_years                              |    9.48e-04 | [-0.03,  0.03] | 0.944 
-    ## group1 * constructEEGvIQ               |       -0.84 | [-1.09, -0.61] | < .001
-    ## group1 * constructPHYSvIQ              |       -0.40 | [-0.63, -0.19] | < .001
-    ## group1 * male [1]                      |       -0.49 | [-0.90, -0.06] | 0.028 
-    ## constructEEGvIQ * male [1]             |       -0.46 | [-0.70, -0.21] | < .001
-    ## constructPHYSvIQ * male [1]            |        0.18 | [-0.05,  0.40] | 0.126 
-    ## (group1 * constructEEGvIQ) * male [1]  |        0.93 | [ 0.61,  1.28] | < .001
-    ## (group1 * constructPHYSvIQ) * male [1] |        0.54 | [ 0.22,  0.84] | < .001
+    ## (Intercept)                            |       -0.29 | [-0.51, -0.08] | 0.008 
+    ## group1                                 |        0.66 | [ 0.37,  0.95] | < .001
+    ## constructEEGvIQ                        |        0.44 | [ 0.27,  0.62] | < .001
+    ## constructPHYSvIQ                       |   -3.45e-03 | [-0.15,  0.16] | 0.971 
+    ## male [1]                               |        0.16 | [-0.13,  0.46] | 0.308 
+    ## age_years                              |    1.63e-03 | [-0.03,  0.03] | 0.946 
+    ## group1 * constructEEGvIQ               |       -0.84 | [-1.08, -0.61] | < .001
+    ## group1 * constructPHYSvIQ              |       -0.41 | [-0.63, -0.19] | 0.002 
+    ## group1 * male [1]                      |       -0.51 | [-0.90, -0.07] | 0.019 
+    ## constructEEGvIQ * male [1]             |       -0.46 | [-0.71, -0.21] | < .001
+    ## constructPHYSvIQ * male [1]            |        0.17 | [-0.04,  0.38] | 0.105 
+    ## (group1 * constructEEGvIQ) * male [1]  |        0.93 | [ 0.60,  1.27] | < .001
+    ## (group1 * constructPHYSvIQ) * male [1] |        0.54 | [ 0.23,  0.82] | 0.002
 
 ###### Male, physical size
 
@@ -2539,6 +2548,7 @@ a2_cogbio_PHYS_male <- lmer(
   data = d_cog_bio
 )
 
+set.seed(123456)
 a2_cogbio_PHYS_male_parameters <-
   model_parameters(
     a2_cogbio_PHYS_male,
@@ -2552,19 +2562,19 @@ a2_cogbio_PHYS_male_parameters
 
     ## Parameter                               | Coefficient |         95% CI |      p
     ## -------------------------------------------------------------------------------
-    ## (Intercept)                             |        0.04 | [-0.15,  0.21] | 0.706 
-    ## group1                                  |        0.30 | [ 0.03,  0.55] | 0.027 
-    ## constructEEGvPHYS                       |       -0.19 | [-0.33, -0.06] | 0.011 
-    ## constructIQvPHYS                        |       -0.17 | [-0.32, -0.01] | 0.037 
-    ## male [1]                                |       -0.33 | [-0.57, -0.07] | 0.019 
-    ## age_years                               |    5.39e-04 | [-0.03,  0.03] | 0.958 
-    ## group1 * constructEEGvPHYS              |       -0.04 | [-0.23,  0.15] | 0.700 
-    ## group1 * constructIQvPHYS               |       -0.13 | [-0.36,  0.08] | 0.236 
-    ## group1 * male [1]                       |       -0.05 | [-0.41,  0.32] | 0.807 
-    ## constructEEGvPHYS * male [1]            |        0.63 | [ 0.43,  0.83] | < .001
-    ## constructIQvPHYS * male [1]             |        0.17 | [-0.04,  0.40] | 0.132 
-    ## (group1 * constructEEGvPHYS) * male [1] |       -0.39 | [-0.66, -0.11] | 0.006 
-    ## (group1 * constructIQvPHYS) * male [1]  |        0.54 | [ 0.24,  0.85] | 0.002
+    ## (Intercept)                             |        0.04 | [-0.15,  0.23] | 0.661 
+    ## group1                                  |        0.29 | [ 0.03,  0.55] | 0.027 
+    ## constructEEGvPHYS                       |       -0.19 | [-0.32, -0.05] | 0.008 
+    ## constructIQvPHYS                        |       -0.17 | [-0.32, -0.01] | 0.039 
+    ## male [1]                                |       -0.33 | [-0.58, -0.08] | 0.016 
+    ## age_years                               |    1.63e-03 | [-0.03,  0.03] | 0.946 
+    ## group1 * constructEEGvPHYS              |       -0.05 | [-0.23,  0.15] | 0.661 
+    ## group1 * constructIQvPHYS               |       -0.13 | [-0.35,  0.07] | 0.203 
+    ## group1 * male [1]                       |       -0.05 | [-0.40,  0.33] | 0.823 
+    ## constructEEGvPHYS * male [1]            |        0.63 | [ 0.44,  0.81] | < .001
+    ## constructIQvPHYS * male [1]             |        0.17 | [-0.04,  0.38] | 0.105 
+    ## (group1 * constructEEGvPHYS) * male [1] |       -0.39 | [-0.66, -0.14] | 0.004 
+    ## (group1 * constructIQvPHYS) * male [1]  |        0.54 | [ 0.23,  0.82] | 0.002
 
 ###### Female, physical size
 
@@ -2586,6 +2596,7 @@ a2_cogbio_PHYS_female <- lmer(
   data = d_cog_bio
 )
 
+set.seed(123456)
 a2_cogbio_PHYS_female_parameters <-
   model_parameters(
     a2_cogbio_PHYS_female,
@@ -2599,19 +2610,19 @@ a2_cogbio_PHYS_female_parameters
 
     ## Parameter                               | Coefficient |         95% CI |      p
     ## -------------------------------------------------------------------------------
-    ## (Intercept)                             |       -0.29 | [-0.47, -0.11] | 0.002 
-    ## group1                                  |        0.25 | [-0.01,  0.52] | 0.070 
+    ## (Intercept)                             |       -0.29 | [-0.48, -0.12] | 0.003 
+    ## group1                                  |        0.25 | [-0.01,  0.51] | 0.059 
     ## constructEEGvPHYS                       |        0.44 | [ 0.31,  0.58] | < .001
-    ## constructIQvPHYS                        |    5.31e-03 | [-0.16,  0.17] | 0.953 
-    ## male [1]                                |        0.32 | [ 0.06,  0.59] | 0.017 
-    ## age_years                               |    1.41e-03 | [-0.03,  0.03] | 0.935 
+    ## constructIQvPHYS                        |    3.45e-03 | [-0.16,  0.15] | 0.971 
+    ## male [1]                                |        0.33 | [ 0.08,  0.58] | 0.016 
+    ## age_years                               |    1.63e-03 | [-0.03,  0.03] | 0.946 
     ## group1 * constructEEGvPHYS              |       -0.44 | [-0.63, -0.24] | < .001
-    ## group1 * constructIQvPHYS               |        0.41 | [ 0.18,  0.64] | < .001
-    ## group1 * male [1]                       |        0.06 | [-0.33,  0.43] | 0.797 
-    ## constructEEGvPHYS * male [1]            |       -0.63 | [-0.83, -0.45] | < .001
-    ## constructIQvPHYS * male [1]             |       -0.18 | [-0.40,  0.05] | 0.137 
-    ## (group1 * constructEEGvPHYS) * male [1] |        0.39 | [ 0.14,  0.67] | 0.005 
-    ## (group1 * constructIQvPHYS) * male [1]  |       -0.54 | [-0.83, -0.24] | 0.002
+    ## group1 * constructIQvPHYS               |        0.41 | [ 0.19,  0.63] | 0.002 
+    ## group1 * male [1]                       |        0.05 | [-0.33,  0.40] | 0.823 
+    ## constructEEGvPHYS * male [1]            |       -0.63 | [-0.81, -0.44] | < .001
+    ## constructIQvPHYS * male [1]             |       -0.17 | [-0.38,  0.04] | 0.105 
+    ## (group1 * constructEEGvPHYS) * male [1] |        0.39 | [ 0.14,  0.66] | 0.004 
+    ## (group1 * constructIQvPHYS) * male [1]  |       -0.54 | [-0.82, -0.23] | 0.002
 
 ### Psychopathology
 
@@ -2679,6 +2690,7 @@ a2_psy_ADHD <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_psy_ADHD_parameters <- 
   model_parameters(
     a2_psy_ADHD,
@@ -2693,18 +2705,18 @@ a2_psy_ADHD_parameters
     ## Parameter                | Coefficient |         95% CI |      p
     ## ----------------------------------------------------------------
     ## (Intercept)              |        0.44 | [ 0.31,  0.56] | < .001
-    ## group1                   |       -0.03 | [-0.21,  0.15] | 0.742 
-    ## domainDESDvADHD          |       -0.14 | [-0.27, -0.02] | 0.029 
-    ## domainEXTvADHD           |       -0.53 | [-0.63, -0.42] | < .001
-    ## domainINTvADHD           |       -0.62 | [-0.74, -0.51] | < .001
-    ## domainRADvADHD           |       -0.25 | [-0.38, -0.13] | < .001
-    ## male [1]                 |        0.23 | [ 0.08,  0.38] | 0.003 
-    ## age_years                |       -0.02 | [-0.04,  0.01] | 0.237 
-    ## informant1               |   -8.72e-03 | [-0.08,  0.07] | 0.838 
-    ## group1 * domainDESDvADHD |       -0.31 | [-0.49, -0.15] | < .001
-    ## group1 * domainEXTvADHD  |       -0.11 | [-0.26,  0.04] | 0.147 
-    ## group1 * domainINTvADHD  |       -0.10 | [-0.26,  0.05] | 0.194 
-    ## group1 * domainRADvADHD  |       -0.55 | [-0.71, -0.36] | < .001
+    ## group1                   |       -0.03 | [-0.21,  0.15] | 0.710 
+    ## domainDESDvADHD          |       -0.14 | [-0.26, -0.02] | 0.025 
+    ## domainEXTvADHD           |       -0.53 | [-0.64, -0.42] | < .001
+    ## domainINTvADHD           |       -0.63 | [-0.73, -0.52] | < .001
+    ## domainRADvADHD           |       -0.25 | [-0.37, -0.13] | < .001
+    ## male [1]                 |        0.23 | [ 0.08,  0.39] | 0.005 
+    ## age_years                |       -0.02 | [-0.04,  0.01] | 0.235 
+    ## informant1               |   -3.76e-03 | [-0.08,  0.06] | 0.876 
+    ## group1 * domainDESDvADHD |       -0.32 | [-0.49, -0.16] | < .001
+    ## group1 * domainEXTvADHD  |       -0.11 | [-0.26,  0.04] | 0.150 
+    ## group1 * domainINTvADHD  |       -0.10 | [-0.25,  0.05] | 0.204 
+    ## group1 * domainRADvADHD  |       -0.55 | [-0.71, -0.39] | < .001
 
 ###### DESD
 
@@ -2730,6 +2742,7 @@ a2_psy_DESD <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_psy_DESD_parameters <-
   model_parameters(
     a2_psy_DESD,
@@ -2742,19 +2755,19 @@ a2_psy_DESD_parameters
 
     ## Parameter                | Coefficient |         95% CI |      p
     ## ----------------------------------------------------------------
-    ## (Intercept)              |        0.29 | [ 0.16,  0.44] | < .001
+    ## (Intercept)              |        0.30 | [ 0.16,  0.44] | < .001
     ## group1                   |       -0.35 | [-0.55, -0.16] | 0.002 
-    ## domainADHDvDESD          |        0.14 | [ 0.01,  0.26] | 0.028 
-    ## domainEXTvDESD           |       -0.39 | [-0.51, -0.27] | < .001
-    ## domainINTvDESD           |       -0.49 | [-0.60, -0.36] | < .001
-    ## domainRADvDESD           |       -0.11 | [-0.25,  0.02] | 0.109 
-    ## male [1]                 |        0.22 | [ 0.07,  0.37] | 0.005 
-    ## age_years                |       -0.02 | [-0.04,  0.01] | 0.245 
-    ## informant1               |   -7.50e-03 | [-0.08,  0.07] | 0.833 
-    ## group1 * domainADHDvDESD |        0.32 | [ 0.15,  0.50] | < .001
-    ## group1 * domainEXTvDESD  |        0.22 | [ 0.04,  0.37] | 0.016 
-    ## group1 * domainINTvDESD  |        0.23 | [ 0.05,  0.38] | 0.011 
-    ## group1 * domainRADvDESD  |       -0.23 | [-0.40, -0.05] | 0.018
+    ## domainADHDvDESD          |        0.14 | [ 0.02,  0.26] | 0.025 
+    ## domainEXTvDESD           |       -0.39 | [-0.51, -0.26] | < .001
+    ## domainINTvDESD           |       -0.49 | [-0.61, -0.36] | < .001
+    ## domainRADvDESD           |       -0.11 | [-0.24,  0.02] | 0.108 
+    ## male [1]                 |        0.23 | [ 0.08,  0.39] | 0.005 
+    ## age_years                |       -0.02 | [-0.04,  0.01] | 0.235 
+    ## informant1               |   -3.76e-03 | [-0.08,  0.06] | 0.876 
+    ## group1 * domainADHDvDESD |        0.32 | [ 0.16,  0.49] | < .001
+    ## group1 * domainEXTvDESD  |        0.21 | [ 0.05,  0.38] | 0.012 
+    ## group1 * domainINTvDESD  |        0.22 | [ 0.05,  0.38] | 0.009 
+    ## group1 * domainRADvDESD  |       -0.23 | [-0.41, -0.04] | 0.014
 
 ###### Externalizing
 
@@ -2780,6 +2793,7 @@ a2_psy_EXT <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_psy_EXT_parameters <-
   model_parameters(
     a2_psy_EXT,
@@ -2793,19 +2807,19 @@ a2_psy_EXT_parameters
 
     ## Parameter               | Coefficient |         95% CI |      p
     ## ---------------------------------------------------------------
-    ## (Intercept)             |       -0.09 | [-0.21,  0.05] | 0.183 
-    ## group1                  |       -0.14 | [-0.32,  0.04] | 0.130 
-    ## domainADHDvEXT          |        0.53 | [ 0.42,  0.63] | < .001
-    ## domainDESDvEXT          |        0.39 | [ 0.27,  0.49] | < .001
-    ## domainINTvEXT           |       -0.10 | [-0.20,  0.01] | 0.071 
-    ## domainRADvEXT           |        0.28 | [ 0.15,  0.40] | < .001
-    ## male [1]                |        0.22 | [ 0.06,  0.38] | 0.004 
-    ## age_years               |       -0.02 | [-0.05,  0.01] | 0.272 
-    ## informant1              |   -8.95e-03 | [-0.08,  0.07] | 0.853 
-    ## group1 * domainADHDvEXT |        0.11 | [-0.04,  0.27] | 0.159 
-    ## group1 * domainDESDvEXT |       -0.20 | [-0.38, -0.04] | 0.022 
-    ## group1 * domainINTvEXT  |    8.81e-03 | [-0.14,  0.16] | 0.887 
-    ## group1 * domainRADvEXT  |       -0.44 | [-0.61, -0.27] | < .001
+    ## (Intercept)             |       -0.09 | [-0.22,  0.04] | 0.191 
+    ## group1                  |       -0.14 | [-0.33,  0.03] | 0.113 
+    ## domainADHDvEXT          |        0.53 | [ 0.42,  0.64] | < .001
+    ## domainDESDvEXT          |        0.39 | [ 0.26,  0.51] | < .001
+    ## domainINTvEXT           |       -0.10 | [-0.20,  0.01] | 0.080 
+    ## domainRADvEXT           |        0.28 | [ 0.17,  0.40] | < .001
+    ## male [1]                |        0.23 | [ 0.08,  0.39] | 0.005 
+    ## age_years               |       -0.02 | [-0.04,  0.01] | 0.235 
+    ## informant1              |   -3.76e-03 | [-0.08,  0.06] | 0.876 
+    ## group1 * domainADHDvEXT |        0.11 | [-0.04,  0.26] | 0.150 
+    ## group1 * domainDESDvEXT |       -0.21 | [-0.38, -0.05] | 0.012 
+    ## group1 * domainINTvEXT  |        0.01 | [-0.13,  0.15] | 0.874 
+    ## group1 * domainRADvEXT  |       -0.44 | [-0.60, -0.28] | < .001
 
 ###### Internalizing
 
@@ -2831,6 +2845,7 @@ a2_psy_INT <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_psy_INT_parameters <-
   model_parameters(
     a2_psy_INT,
@@ -2844,19 +2859,19 @@ a2_psy_INT_parameters
 
     ## Parameter               | Coefficient |         95% CI |      p
     ## ---------------------------------------------------------------
-    ## (Intercept)             |       -0.19 | [-0.32, -0.07] | 0.004 
-    ## group1                  |       -0.12 | [-0.29,  0.04] | 0.154 
-    ## domainADHDvINT          |        0.62 | [ 0.52,  0.73] | < .001
-    ## domainDESDvINT          |        0.48 | [ 0.37,  0.61] | < .001
-    ## domainINTvINT           |        0.10 | [ 0.00,  0.21] | 0.069 
+    ## (Intercept)             |       -0.18 | [-0.32, -0.06] | 0.007 
+    ## group1                  |       -0.13 | [-0.31,  0.06] | 0.140 
+    ## domainADHDvINT          |        0.63 | [ 0.52,  0.73] | < .001
+    ## domainDESDvINT          |        0.49 | [ 0.36,  0.61] | < .001
+    ## domainINTvINT           |        0.10 | [-0.01,  0.20] | 0.080 
     ## domainRADvINT           |        0.37 | [ 0.25,  0.50] | < .001
-    ## male [1]                |        0.22 | [ 0.07,  0.37] | 0.005 
-    ## age_years               |       -0.02 | [-0.04,  0.01] | 0.237 
-    ## informant1              |   -7.63e-03 | [-0.08,  0.06] | 0.843 
-    ## group1 * domainADHDvINT |        0.11 | [-0.05,  0.24] | 0.191 
-    ## group1 * domainDESDvINT |       -0.22 | [-0.39, -0.06] | 0.007 
-    ## group1 * domainINTvINT  |       -0.01 | [-0.16,  0.13] | 0.881 
-    ## group1 * domainRADvINT  |       -0.45 | [-0.63, -0.29] | < .001
+    ## male [1]                |        0.23 | [ 0.08,  0.39] | 0.005 
+    ## age_years               |       -0.02 | [-0.04,  0.01] | 0.235 
+    ## informant1              |   -3.76e-03 | [-0.08,  0.06] | 0.876 
+    ## group1 * domainADHDvINT |        0.10 | [-0.05,  0.25] | 0.204 
+    ## group1 * domainDESDvINT |       -0.22 | [-0.38, -0.05] | 0.009 
+    ## group1 * domainINTvINT  |       -0.01 | [-0.15,  0.13] | 0.874 
+    ## group1 * domainRADvINT  |       -0.45 | [-0.61, -0.28] | < .001
 
 ###### RAD
 
@@ -2882,6 +2897,7 @@ a2_psy_RAD <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_psy_RAD_parameters <- 
   model_parameters(
     a2_psy_RAD,
@@ -2895,19 +2911,19 @@ a2_psy_RAD_parameters
 
     ## Parameter               | Coefficient |         95% CI |      p
     ## ---------------------------------------------------------------
-    ## (Intercept)             |        0.19 | [ 0.04,  0.33] | 0.014 
-    ## group1                  |       -0.58 | [-0.78, -0.38] | < .001
-    ## domainADHDvRAD          |        0.25 | [ 0.12,  0.38] | < .001
-    ## domainDESDvRAD          |        0.11 | [-0.03,  0.23] | 0.124 
-    ## domainEXTvRAD           |       -0.28 | [-0.41, -0.15] | < .001
-    ## domainINTvRAD           |       -0.38 | [-0.50, -0.25] | < .001
-    ## male [1]                |        0.22 | [ 0.08,  0.38] | 0.003 
-    ## age_years               |       -0.02 | [-0.04,  0.01] | 0.264 
-    ## informant1              |   -6.76e-03 | [-0.08,  0.07] | 0.873 
-    ## group1 * domainADHDvRAD |        0.55 | [ 0.40,  0.71] | < .001
-    ## group1 * domainDESDvRAD |        0.23 | [ 0.05,  0.42] | 0.014 
-    ## group1 * domainEXTvRAD  |        0.45 | [ 0.28,  0.60] | < .001
-    ## group1 * domainINTvRAD  |        0.46 | [ 0.29,  0.62] | < .001
+    ## (Intercept)             |        0.19 | [ 0.04,  0.34] | 0.014 
+    ## group1                  |       -0.59 | [-0.78, -0.39] | < .001
+    ## domainADHDvRAD          |        0.25 | [ 0.13,  0.37] | < .001
+    ## domainDESDvRAD          |        0.11 | [-0.02,  0.24] | 0.108 
+    ## domainEXTvRAD           |       -0.28 | [-0.40, -0.17] | < .001
+    ## domainINTvRAD           |       -0.37 | [-0.50, -0.25] | < .001
+    ## male [1]                |        0.23 | [ 0.08,  0.39] | 0.005 
+    ## age_years               |       -0.02 | [-0.04,  0.01] | 0.235 
+    ## informant1              |   -3.76e-03 | [-0.08,  0.06] | 0.876 
+    ## group1 * domainADHDvRAD |        0.55 | [ 0.39,  0.71] | < .001
+    ## group1 * domainDESDvRAD |        0.23 | [ 0.04,  0.41] | 0.014 
+    ## group1 * domainEXTvRAD  |        0.44 | [ 0.28,  0.60] | < .001
+    ## group1 * domainINTvRAD  |        0.45 | [ 0.28,  0.61] | < .001
 
 #### Three-way moderations
 
@@ -3010,6 +3026,7 @@ a2_ADHD_age3 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_ADHD_age3_parameters <- 
   model_parameters(
     a2_ADHD_age3,
@@ -3023,28 +3040,28 @@ a2_ADHD_age3_parameters
 
     ## Parameter                                    | Coefficient |         95% CI |      p
     ## ------------------------------------------------------------------------------------
-    ## (Intercept)                                  |        0.45 | [ 0.30,  0.64] | < .001
-    ## group1                                       |       -0.01 | [-0.24,  0.24] | 0.967 
-    ## domainDESDvADHD                              |       -0.14 | [-0.32,  0.04] | 0.112 
-    ## domainEXTvADHD                               |       -0.75 | [-0.92, -0.57] | < .001
-    ## domainINTvADHD                               |       -0.59 | [-0.76, -0.41] | < .001
-    ## domainRADvADHD                               |       -0.18 | [-0.36,  0.00] | 0.053 
-    ## age_years - 3.5                              |   -3.22e-03 | [-0.02,  0.01] | 0.652 
-    ## male [1]                                     |        0.23 | [ 0.08,  0.39] | 0.006 
-    ## informant1                                   |   -4.75e-03 | [-0.08,  0.07] | 0.903 
+    ## (Intercept)                                  |        0.46 | [ 0.31,  0.62] | < .001
+    ## group1                                       |   -1.82e-03 | [-0.23,  0.22] | 0.995 
+    ## domainDESDvADHD                              |       -0.14 | [-0.31,  0.02] | 0.099 
+    ## domainEXTvADHD                               |       -0.74 | [-0.91, -0.57] | < .001
+    ## domainINTvADHD                               |       -0.59 | [-0.77, -0.43] | < .001
+    ## domainRADvADHD                               |       -0.17 | [-0.34, -0.01] | 0.035 
+    ## age_years - 3.5                              |   -3.08e-03 | [-0.02,  0.01] | 0.690 
+    ## male [1]                                     |        0.23 | [ 0.08,  0.40] | 0.005 
+    ## informant1                                   |   -2.94e-03 | [-0.08,  0.06] | 0.893 
     ## group1 * domainDESDvADHD                     |       -0.35 | [-0.59, -0.10] | 0.006 
-    ## group1 * domainEXTvADHD                      |        0.14 | [-0.10,  0.39] | 0.247 
-    ## group1 * domainINTvADHD                      |       -0.10 | [-0.35,  0.16] | 0.415 
-    ## group1 * domainRADvADHD                      |       -0.74 | [-0.99, -0.50] | < .001
-    ## group1 * age_years - 3.5                     |   -4.79e-03 | [-0.03,  0.01] | 0.623 
-    ## domainDESDvADHD * age_years - 3.5            |   -2.51e-04 | [-0.02,  0.02] | 0.998 
-    ## domainEXTvADHD * age_years - 3.5             |        0.03 | [ 0.01,  0.05] | < .001
-    ## domainINTvADHD * age_years - 3.5             |   -4.97e-03 | [-0.03,  0.01] | 0.606 
-    ## domainRADvADHD * age_years - 3.5             |       -0.02 | [-0.04,  0.01] | 0.154 
-    ## (group1 * domainDESDvADHD) * age_years - 3.5 |    4.79e-03 | [-0.03,  0.04] | 0.763 
-    ## (group1 * domainEXTvADHD) * age_years - 3.5  |       -0.04 | [-0.06, -0.01] | 0.011 
-    ## (group1 * domainINTvADHD) * age_years - 3.5  |    2.23e-04 | [-0.03,  0.03] | 0.991 
-    ## (group1 * domainRADvADHD) * age_years - 3.5  |        0.04 | [ 0.01,  0.08] | 0.010
+    ## group1 * domainEXTvADHD                      |        0.14 | [-0.10,  0.39] | 0.232 
+    ## group1 * domainINTvADHD                      |       -0.10 | [-0.35,  0.14] | 0.397 
+    ## group1 * domainRADvADHD                      |       -0.75 | [-0.97, -0.52] | < .001
+    ## group1 * age_years - 3.5                     |   -5.13e-03 | [-0.03,  0.02] | 0.588 
+    ## domainDESDvADHD * age_years - 3.5            |    7.69e-04 | [-0.02,  0.02] | 0.968 
+    ## domainEXTvADHD * age_years - 3.5             |        0.03 | [ 0.01,  0.05] | 0.003 
+    ## domainINTvADHD * age_years - 3.5             |   -4.79e-03 | [-0.02,  0.02] | 0.593 
+    ## domainRADvADHD * age_years - 3.5             |       -0.02 | [-0.04,  0.01] | 0.132 
+    ## (group1 * domainDESDvADHD) * age_years - 3.5 |    3.14e-03 | [-0.03,  0.04] | 0.821 
+    ## (group1 * domainEXTvADHD) * age_years - 3.5  |       -0.04 | [-0.07, -0.01] | 0.013 
+    ## (group1 * domainINTvADHD) * age_years - 3.5  |    1.17e-03 | [-0.03,  0.03] | 0.960 
+    ## (group1 * domainRADvADHD) * age_years - 3.5  |        0.04 | [ 0.01,  0.08] | 0.007
 
 ###### ADHD, 8 years
 
@@ -3069,6 +3086,7 @@ a2_ADHD_age8 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_ADHD_age8_parameters <- 
   model_parameters(
     a2_ADHD_age8,
@@ -3082,28 +3100,28 @@ a2_ADHD_age8_parameters
 
     ## Parameter                                  | Coefficient |         95% CI |      p
     ## ----------------------------------------------------------------------------------
-    ## (Intercept)                                |        0.45 | [ 0.31,  0.58] | < .001
-    ## group1                                     |       -0.02 | [-0.21,  0.16] | 0.804 
-    ## domainDESDvADHD                            |       -0.14 | [-0.26, -0.02] | 0.025 
-    ## domainEXTvADHD                             |       -0.60 | [-0.70, -0.48] | < .001
-    ## domainINTvADHD                             |       -0.61 | [-0.72, -0.50] | < .001
-    ## domainRADvADHD                             |       -0.26 | [-0.38, -0.13] | < .001
-    ## age_years - 8                              |   -3.17e-03 | [-0.02,  0.01] | 0.622 
-    ## male [1]                                   |        0.23 | [ 0.07,  0.38] | 0.003 
-    ## informant1                                 |   -3.46e-03 | [-0.08,  0.07] | 0.913 
-    ## group1 * domainDESDvADHD                   |       -0.33 | [-0.50, -0.16] | < .001
-    ## group1 * domainEXTvADHD                    |       -0.03 | [-0.18,  0.13] | 0.742 
-    ## group1 * domainINTvADHD                    |       -0.10 | [-0.26,  0.08] | 0.229 
-    ## group1 * domainRADvADHD                    |       -0.55 | [-0.73, -0.37] | < .001
-    ## group1 * age_years - 8                     |   -5.01e-03 | [-0.02,  0.02] | 0.637 
-    ## domainDESDvADHD * age_years - 8            |    6.70e-04 | [-0.02,  0.03] | 0.938 
-    ## domainEXTvADHD * age_years - 8             |        0.03 | [ 0.01,  0.05] | 0.002 
-    ## domainINTvADHD * age_years - 8             |   -5.07e-03 | [-0.03,  0.02] | 0.660 
-    ## domainRADvADHD * age_years - 8             |       -0.02 | [-0.04,  0.01] | 0.167 
-    ## (group1 * domainDESDvADHD) * age_years - 8 |    3.46e-03 | [-0.03,  0.04] | 0.838 
-    ## (group1 * domainEXTvADHD) * age_years - 8  |       -0.04 | [-0.07, -0.01] | 0.006 
-    ## (group1 * domainINTvADHD) * age_years - 8  |   -1.76e-04 | [-0.03,  0.03] | 0.976 
-    ## (group1 * domainRADvADHD) * age_years - 8  |        0.04 | [ 0.01,  0.07] | 0.010
+    ## (Intercept)                                |        0.45 | [ 0.31,  0.57] | < .001
+    ## group1                                     |       -0.03 | [-0.21,  0.16] | 0.795 
+    ## domainDESDvADHD                            |       -0.14 | [-0.26, -0.01] | 0.031 
+    ## domainEXTvADHD                             |       -0.60 | [-0.71, -0.49] | < .001
+    ## domainINTvADHD                             |       -0.61 | [-0.73, -0.50] | < .001
+    ## domainRADvADHD                             |       -0.25 | [-0.38, -0.13] | < .001
+    ## age_years - 8                              |   -3.08e-03 | [-0.02,  0.01] | 0.690 
+    ## male [1]                                   |        0.23 | [ 0.08,  0.40] | 0.005 
+    ## informant1                                 |   -2.94e-03 | [-0.08,  0.06] | 0.893 
+    ## group1 * domainDESDvADHD                   |       -0.33 | [-0.51, -0.16] | < .001
+    ## group1 * domainEXTvADHD                    |       -0.03 | [-0.19,  0.13] | 0.732 
+    ## group1 * domainINTvADHD                    |       -0.10 | [-0.27,  0.06] | 0.231 
+    ## group1 * domainRADvADHD                    |       -0.55 | [-0.72, -0.39] | < .001
+    ## group1 * age_years - 8                     |   -5.13e-03 | [-0.03,  0.02] | 0.588 
+    ## domainDESDvADHD * age_years - 8            |    7.69e-04 | [-0.02,  0.02] | 0.968 
+    ## domainEXTvADHD * age_years - 8             |        0.03 | [ 0.01,  0.05] | 0.003 
+    ## domainINTvADHD * age_years - 8             |   -4.79e-03 | [-0.02,  0.02] | 0.593 
+    ## domainRADvADHD * age_years - 8             |       -0.02 | [-0.04,  0.01] | 0.132 
+    ## (group1 * domainDESDvADHD) * age_years - 8 |    3.14e-03 | [-0.03,  0.04] | 0.821 
+    ## (group1 * domainEXTvADHD) * age_years - 8  |       -0.04 | [-0.07, -0.01] | 0.013 
+    ## (group1 * domainINTvADHD) * age_years - 8  |    1.17e-03 | [-0.03,  0.03] | 0.960 
+    ## (group1 * domainRADvADHD) * age_years - 8  |        0.04 | [ 0.01,  0.08] | 0.007
 
 ###### ADHD, 16 years
 
@@ -3128,6 +3146,7 @@ a2_ADHD_age16 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_ADHD_age16_parameters <- 
   model_parameters(
     a2_ADHD_age16,
@@ -3141,28 +3160,28 @@ a2_ADHD_age16_parameters
 
     ## Parameter                                   | Coefficient |         95% CI |      p
     ## -----------------------------------------------------------------------------------
-    ## (Intercept)                                 |        0.42 | [ 0.27,  0.57] | < .001
-    ## group1                                      |       -0.07 | [-0.28,  0.14] | 0.538 
-    ## domainDESDvADHD                             |       -0.14 | [-0.34,  0.06] | 0.189 
-    ## domainEXTvADHD                              |       -0.34 | [-0.50, -0.19] | < .001
-    ## domainINTvADHD                              |       -0.65 | [-0.81, -0.49] | < .001
-    ## domainRADvADHD                              |       -0.39 | [-0.61, -0.18] | < .001
-    ## age_years - 16                              |   -2.84e-03 | [-0.02,  0.01] | 0.677 
-    ## male [1]                                    |        0.23 | [ 0.08,  0.38] | 0.002 
-    ## informant1                                  |   -2.86e-03 | [-0.08,  0.06] | 0.926 
-    ## group1 * domainDESDvADHD                    |       -0.30 | [-0.59, -0.01] | 0.044 
-    ## group1 * domainEXTvADHD                     |       -0.32 | [-0.54, -0.11] | 0.004 
-    ## group1 * domainINTvADHD                     |       -0.09 | [-0.31,  0.12] | 0.411 
-    ## group1 * domainRADvADHD                     |       -0.20 | [-0.50,  0.10] | 0.174 
-    ## group1 * age_years - 16                     |   -6.47e-03 | [-0.02,  0.02] | 0.538 
-    ## domainDESDvADHD * age_years - 16            |    2.78e-04 | [-0.02,  0.02] | 0.977 
+    ## (Intercept)                                 |        0.42 | [ 0.27,  0.56] | < .001
+    ## group1                                      |       -0.07 | [-0.27,  0.15] | 0.542 
+    ## domainDESDvADHD                             |       -0.14 | [-0.33,  0.07] | 0.197 
+    ## domainEXTvADHD                              |       -0.35 | [-0.51, -0.19] | < .001
+    ## domainINTvADHD                              |       -0.66 | [-0.81, -0.49] | < .001
+    ## domainRADvADHD                              |       -0.40 | [-0.60, -0.19] | < .001
+    ## age_years - 16                              |   -3.08e-03 | [-0.02,  0.01] | 0.690 
+    ## male [1]                                    |        0.23 | [ 0.08,  0.40] | 0.005 
+    ## informant1                                  |   -2.94e-03 | [-0.08,  0.06] | 0.893 
+    ## group1 * domainDESDvADHD                    |       -0.31 | [-0.58, -0.02] | 0.036 
+    ## group1 * domainEXTvADHD                     |       -0.33 | [-0.55, -0.09] | 0.002 
+    ## group1 * domainINTvADHD                     |       -0.10 | [-0.31,  0.12] | 0.408 
+    ## group1 * domainRADvADHD                     |       -0.20 | [-0.49,  0.08] | 0.179 
+    ## group1 * age_years - 16                     |   -5.13e-03 | [-0.03,  0.02] | 0.588 
+    ## domainDESDvADHD * age_years - 16            |    7.69e-04 | [-0.02,  0.02] | 0.968 
     ## domainEXTvADHD * age_years - 16             |        0.03 | [ 0.01,  0.05] | 0.003 
-    ## domainINTvADHD * age_years - 16             |   -5.31e-03 | [-0.03,  0.02] | 0.644 
-    ## domainRADvADHD * age_years - 16             |       -0.02 | [-0.04,  0.01] | 0.136 
-    ## (group1 * domainDESDvADHD) * age_years - 16 |    4.30e-03 | [-0.03,  0.04] | 0.768 
-    ## (group1 * domainEXTvADHD) * age_years - 16  |       -0.04 | [-0.06, -0.01] | 0.009 
-    ## (group1 * domainINTvADHD) * age_years - 16  |    8.61e-04 | [-0.03,  0.03] | 0.940 
-    ## (group1 * domainRADvADHD) * age_years - 16  |        0.04 | [ 0.01,  0.07] | 0.005
+    ## domainINTvADHD * age_years - 16             |   -4.79e-03 | [-0.02,  0.02] | 0.593 
+    ## domainRADvADHD * age_years - 16             |       -0.02 | [-0.04,  0.01] | 0.132 
+    ## (group1 * domainDESDvADHD) * age_years - 16 |    3.14e-03 | [-0.03,  0.04] | 0.821 
+    ## (group1 * domainEXTvADHD) * age_years - 16  |       -0.04 | [-0.07, -0.01] | 0.013 
+    ## (group1 * domainINTvADHD) * age_years - 16  |    1.17e-03 | [-0.03,  0.03] | 0.960 
+    ## (group1 * domainRADvADHD) * age_years - 16  |        0.04 | [ 0.01,  0.08] | 0.007
 
 ###### DESD, 42 months (3.5 years)
 
@@ -3187,6 +3206,7 @@ a2_DESD_age3 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_DESD_age3_parameters <-
   model_parameters(
     a2_DESD_age3,
@@ -3199,28 +3219,28 @@ a2_DESD_age3_parameters
 
     ## Parameter                                    | Coefficient |         95% CI |      p
     ## ------------------------------------------------------------------------------------
-    ## (Intercept)                                  |        0.31 | [ 0.14,  0.48] | < .001
-    ## group1                                       |       -0.34 | [-0.58, -0.13] | 0.003 
-    ## domainADHDvDESD                              |        0.14 | [-0.03,  0.30] | 0.093 
-    ## domainEXTvDESD                               |       -0.60 | [-0.78, -0.44] | < .001
-    ## domainINTvDESD                               |       -0.45 | [-0.61, -0.28] | < .001
-    ## domainRADvDESD                               |       -0.04 | [-0.20,  0.12] | 0.684 
-    ## age_years - 3.5                              |   -2.88e-03 | [-0.02,  0.01] | 0.747 
-    ## male [1]                                     |        0.22 | [ 0.07,  0.39] | 0.002 
-    ## informant1                                   |   -6.36e-03 | [-0.08,  0.07] | 0.871 
-    ## group1 * domainADHDvDESD                     |        0.35 | [ 0.12,  0.59] | 0.007 
-    ## group1 * domainEXTvDESD                      |        0.50 | [ 0.23,  0.73] | < .001
-    ## group1 * domainINTvDESD                      |        0.25 | [ 0.02,  0.48] | 0.035 
-    ## group1 * domainRADvDESD                      |       -0.40 | [-0.64, -0.16] | 0.003 
-    ## group1 * age_years - 3.5                     |   -1.35e-03 | [-0.03,  0.02] | 0.911 
-    ## domainADHDvDESD * age_years - 3.5            |   -5.10e-04 | [-0.02,  0.02] | 0.963 
-    ## domainEXTvDESD * age_years - 3.5             |        0.03 | [ 0.01,  0.06] | 0.006 
-    ## domainINTvDESD * age_years - 3.5             |   -5.17e-03 | [-0.03,  0.02] | 0.648 
-    ## domainRADvDESD * age_years - 3.5             |       -0.02 | [-0.04,  0.01] | 0.211 
-    ## (group1 * domainADHDvDESD) * age_years - 3.5 |   -3.47e-03 | [-0.03,  0.03] | 0.833 
-    ## (group1 * domainEXTvDESD) * age_years - 3.5  |       -0.04 | [-0.07, -0.01] | 0.015 
-    ## (group1 * domainINTvDESD) * age_years - 3.5  |   -2.82e-03 | [-0.04,  0.03] | 0.824 
-    ## (group1 * domainRADvDESD) * age_years - 3.5  |        0.04 | [ 0.00,  0.08] | 0.032
+    ## (Intercept)                                  |        0.32 | [ 0.14,  0.48] | < .001
+    ## group1                                       |       -0.35 | [-0.57, -0.12] | 0.005 
+    ## domainADHDvDESD                              |        0.14 | [-0.02,  0.31] | 0.099 
+    ## domainEXTvDESD                               |       -0.60 | [-0.78, -0.43] | < .001
+    ## domainINTvDESD                               |       -0.45 | [-0.61, -0.27] | < .001
+    ## domainRADvDESD                               |       -0.03 | [-0.21,  0.14] | 0.701 
+    ## age_years - 3.5                              |   -2.61e-03 | [-0.02,  0.02] | 0.757 
+    ## male [1]                                     |        0.23 | [ 0.08,  0.40] | 0.005 
+    ## informant1                                   |   -2.94e-03 | [-0.08,  0.06] | 0.893 
+    ## group1 * domainADHDvDESD                     |        0.35 | [ 0.10,  0.59] | 0.006 
+    ## group1 * domainEXTvDESD                      |        0.49 | [ 0.24,  0.73] | < .001
+    ## group1 * domainINTvDESD                      |        0.24 | [-0.01,  0.49] | 0.063 
+    ## group1 * domainRADvDESD                      |       -0.40 | [-0.65, -0.14] | 0.002 
+    ## group1 * age_years - 3.5                     |   -2.25e-03 | [-0.03,  0.02] | 0.868 
+    ## domainADHDvDESD * age_years - 3.5            |   -7.69e-04 | [-0.02,  0.02] | 0.968 
+    ## domainEXTvDESD * age_years - 3.5             |        0.03 | [ 0.01,  0.05] | 0.006 
+    ## domainINTvDESD * age_years - 3.5             |   -5.33e-03 | [-0.03,  0.02] | 0.631 
+    ## domainRADvDESD * age_years - 3.5             |       -0.02 | [-0.05,  0.01] | 0.177 
+    ## (group1 * domainADHDvDESD) * age_years - 3.5 |   -3.14e-03 | [-0.04,  0.03] | 0.821 
+    ## (group1 * domainEXTvDESD) * age_years - 3.5  |       -0.04 | [-0.07, -0.01] | 0.013 
+    ## (group1 * domainINTvDESD) * age_years - 3.5  |   -2.69e-03 | [-0.04,  0.03] | 0.881 
+    ## (group1 * domainRADvDESD) * age_years - 3.5  |        0.04 | [ 0.00,  0.08] | 0.026
 
 ###### DESD, 8 years
 
@@ -3245,6 +3265,7 @@ a2_DESD_age8 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_DESD_age8_parameters <-
   model_parameters(
     a2_DESD_age8,
@@ -3257,28 +3278,28 @@ a2_DESD_age8_parameters
 
     ## Parameter                                  | Coefficient |         95% CI |      p
     ## ----------------------------------------------------------------------------------
-    ## (Intercept)                                |        0.30 | [ 0.16,  0.44] | < .001
-    ## group1                                     |       -0.35 | [-0.54, -0.16] | < .001
-    ## domainADHDvDESD                            |        0.14 | [ 0.03,  0.26] | 0.021 
+    ## (Intercept)                                |        0.30 | [ 0.16,  0.45] | < .001
+    ## group1                                     |       -0.35 | [-0.55, -0.16] | 0.002 
+    ## domainADHDvDESD                            |        0.14 | [ 0.01,  0.26] | 0.031 
     ## domainEXTvDESD                             |       -0.46 | [-0.58, -0.33] | < .001
-    ## domainINTvDESD                             |       -0.47 | [-0.59, -0.34] | < .001
-    ## domainRADvDESD                             |       -0.11 | [-0.24,  0.02] | 0.094 
-    ## age_years - 8                              |   -3.44e-03 | [-0.02,  0.02] | 0.759 
-    ## male [1]                                   |        0.23 | [ 0.07,  0.39] | 0.003 
-    ## informant1                                 |   -8.93e-03 | [-0.09,  0.07] | 0.837 
-    ## group1 * domainADHDvDESD                   |        0.33 | [ 0.17,  0.50] | < .001
-    ## group1 * domainEXTvDESD                    |        0.31 | [ 0.13,  0.47] | 0.002 
+    ## domainINTvDESD                             |       -0.47 | [-0.60, -0.34] | < .001
+    ## domainRADvDESD                             |       -0.11 | [-0.25,  0.02] | 0.095 
+    ## age_years - 8                              |   -2.61e-03 | [-0.02,  0.02] | 0.757 
+    ## male [1]                                   |        0.23 | [ 0.08,  0.40] | 0.005 
+    ## informant1                                 |   -2.94e-03 | [-0.08,  0.06] | 0.893 
+    ## group1 * domainADHDvDESD                   |        0.33 | [ 0.16,  0.51] | < .001
+    ## group1 * domainEXTvDESD                    |        0.30 | [ 0.14,  0.48] | < .001
     ## group1 * domainINTvDESD                    |        0.23 | [ 0.05,  0.40] | 0.009 
-    ## group1 * domainRADvDESD                    |       -0.22 | [-0.40, -0.03] | 0.023 
-    ## group1 * age_years - 8                     |   -1.38e-03 | [-0.03,  0.02] | 0.887 
-    ## domainADHDvDESD * age_years - 8            |    2.11e-04 | [-0.02,  0.02] | > .999
-    ## domainEXTvDESD * age_years - 8             |        0.03 | [ 0.01,  0.05] | 0.005 
-    ## domainINTvDESD * age_years - 8             |   -4.63e-03 | [-0.03,  0.02] | 0.648 
-    ## domainRADvDESD * age_years - 8             |       -0.02 | [-0.05,  0.01] | 0.194 
-    ## (group1 * domainADHDvDESD) * age_years - 8 |   -3.30e-03 | [-0.03,  0.03] | 0.829 
+    ## group1 * domainRADvDESD                    |       -0.22 | [-0.40, -0.03] | 0.017 
+    ## group1 * age_years - 8                     |   -2.25e-03 | [-0.03,  0.02] | 0.868 
+    ## domainADHDvDESD * age_years - 8            |   -7.69e-04 | [-0.02,  0.02] | 0.968 
+    ## domainEXTvDESD * age_years - 8             |        0.03 | [ 0.01,  0.05] | 0.006 
+    ## domainINTvDESD * age_years - 8             |   -5.33e-03 | [-0.03,  0.02] | 0.631 
+    ## domainRADvDESD * age_years - 8             |       -0.02 | [-0.05,  0.01] | 0.177 
+    ## (group1 * domainADHDvDESD) * age_years - 8 |   -3.14e-03 | [-0.04,  0.03] | 0.821 
     ## (group1 * domainEXTvDESD) * age_years - 8  |       -0.04 | [-0.07, -0.01] | 0.013 
-    ## (group1 * domainINTvDESD) * age_years - 8  |   -3.50e-03 | [-0.03,  0.03] | 0.870 
-    ## (group1 * domainRADvDESD) * age_years - 8  |        0.04 | [ 0.00,  0.07] | 0.035
+    ## (group1 * domainINTvDESD) * age_years - 8  |   -2.69e-03 | [-0.04,  0.03] | 0.881 
+    ## (group1 * domainRADvDESD) * age_years - 8  |        0.04 | [ 0.00,  0.08] | 0.026
 
 ###### DESD, 16 years
 
@@ -3303,6 +3324,7 @@ a2_DESD_age16 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_DESD_age16_parameters <-
   model_parameters(
     a2_DESD_age16,
@@ -3315,28 +3337,28 @@ a2_DESD_age16_parameters
 
     ## Parameter                                   | Coefficient |         95% CI |      p
     ## -----------------------------------------------------------------------------------
-    ## (Intercept)                                 |        0.28 | [ 0.08,  0.49] | 0.015 
-    ## group1                                      |       -0.36 | [-0.65, -0.09] | 0.009 
-    ## domainADHDvDESD                             |        0.14 | [-0.07,  0.36] | 0.184 
-    ## domainEXTvDESD                              |       -0.21 | [-0.42,  0.01] | 0.058 
-    ## domainINTvDESD                              |       -0.52 | [-0.71, -0.30] | < .001
-    ## domainRADvDESD                              |       -0.25 | [-0.52,  0.00] | 0.059 
-    ## age_years - 16                              |   -2.60e-03 | [-0.02,  0.02] | 0.774 
-    ## male [1]                                    |        0.23 | [ 0.08,  0.38] | 0.003 
-    ## informant1                                  |   -8.54e-03 | [-0.08,  0.07] | 0.832 
-    ## group1 * domainADHDvDESD                    |        0.30 | [ 0.01,  0.59] | 0.045 
-    ## group1 * domainEXTvDESD                     |       -0.03 | [-0.32,  0.26] | 0.817 
-    ## group1 * domainINTvDESD                     |        0.21 | [-0.10,  0.49] | 0.188 
-    ## group1 * domainRADvDESD                     |        0.10 | [-0.27,  0.46] | 0.625 
-    ## group1 * age_years - 16                     |   -8.78e-04 | [-0.03,  0.02] | 0.906 
-    ## domainADHDvDESD * age_years - 16            |   -2.13e-04 | [-0.02,  0.02] | 0.984 
-    ## domainEXTvDESD * age_years - 16             |        0.03 | [ 0.01,  0.05] | 0.014 
-    ## domainINTvDESD * age_years - 16             |   -5.93e-03 | [-0.03,  0.02] | 0.602 
-    ## domainRADvDESD * age_years - 16             |       -0.02 | [-0.05,  0.01] | 0.201 
-    ## (group1 * domainADHDvDESD) * age_years - 16 |   -4.49e-03 | [-0.04,  0.03] | 0.811 
-    ## (group1 * domainEXTvDESD) * age_years - 16  |       -0.04 | [-0.07, -0.01] | 0.014 
-    ## (group1 * domainINTvDESD) * age_years - 16  |   -3.57e-03 | [-0.04,  0.03] | 0.841 
-    ## (group1 * domainRADvDESD) * age_years - 16  |        0.04 | [ 0.00,  0.08] | 0.047
+    ## (Intercept)                                 |        0.29 | [ 0.09,  0.49] | 0.005 
+    ## group1                                      |       -0.37 | [-0.65, -0.09] | 0.009 
+    ## domainADHDvDESD                             |        0.14 | [-0.07,  0.33] | 0.197 
+    ## domainEXTvDESD                              |       -0.21 | [-0.42,  0.00] | 0.052 
+    ## domainINTvDESD                              |       -0.52 | [-0.73, -0.31] | < .001
+    ## domainRADvDESD                              |       -0.26 | [-0.52, -0.01] | 0.048 
+    ## age_years - 16                              |   -2.61e-03 | [-0.02,  0.02] | 0.757 
+    ## male [1]                                    |        0.23 | [ 0.08,  0.40] | 0.005 
+    ## informant1                                  |   -2.94e-03 | [-0.08,  0.06] | 0.893 
+    ## group1 * domainADHDvDESD                    |        0.31 | [ 0.02,  0.58] | 0.036 
+    ## group1 * domainEXTvDESD                     |       -0.01 | [-0.31,  0.26] | 0.893 
+    ## group1 * domainINTvDESD                     |        0.21 | [-0.07,  0.49] | 0.143 
+    ## group1 * domainRADvDESD                     |        0.10 | [-0.25,  0.42] | 0.592 
+    ## group1 * age_years - 16                     |   -2.25e-03 | [-0.03,  0.02] | 0.868 
+    ## domainADHDvDESD * age_years - 16            |   -7.69e-04 | [-0.02,  0.02] | 0.968 
+    ## domainEXTvDESD * age_years - 16             |        0.03 | [ 0.01,  0.05] | 0.006 
+    ## domainINTvDESD * age_years - 16             |   -5.33e-03 | [-0.03,  0.02] | 0.631 
+    ## domainRADvDESD * age_years - 16             |       -0.02 | [-0.05,  0.01] | 0.177 
+    ## (group1 * domainADHDvDESD) * age_years - 16 |   -3.14e-03 | [-0.04,  0.03] | 0.821 
+    ## (group1 * domainEXTvDESD) * age_years - 16  |       -0.04 | [-0.07, -0.01] | 0.013 
+    ## (group1 * domainINTvDESD) * age_years - 16  |   -2.69e-03 | [-0.04,  0.03] | 0.881 
+    ## (group1 * domainRADvDESD) * age_years - 16  |        0.04 | [ 0.00,  0.08] | 0.026
 
 ###### Externalizing, 42 months (3.5 years)
 
@@ -3361,6 +3383,7 @@ a2_EXT_age3 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_EXT_age3_parameters <-
   model_parameters(
     a2_EXT_age3,
@@ -3374,27 +3397,27 @@ a2_EXT_age3_parameters
 
     ## Parameter                                   | Coefficient |         95% CI |      p
     ## -----------------------------------------------------------------------------------
-    ## (Intercept)                                 |       -0.29 | [-0.45, -0.12] | < .001
-    ## group1                                      |        0.15 | [-0.07,  0.37] | 0.205 
-    ## domainADHDvEXT                              |        0.75 | [ 0.57,  0.92] | < .001
+    ## (Intercept)                                 |       -0.29 | [-0.45, -0.11] | 0.002 
+    ## group1                                      |        0.14 | [-0.08,  0.36] | 0.224 
+    ## domainADHDvEXT                              |        0.74 | [ 0.57,  0.91] | < .001
     ## domainDESDvEXT                              |        0.60 | [ 0.43,  0.78] | < .001
-    ## domainINTvEXT                               |        0.15 | [-0.02,  0.33] | 0.094 
-    ## domainRADvEXT                               |        0.56 | [ 0.39,  0.75] | < .001
+    ## domainINTvEXT                               |        0.16 | [-0.02,  0.32] | 0.077 
+    ## domainRADvEXT                               |        0.57 | [ 0.40,  0.74] | < .001
     ## age_years - 3.5                             |        0.03 | [ 0.01,  0.04] | < .001
-    ## male [1]                                    |        0.23 | [ 0.08,  0.37] | 0.003 
-    ## informant1                                  |   -6.82e-03 | [-0.08,  0.07] | 0.859 
-    ## group1 * domainADHDvEXT                     |       -0.15 | [-0.40,  0.09] | 0.259 
-    ## group1 * domainDESDvEXT                     |       -0.49 | [-0.72, -0.26] | < .001
-    ## group1 * domainINTvEXT                      |       -0.26 | [-0.49,  0.00] | 0.049 
-    ## group1 * domainRADvEXT                      |       -0.89 | [-1.15, -0.64] | < .001
+    ## male [1]                                    |        0.23 | [ 0.08,  0.40] | 0.005 
+    ## informant1                                  |   -2.94e-03 | [-0.08,  0.06] | 0.893 
+    ## group1 * domainADHDvEXT                     |       -0.14 | [-0.39,  0.10] | 0.232 
+    ## group1 * domainDESDvEXT                     |       -0.49 | [-0.73, -0.24] | < .001
+    ## group1 * domainINTvEXT                      |       -0.25 | [-0.49, -0.01] | 0.044 
+    ## group1 * domainRADvEXT                      |       -0.88 | [-1.13, -0.65] | < .001
     ## group1 * age_years - 3.5                    |       -0.04 | [-0.06, -0.02] | < .001
-    ## domainADHDvEXT * age_years - 3.5            |       -0.03 | [-0.05, -0.01] | 0.002 
-    ## domainDESDvEXT * age_years - 3.5            |       -0.03 | [-0.05, -0.01] | 0.004 
+    ## domainADHDvEXT * age_years - 3.5            |       -0.03 | [-0.05, -0.01] | 0.003 
+    ## domainDESDvEXT * age_years - 3.5            |       -0.03 | [-0.05, -0.01] | 0.006 
     ## domainINTvEXT * age_years - 3.5             |       -0.04 | [-0.06, -0.02] | 0.002 
-    ## domainRADvEXT * age_years - 3.5             |       -0.05 | [-0.07, -0.02] | < .001
-    ## (group1 * domainADHDvEXT) * age_years - 3.5 |        0.04 | [ 0.01,  0.07] | 0.006 
-    ## (group1 * domainDESDvEXT) * age_years - 3.5 |        0.04 | [ 0.01,  0.07] | 0.009 
-    ## (group1 * domainINTvEXT) * age_years - 3.5  |        0.04 | [ 0.01,  0.07] | 0.011 
+    ## domainRADvEXT * age_years - 3.5             |       -0.05 | [-0.07, -0.03] | < .001
+    ## (group1 * domainADHDvEXT) * age_years - 3.5 |        0.04 | [ 0.01,  0.07] | 0.013 
+    ## (group1 * domainDESDvEXT) * age_years - 3.5 |        0.04 | [ 0.01,  0.07] | 0.013 
+    ## (group1 * domainINTvEXT) * age_years - 3.5  |        0.04 | [ 0.01,  0.07] | 0.015 
     ## (group1 * domainRADvEXT) * age_years - 3.5  |        0.08 | [ 0.05,  0.11] | < .001
 
 ###### Externalizing, 8 years
@@ -3420,6 +3443,7 @@ a2_EXT_age8 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_EXT_age8_parameters <-
   model_parameters(
     a2_EXT_age8,
@@ -3433,27 +3457,27 @@ a2_EXT_age8_parameters
 
     ## Parameter                                 | Coefficient |         95% CI |      p
     ## ---------------------------------------------------------------------------------
-    ## (Intercept)                               |       -0.16 | [-0.29, -0.02] | 0.023 
-    ## group1                                    |       -0.04 | [-0.23,  0.13] | 0.611 
-    ## domainADHDvEXT                            |        0.60 | [ 0.49,  0.72] | < .001
-    ## domainDESDvEXT                            |        0.46 | [ 0.34,  0.58] | < .001
-    ## domainINTvEXT                             |       -0.01 | [-0.13,  0.10] | 0.815 
-    ## domainRADvEXT                             |        0.35 | [ 0.23,  0.47] | < .001
+    ## (Intercept)                               |       -0.16 | [-0.30, -0.02] | 0.028 
+    ## group1                                    |       -0.05 | [-0.23,  0.13] | 0.581 
+    ## domainADHDvEXT                            |        0.60 | [ 0.49,  0.71] | < .001
+    ## domainDESDvEXT                            |        0.46 | [ 0.33,  0.58] | < .001
+    ## domainINTvEXT                             |   -9.54e-03 | [-0.13,  0.10] | 0.859 
+    ## domainRADvEXT                             |        0.34 | [ 0.23,  0.47] | < .001
     ## age_years - 8                             |        0.03 | [ 0.01,  0.04] | < .001
-    ## male [1]                                  |        0.23 | [ 0.07,  0.38] | 0.006 
-    ## informant1                                |   -7.69e-03 | [-0.08,  0.07] | 0.891 
-    ## group1 * domainADHDvEXT                   |        0.03 | [-0.13,  0.18] | 0.739 
-    ## group1 * domainDESDvEXT                   |       -0.31 | [-0.48, -0.13] | < .001
-    ## group1 * domainINTvEXT                    |       -0.07 | [-0.23,  0.08] | 0.370 
-    ## group1 * domainRADvEXT                    |       -0.53 | [-0.69, -0.36] | < .001
+    ## male [1]                                  |        0.23 | [ 0.08,  0.40] | 0.005 
+    ## informant1                                |   -2.94e-03 | [-0.08,  0.06] | 0.893 
+    ## group1 * domainADHDvEXT                   |        0.03 | [-0.13,  0.19] | 0.732 
+    ## group1 * domainDESDvEXT                   |       -0.30 | [-0.48, -0.14] | < .001
+    ## group1 * domainINTvEXT                    |       -0.07 | [-0.23,  0.08] | 0.353 
+    ## group1 * domainRADvEXT                    |       -0.52 | [-0.69, -0.36] | < .001
     ## group1 * age_years - 8                    |       -0.04 | [-0.06, -0.02] | < .001
     ## domainADHDvEXT * age_years - 8            |       -0.03 | [-0.05, -0.01] | 0.003 
-    ## domainDESDvEXT * age_years - 8            |       -0.03 | [-0.05, -0.01] | 0.010 
+    ## domainDESDvEXT * age_years - 8            |       -0.03 | [-0.05, -0.01] | 0.006 
     ## domainINTvEXT * age_years - 8             |       -0.04 | [-0.06, -0.02] | 0.002 
-    ## domainRADvEXT * age_years - 8             |       -0.05 | [-0.07, -0.02] | < .001
-    ## (group1 * domainADHDvEXT) * age_years - 8 |        0.04 | [ 0.01,  0.07] | 0.008 
-    ## (group1 * domainDESDvEXT) * age_years - 8 |        0.04 | [ 0.01,  0.08] | 0.016 
-    ## (group1 * domainINTvEXT) * age_years - 8  |        0.04 | [ 0.01,  0.07] | 0.006 
+    ## domainRADvEXT * age_years - 8             |       -0.05 | [-0.07, -0.03] | < .001
+    ## (group1 * domainADHDvEXT) * age_years - 8 |        0.04 | [ 0.01,  0.07] | 0.013 
+    ## (group1 * domainDESDvEXT) * age_years - 8 |        0.04 | [ 0.01,  0.07] | 0.013 
+    ## (group1 * domainINTvEXT) * age_years - 8  |        0.04 | [ 0.01,  0.07] | 0.015 
     ## (group1 * domainRADvEXT) * age_years - 8  |        0.08 | [ 0.05,  0.11] | < .001
 
 ###### Externalizing, 16 years
@@ -3479,6 +3503,7 @@ a2_EXT_age16 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_EXT_age16_parameters <-
   model_parameters(
     a2_EXT_age16,
@@ -3492,27 +3517,27 @@ a2_EXT_age16_parameters
 
     ## Parameter                                  | Coefficient |         95% CI |      p
     ## ----------------------------------------------------------------------------------
-    ## (Intercept)                                |        0.07 | [-0.08,  0.22] | 0.369 
-    ## group1                                     |       -0.40 | [-0.61, -0.18] | 0.002 
-    ## domainADHDvEXT                             |        0.34 | [ 0.19,  0.51] | < .001
-    ## domainDESDvEXT                             |        0.20 | [ 0.01,  0.41] | 0.042 
-    ## domainINTvEXT                              |       -0.31 | [-0.46, -0.16] | < .001
-    ## domainRADvEXT                              |       -0.04 | [-0.25,  0.17] | 0.714 
+    ## (Intercept)                                |        0.07 | [-0.08,  0.22] | 0.381 
+    ## group1                                     |       -0.39 | [-0.60, -0.18] | 0.003 
+    ## domainADHDvEXT                             |        0.35 | [ 0.19,  0.51] | < .001
+    ## domainDESDvEXT                             |        0.21 | [ 0.00,  0.42] | 0.052 
+    ## domainINTvEXT                              |       -0.30 | [-0.47, -0.16] | < .001
+    ## domainRADvEXT                              |       -0.05 | [-0.25,  0.16] | 0.683 
     ## age_years - 16                             |        0.03 | [ 0.01,  0.04] | < .001
-    ## male [1]                                   |        0.22 | [ 0.06,  0.38] | 0.007 
-    ## informant1                                 |   -5.81e-03 | [-0.08,  0.07] | 0.880 
-    ## group1 * domainADHDvEXT                    |        0.33 | [ 0.11,  0.54] | 0.004 
-    ## group1 * domainDESDvEXT                    |        0.04 | [-0.27,  0.33] | 0.802 
-    ## group1 * domainINTvEXT                     |        0.24 | [ 0.02,  0.45] | 0.038 
-    ## group1 * domainRADvEXT                     |        0.12 | [-0.14,  0.43] | 0.423 
+    ## male [1]                                   |        0.23 | [ 0.08,  0.40] | 0.005 
+    ## informant1                                 |   -2.94e-03 | [-0.08,  0.06] | 0.893 
+    ## group1 * domainADHDvEXT                    |        0.33 | [ 0.09,  0.55] | 0.002 
+    ## group1 * domainDESDvEXT                    |        0.01 | [-0.26,  0.31] | 0.893 
+    ## group1 * domainINTvEXT                     |        0.23 | [ 0.01,  0.46] | 0.046 
+    ## group1 * domainRADvEXT                     |        0.13 | [-0.16,  0.41] | 0.390 
     ## group1 * age_years - 16                    |       -0.04 | [-0.06, -0.02] | < .001
-    ## domainADHDvEXT * age_years - 16            |       -0.03 | [-0.05, -0.01] | 0.004 
-    ## domainDESDvEXT * age_years - 16            |       -0.03 | [-0.05, -0.01] | 0.007 
+    ## domainADHDvEXT * age_years - 16            |       -0.03 | [-0.05, -0.01] | 0.003 
+    ## domainDESDvEXT * age_years - 16            |       -0.03 | [-0.05, -0.01] | 0.006 
     ## domainINTvEXT * age_years - 16             |       -0.04 | [-0.06, -0.02] | 0.002 
     ## domainRADvEXT * age_years - 16             |       -0.05 | [-0.07, -0.03] | < .001
-    ## (group1 * domainADHDvEXT) * age_years - 16 |        0.04 | [ 0.01,  0.06] | 0.011 
-    ## (group1 * domainDESDvEXT) * age_years - 16 |        0.04 | [ 0.01,  0.07] | 0.011 
-    ## (group1 * domainINTvEXT) * age_years - 16  |        0.04 | [ 0.01,  0.06] | 0.010 
+    ## (group1 * domainADHDvEXT) * age_years - 16 |        0.04 | [ 0.01,  0.07] | 0.013 
+    ## (group1 * domainDESDvEXT) * age_years - 16 |        0.04 | [ 0.01,  0.07] | 0.013 
+    ## (group1 * domainINTvEXT) * age_years - 16  |        0.04 | [ 0.01,  0.07] | 0.015 
     ## (group1 * domainRADvEXT) * age_years - 16  |        0.08 | [ 0.05,  0.11] | < .001
 
 ###### Internalizing, 42 months (3.5 years)
@@ -3538,6 +3563,7 @@ a2_INT_age3 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_INT_age3_parameters <-
   model_parameters(
     a2_INT_age3,
@@ -3551,28 +3577,28 @@ a2_INT_age3_parameters
 
     ## Parameter                                   | Coefficient |         95% CI |      p
     ## -----------------------------------------------------------------------------------
-    ## (Intercept)                                 |       -0.13 | [-0.29,  0.04] | 0.115 
-    ## group1                                      |       -0.10 | [-0.32,  0.12] | 0.397 
-    ## domainADHDvINT                              |        0.59 | [ 0.42,  0.77] | < .001
-    ## domainDESDvINT                              |        0.45 | [ 0.27,  0.62] | < .001
-    ## domainINTvINT                               |       -0.15 | [-0.32,  0.02] | 0.088 
-    ## domainRADvINT                               |        0.41 | [ 0.23,  0.60] | < .001
-    ## age_years - 3.5                             |   -8.09e-03 | [-0.02,  0.01] | 0.261 
-    ## male [1]                                    |        0.23 | [ 0.07,  0.37] | 0.006 
-    ## informant1                                  |   -4.17e-03 | [-0.08,  0.07] | 0.933 
-    ## group1 * domainADHDvINT                     |        0.11 | [-0.14,  0.35] | 0.374 
-    ## group1 * domainDESDvINT                     |       -0.25 | [-0.47,  0.00] | 0.037 
-    ## group1 * domainINTvINT                      |        0.25 | [ 0.00,  0.48] | 0.043 
-    ## group1 * domainRADvINT                      |       -0.65 | [-0.89, -0.40] | < .001
-    ## group1 * age_years - 3.5                    |   -5.23e-03 | [-0.02,  0.02] | 0.617 
-    ## domainADHDvINT * age_years - 3.5            |    5.02e-03 | [-0.02,  0.02] | 0.605 
-    ## domainDESDvINT * age_years - 3.5            |    4.93e-03 | [-0.02,  0.03] | 0.669 
+    ## (Intercept)                                 |       -0.13 | [-0.29,  0.03] | 0.103 
+    ## group1                                      |       -0.10 | [-0.32,  0.12] | 0.377 
+    ## domainADHDvINT                              |        0.59 | [ 0.43,  0.77] | < .001
+    ## domainDESDvINT                              |        0.45 | [ 0.27,  0.61] | < .001
+    ## domainINTvINT                               |       -0.16 | [-0.32,  0.02] | 0.077 
+    ## domainRADvINT                               |        0.41 | [ 0.25,  0.59] | < .001
+    ## age_years - 3.5                             |   -8.29e-03 | [-0.02,  0.01] | 0.232 
+    ## male [1]                                    |        0.23 | [ 0.08,  0.40] | 0.005 
+    ## informant1                                  |   -2.94e-03 | [-0.08,  0.06] | 0.893 
+    ## group1 * domainADHDvINT                     |        0.10 | [-0.14,  0.35] | 0.397 
+    ## group1 * domainDESDvINT                     |       -0.24 | [-0.49,  0.01] | 0.063 
+    ## group1 * domainINTvINT                      |        0.25 | [ 0.01,  0.49] | 0.044 
+    ## group1 * domainRADvINT                      |       -0.64 | [-0.89, -0.39] | < .001
+    ## group1 * age_years - 3.5                    |   -4.84e-03 | [-0.03,  0.02] | 0.627 
+    ## domainADHDvINT * age_years - 3.5            |    4.79e-03 | [-0.02,  0.02] | 0.593 
+    ## domainDESDvINT * age_years - 3.5            |    5.33e-03 | [-0.02,  0.03] | 0.631 
     ## domainINTvINT * age_years - 3.5             |        0.04 | [ 0.02,  0.06] | 0.002 
-    ## domainRADvINT * age_years - 3.5             |       -0.01 | [-0.04,  0.01] | 0.293 
-    ## (group1 * domainADHDvINT) * age_years - 3.5 |   -7.84e-04 | [-0.03,  0.03] | 0.960 
-    ## (group1 * domainDESDvINT) * age_years - 3.5 |    3.90e-03 | [-0.03,  0.04] | 0.800 
-    ## (group1 * domainINTvINT) * age_years - 3.5  |       -0.04 | [-0.07, -0.01] | 0.005 
-    ## (group1 * domainRADvINT) * age_years - 3.5  |        0.04 | [ 0.01,  0.08] | 0.008
+    ## domainRADvINT * age_years - 3.5             |       -0.01 | [-0.03,  0.01] | 0.299 
+    ## (group1 * domainADHDvINT) * age_years - 3.5 |   -1.17e-03 | [-0.03,  0.03] | 0.960 
+    ## (group1 * domainDESDvINT) * age_years - 3.5 |    2.69e-03 | [-0.03,  0.04] | 0.881 
+    ## (group1 * domainINTvINT) * age_years - 3.5  |       -0.04 | [-0.07, -0.01] | 0.015 
+    ## (group1 * domainRADvINT) * age_years - 3.5  |        0.04 | [ 0.01,  0.08] | 0.015
 
 ###### Internalizing, 8 years
 
@@ -3597,6 +3623,7 @@ a2_INT_age8 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_INT_age8_parameters <-
   model_parameters(
     a2_INT_age8,
@@ -3610,28 +3637,28 @@ a2_INT_age8_parameters
 
     ## Parameter                                 | Coefficient |         95% CI |      p
     ## ---------------------------------------------------------------------------------
-    ## (Intercept)                               |       -0.18 | [-0.31, -0.04] | 0.009 
-    ## group1                                    |       -0.12 | [-0.30,  0.06] | 0.203 
-    ## domainADHDvINT                            |        0.62 | [ 0.50,  0.73] | < .001
-    ## domainDESDvINT                            |        0.47 | [ 0.35,  0.60] | < .001
-    ## domainINTvINT                             |        0.01 | [-0.10,  0.14] | 0.798 
+    ## (Intercept)                               |       -0.16 | [-0.30, -0.04] | 0.014 
+    ## group1                                    |       -0.13 | [-0.30,  0.06] | 0.181 
+    ## domainADHDvINT                            |        0.61 | [ 0.50,  0.73] | < .001
+    ## domainDESDvINT                            |        0.47 | [ 0.34,  0.60] | < .001
+    ## domainINTvINT                             |    9.54e-03 | [-0.10,  0.13] | 0.859 
     ## domainRADvINT                             |        0.36 | [ 0.23,  0.48] | < .001
-    ## age_years - 8                             |   -8.24e-03 | [-0.02,  0.01] | 0.291 
-    ## male [1]                                  |        0.23 | [ 0.05,  0.38] | 0.006 
-    ## informant1                                |   -5.97e-03 | [-0.08,  0.06] | 0.863 
-    ## group1 * domainADHDvINT                   |        0.10 | [-0.07,  0.26] | 0.245 
-    ## group1 * domainDESDvINT                   |       -0.23 | [-0.41, -0.07] | 0.010 
-    ## group1 * domainINTvINT                    |        0.07 | [-0.09,  0.23] | 0.368 
-    ## group1 * domainRADvINT                    |       -0.45 | [-0.62, -0.29] | < .001
-    ## group1 * age_years - 8                    |   -4.90e-03 | [-0.02,  0.01] | 0.640 
-    ## domainADHDvINT * age_years - 8            |    4.42e-03 | [-0.02,  0.02] | 0.682 
-    ## domainDESDvINT * age_years - 8            |    5.71e-03 | [-0.02,  0.03] | 0.674 
-    ## domainINTvINT * age_years - 8             |        0.04 | [ 0.02,  0.06] | < .001
-    ## domainRADvINT * age_years - 8             |       -0.01 | [-0.04,  0.01] | 0.292 
-    ## (group1 * domainADHDvINT) * age_years - 8 |   -3.08e-04 | [-0.03,  0.03] | 0.986 
-    ## (group1 * domainDESDvINT) * age_years - 8 |    2.61e-03 | [-0.03,  0.03] | 0.870 
-    ## (group1 * domainINTvINT) * age_years - 8  |       -0.04 | [-0.07, -0.01] | 0.007 
-    ## (group1 * domainRADvINT) * age_years - 8  |        0.04 | [ 0.01,  0.08] | 0.008
+    ## age_years - 8                             |   -8.29e-03 | [-0.02,  0.01] | 0.232 
+    ## male [1]                                  |        0.23 | [ 0.08,  0.40] | 0.005 
+    ## informant1                                |   -2.94e-03 | [-0.08,  0.06] | 0.893 
+    ## group1 * domainADHDvINT                   |        0.10 | [-0.06,  0.27] | 0.231 
+    ## group1 * domainDESDvINT                   |       -0.23 | [-0.40, -0.05] | 0.009 
+    ## group1 * domainINTvINT                    |        0.07 | [-0.08,  0.23] | 0.353 
+    ## group1 * domainRADvINT                    |       -0.45 | [-0.63, -0.28] | < .001
+    ## group1 * age_years - 8                    |   -4.84e-03 | [-0.03,  0.02] | 0.627 
+    ## domainADHDvINT * age_years - 8            |    4.79e-03 | [-0.02,  0.02] | 0.593 
+    ## domainDESDvINT * age_years - 8            |    5.33e-03 | [-0.02,  0.03] | 0.631 
+    ## domainINTvINT * age_years - 8             |        0.04 | [ 0.02,  0.06] | 0.002 
+    ## domainRADvINT * age_years - 8             |       -0.01 | [-0.03,  0.01] | 0.299 
+    ## (group1 * domainADHDvINT) * age_years - 8 |   -1.17e-03 | [-0.03,  0.03] | 0.960 
+    ## (group1 * domainDESDvINT) * age_years - 8 |    2.69e-03 | [-0.03,  0.04] | 0.881 
+    ## (group1 * domainINTvINT) * age_years - 8  |       -0.04 | [-0.07, -0.01] | 0.015 
+    ## (group1 * domainRADvINT) * age_years - 8  |        0.04 | [ 0.01,  0.08] | 0.015
 
 ###### Internalizing, 16 years
 
@@ -3656,6 +3683,7 @@ a2_INT_age16 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_INT_age16_parameters <-
   model_parameters(
     a2_INT_age16,
@@ -3669,28 +3697,28 @@ a2_INT_age16_parameters
 
     ## Parameter                                  | Coefficient |         95% CI |      p
     ## ----------------------------------------------------------------------------------
-    ## (Intercept)                                |       -0.24 | [-0.38, -0.07] | < .001
-    ## group1                                     |       -0.16 | [-0.38,  0.06] | 0.132 
-    ## domainADHDvINT                             |        0.66 | [ 0.50,  0.80] | < .001
-    ## domainDESDvINT                             |        0.52 | [ 0.30,  0.73] | < .001
-    ## domainINTvINT                              |        0.31 | [ 0.16,  0.46] | < .001
-    ## domainRADvINT                              |        0.26 | [ 0.05,  0.47] | 0.011 
-    ## age_years - 16                             |   -8.50e-03 | [-0.02,  0.01] | 0.235 
-    ## male [1]                                   |        0.24 | [ 0.09,  0.38] | 0.004 
-    ## informant1                                 |   -4.81e-03 | [-0.07,  0.07] | 0.903 
-    ## group1 * domainADHDvINT                    |        0.10 | [-0.10,  0.33] | 0.367 
-    ## group1 * domainDESDvINT                    |       -0.21 | [-0.50,  0.10] | 0.174 
-    ## group1 * domainINTvINT                     |       -0.23 | [-0.43, -0.01] | 0.040 
-    ## group1 * domainRADvINT                     |       -0.11 | [-0.40,  0.19] | 0.454 
-    ## group1 * age_years - 16                    |   -4.52e-03 | [-0.03,  0.02] | 0.657 
-    ## domainADHDvINT * age_years - 16            |    5.87e-03 | [-0.01,  0.03] | 0.617 
-    ## domainDESDvINT * age_years - 16            |    6.32e-03 | [-0.02,  0.03] | 0.609 
-    ## domainINTvINT * age_years - 16             |        0.04 | [ 0.02,  0.06] | < .001
-    ## domainRADvINT * age_years - 16             |       -0.01 | [-0.04,  0.01] | 0.321 
-    ## (group1 * domainADHDvINT) * age_years - 16 |   -3.70e-04 | [-0.03,  0.03] | 0.972 
-    ## (group1 * domainDESDvINT) * age_years - 16 |    2.95e-03 | [-0.03,  0.04] | 0.864 
-    ## (group1 * domainINTvINT) * age_years - 16  |       -0.04 | [-0.07, -0.01] | 0.008 
-    ## (group1 * domainRADvINT) * age_years - 16  |        0.04 | [ 0.01,  0.08] | 0.011
+    ## (Intercept)                                |       -0.23 | [-0.39, -0.09] | 0.004 
+    ## group1                                     |       -0.16 | [-0.38,  0.06] | 0.149 
+    ## domainADHDvINT                             |        0.66 | [ 0.49,  0.81] | < .001
+    ## domainDESDvINT                             |        0.52 | [ 0.31,  0.73] | < .001
+    ## domainINTvINT                              |        0.30 | [ 0.16,  0.47] | < .001
+    ## domainRADvINT                              |        0.26 | [ 0.04,  0.48] | 0.022 
+    ## age_years - 16                             |   -8.29e-03 | [-0.02,  0.01] | 0.232 
+    ## male [1]                                   |        0.23 | [ 0.08,  0.40] | 0.005 
+    ## informant1                                 |   -2.94e-03 | [-0.08,  0.06] | 0.893 
+    ## group1 * domainADHDvINT                    |        0.10 | [-0.12,  0.31] | 0.408 
+    ## group1 * domainDESDvINT                    |       -0.21 | [-0.49,  0.07] | 0.143 
+    ## group1 * domainINTvINT                     |       -0.23 | [-0.46, -0.01] | 0.046 
+    ## group1 * domainRADvINT                     |       -0.11 | [-0.41,  0.20] | 0.482 
+    ## group1 * age_years - 16                    |   -4.84e-03 | [-0.03,  0.02] | 0.627 
+    ## domainADHDvINT * age_years - 16            |    4.79e-03 | [-0.02,  0.02] | 0.593 
+    ## domainDESDvINT * age_years - 16            |    5.33e-03 | [-0.02,  0.03] | 0.631 
+    ## domainINTvINT * age_years - 16             |        0.04 | [ 0.02,  0.06] | 0.002 
+    ## domainRADvINT * age_years - 16             |       -0.01 | [-0.03,  0.01] | 0.299 
+    ## (group1 * domainADHDvINT) * age_years - 16 |   -1.17e-03 | [-0.03,  0.03] | 0.960 
+    ## (group1 * domainDESDvINT) * age_years - 16 |    2.69e-03 | [-0.03,  0.04] | 0.881 
+    ## (group1 * domainINTvINT) * age_years - 16  |       -0.04 | [-0.07, -0.01] | 0.015 
+    ## (group1 * domainRADvINT) * age_years - 16  |        0.04 | [ 0.01,  0.08] | 0.015
 
 ###### RAD, 42 months (3.5 years)
 
@@ -3715,6 +3743,7 @@ a2_RAD_age3 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_RAD_age3_parameters <- 
   model_parameters(
     a2_RAD_age3,
@@ -3728,26 +3757,26 @@ a2_RAD_age3_parameters
 
     ## Parameter                                   | Coefficient |         95% CI |      p
     ## -----------------------------------------------------------------------------------
-    ## (Intercept)                                 |        0.28 | [ 0.12,  0.43] | 0.002 
-    ## group1                                      |       -0.74 | [-0.97, -0.51] | < .001
-    ## domainADHDvRAD                              |        0.18 | [ 0.00,  0.36] | 0.043 
-    ## domainDESDvRAD                              |        0.03 | [-0.13,  0.20] | 0.697 
-    ## domainEXTvRAD                               |       -0.56 | [-0.74, -0.38] | < .001
-    ## domainINTvRAD                               |       -0.41 | [-0.60, -0.24] | < .001
-    ## age_years - 3.5                             |       -0.02 | [-0.04,  0.00] | 0.028 
-    ## male [1]                                    |        0.23 | [ 0.08,  0.37] | 0.003 
-    ## informant1                                  |   -3.20e-03 | [-0.07,  0.07] | 0.930 
-    ## group1 * domainADHDvRAD                     |        0.75 | [ 0.51,  0.99] | < .001
-    ## group1 * domainDESDvRAD                     |        0.40 | [ 0.17,  0.63] | 0.002 
-    ## group1 * domainEXTvRAD                      |        0.89 | [ 0.65,  1.14] | < .001
-    ## group1 * domainINTvRAD                      |        0.65 | [ 0.40,  0.90] | < .001
-    ## group1 * age_years - 3.5                    |        0.04 | [ 0.01,  0.06] | 0.012 
-    ## domainADHDvRAD * age_years - 3.5            |        0.02 | [-0.01,  0.04] | 0.166 
-    ## domainDESDvRAD * age_years - 3.5            |        0.02 | [-0.01,  0.04] | 0.201 
+    ## (Intercept)                                 |        0.28 | [ 0.12,  0.45] | 0.002 
+    ## group1                                      |       -0.75 | [-0.95, -0.53] | < .001
+    ## domainADHDvRAD                              |        0.17 | [ 0.01,  0.34] | 0.035 
+    ## domainDESDvRAD                              |        0.03 | [-0.14,  0.21] | 0.701 
+    ## domainEXTvRAD                               |       -0.57 | [-0.74, -0.40] | < .001
+    ## domainINTvRAD                               |       -0.41 | [-0.59, -0.25] | < .001
+    ## age_years - 3.5                             |       -0.02 | [-0.04,  0.00] | 0.031 
+    ## male [1]                                    |        0.23 | [ 0.08,  0.40] | 0.005 
+    ## informant1                                  |   -2.94e-03 | [-0.08,  0.06] | 0.893 
+    ## group1 * domainADHDvRAD                     |        0.75 | [ 0.52,  0.97] | < .001
+    ## group1 * domainDESDvRAD                     |        0.40 | [ 0.14,  0.65] | 0.002 
+    ## group1 * domainEXTvRAD                      |        0.88 | [ 0.65,  1.13] | < .001
+    ## group1 * domainINTvRAD                      |        0.64 | [ 0.39,  0.89] | < .001
+    ## group1 * age_years - 3.5                    |        0.04 | [ 0.01,  0.06] | 0.002 
+    ## domainADHDvRAD * age_years - 3.5            |        0.02 | [-0.01,  0.04] | 0.132 
+    ## domainDESDvRAD * age_years - 3.5            |        0.02 | [-0.01,  0.05] | 0.177 
     ## domainEXTvRAD * age_years - 3.5             |        0.05 | [ 0.03,  0.07] | < .001
-    ## domainINTvRAD * age_years - 3.5             |        0.01 | [-0.01,  0.04] | 0.317 
-    ## (group1 * domainADHDvRAD) * age_years - 3.5 |       -0.04 | [-0.08, -0.01] | 0.014 
-    ## (group1 * domainDESDvRAD) * age_years - 3.5 |       -0.04 | [-0.08,  0.00] | 0.039 
+    ## domainINTvRAD * age_years - 3.5             |        0.01 | [-0.01,  0.03] | 0.299 
+    ## (group1 * domainADHDvRAD) * age_years - 3.5 |       -0.04 | [-0.08, -0.01] | 0.007 
+    ## (group1 * domainDESDvRAD) * age_years - 3.5 |       -0.04 | [-0.08,  0.00] | 0.026 
     ## (group1 * domainEXTvRAD) * age_years - 3.5  |       -0.08 | [-0.11, -0.05] | < .001
     ## (group1 * domainINTvRAD) * age_years - 3.5  |       -0.04 | [-0.08, -0.01] | 0.015
 
@@ -3774,6 +3803,7 @@ a2_RAD_age8 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_RAD_age8_parameters <- 
   model_parameters(
     a2_RAD_age8,
@@ -3787,28 +3817,28 @@ a2_RAD_age8_parameters
 
     ## Parameter                                 | Coefficient |         95% CI |      p
     ## ---------------------------------------------------------------------------------
-    ## (Intercept)                               |        0.19 | [ 0.04,  0.33] | 0.012 
-    ## group1                                    |       -0.57 | [-0.76, -0.37] | < .001
-    ## domainADHDvRAD                            |        0.25 | [ 0.13,  0.39] | < .001
-    ## domainDESDvRAD                            |        0.11 | [-0.02,  0.25] | 0.110 
-    ## domainEXTvRAD                             |       -0.35 | [-0.47, -0.21] | < .001
-    ## domainINTvRAD                             |       -0.36 | [-0.49, -0.22] | < .001
-    ## age_years - 8                             |       -0.02 | [-0.04,  0.00] | 0.032 
-    ## male [1]                                  |        0.23 | [ 0.08,  0.39] | 0.011 
-    ## informant1                                |   -5.79e-03 | [-0.08,  0.07] | 0.909 
-    ## group1 * domainADHDvRAD                   |        0.55 | [ 0.38,  0.72] | < .001
-    ## group1 * domainDESDvRAD                   |        0.22 | [ 0.03,  0.41] | 0.019 
-    ## group1 * domainEXTvRAD                    |        0.53 | [ 0.35,  0.70] | < .001
+    ## (Intercept)                               |        0.19 | [ 0.05,  0.34] | 0.013 
+    ## group1                                    |       -0.58 | [-0.77, -0.38] | < .001
+    ## domainADHDvRAD                            |        0.25 | [ 0.13,  0.38] | < .001
+    ## domainDESDvRAD                            |        0.11 | [-0.02,  0.25] | 0.095 
+    ## domainEXTvRAD                             |       -0.34 | [-0.47, -0.23] | < .001
+    ## domainINTvRAD                             |       -0.36 | [-0.48, -0.23] | < .001
+    ## age_years - 8                             |       -0.02 | [-0.04,  0.00] | 0.031 
+    ## male [1]                                  |        0.23 | [ 0.08,  0.40] | 0.005 
+    ## informant1                                |   -2.94e-03 | [-0.08,  0.06] | 0.893 
+    ## group1 * domainADHDvRAD                   |        0.55 | [ 0.39,  0.72] | < .001
+    ## group1 * domainDESDvRAD                   |        0.22 | [ 0.03,  0.40] | 0.017 
+    ## group1 * domainEXTvRAD                    |        0.52 | [ 0.36,  0.69] | < .001
     ## group1 * domainINTvRAD                    |        0.45 | [ 0.28,  0.63] | < .001
-    ## group1 * age_years - 8                    |        0.04 | [ 0.01,  0.06] | < .001
-    ## domainADHDvRAD * age_years - 8            |        0.02 | [-0.01,  0.04] | 0.148 
-    ## domainDESDvRAD * age_years - 8            |        0.02 | [-0.01,  0.05] | 0.173 
+    ## group1 * age_years - 8                    |        0.04 | [ 0.01,  0.06] | 0.002 
+    ## domainADHDvRAD * age_years - 8            |        0.02 | [-0.01,  0.04] | 0.132 
+    ## domainDESDvRAD * age_years - 8            |        0.02 | [-0.01,  0.05] | 0.177 
     ## domainEXTvRAD * age_years - 8             |        0.05 | [ 0.03,  0.07] | < .001
-    ## domainINTvRAD * age_years - 8             |        0.01 | [-0.01,  0.04] | 0.335 
+    ## domainINTvRAD * age_years - 8             |        0.01 | [-0.01,  0.03] | 0.299 
     ## (group1 * domainADHDvRAD) * age_years - 8 |       -0.04 | [-0.08, -0.01] | 0.007 
-    ## (group1 * domainDESDvRAD) * age_years - 8 |       -0.04 | [-0.08,  0.00] | 0.031 
+    ## (group1 * domainDESDvRAD) * age_years - 8 |       -0.04 | [-0.08,  0.00] | 0.026 
     ## (group1 * domainEXTvRAD) * age_years - 8  |       -0.08 | [-0.11, -0.05] | < .001
-    ## (group1 * domainINTvRAD) * age_years - 8  |       -0.04 | [-0.08, -0.01] | 0.009
+    ## (group1 * domainINTvRAD) * age_years - 8  |       -0.04 | [-0.08, -0.01] | 0.015
 
 ###### RAD, 16 years
 
@@ -3833,6 +3863,7 @@ a2_RAD_age16 <- lmer(
   data = d_psy
 )
 
+set.seed(123456)
 a2_RAD_age16_parameters <- 
   model_parameters(
     a2_RAD_age16,
@@ -3846,28 +3877,28 @@ a2_RAD_age16_parameters
 
     ## Parameter                                  | Coefficient |         95% CI |      p
     ## ----------------------------------------------------------------------------------
-    ## (Intercept)                                |        0.02 | [-0.18,  0.23] | 0.828 
-    ## group1                                     |       -0.27 | [-0.57,  0.01] | 0.073 
-    ## domainADHDvRAD                             |        0.39 | [ 0.17,  0.60] | < .001
-    ## domainDESDvRAD                             |        0.26 | [ 0.00,  0.49] | 0.043 
-    ## domainEXTvRAD                              |        0.04 | [-0.16,  0.25] | 0.673 
-    ## domainINTvRAD                              |       -0.26 | [-0.46, -0.05] | 0.016 
-    ## age_years - 16                             |       -0.02 | [-0.04,  0.00] | 0.036 
-    ## male [1]                                   |        0.23 | [ 0.08,  0.39] | 0.005 
-    ## informant1                                 |   -7.55e-03 | [-0.08,  0.07] | 0.872 
-    ## group1 * domainADHDvRAD                    |        0.21 | [-0.09,  0.51] | 0.159 
-    ## group1 * domainDESDvRAD                    |       -0.09 | [-0.47,  0.27] | 0.614 
-    ## group1 * domainEXTvRAD                     |       -0.11 | [-0.43,  0.17] | 0.418 
-    ## group1 * domainINTvRAD                     |        0.11 | [-0.18,  0.42] | 0.451 
-    ## group1 * age_years - 16                    |        0.04 | [ 0.01,  0.06] | 0.006 
-    ## domainADHDvRAD * age_years - 16            |        0.02 | [-0.01,  0.04] | 0.156 
-    ## domainDESDvRAD * age_years - 16            |        0.02 | [-0.01,  0.04] | 0.181 
+    ## (Intercept)                                |        0.03 | [-0.19,  0.23] | 0.801 
+    ## group1                                     |       -0.26 | [-0.57,  0.02] | 0.077 
+    ## domainADHDvRAD                             |        0.40 | [ 0.19,  0.60] | < .001
+    ## domainDESDvRAD                             |        0.26 | [ 0.01,  0.52] | 0.048 
+    ## domainEXTvRAD                              |        0.05 | [-0.16,  0.25] | 0.683 
+    ## domainINTvRAD                              |       -0.26 | [-0.48, -0.04] | 0.022 
+    ## age_years - 16                             |       -0.02 | [-0.04,  0.00] | 0.031 
+    ## male [1]                                   |        0.23 | [ 0.08,  0.40] | 0.005 
+    ## informant1                                 |   -2.94e-03 | [-0.08,  0.06] | 0.893 
+    ## group1 * domainADHDvRAD                    |        0.20 | [-0.08,  0.49] | 0.179 
+    ## group1 * domainDESDvRAD                    |       -0.10 | [-0.42,  0.25] | 0.592 
+    ## group1 * domainEXTvRAD                     |       -0.13 | [-0.41,  0.16] | 0.390 
+    ## group1 * domainINTvRAD                     |        0.11 | [-0.20,  0.41] | 0.482 
+    ## group1 * age_years - 16                    |        0.04 | [ 0.01,  0.06] | 0.002 
+    ## domainADHDvRAD * age_years - 16            |        0.02 | [-0.01,  0.04] | 0.132 
+    ## domainDESDvRAD * age_years - 16            |        0.02 | [-0.01,  0.05] | 0.177 
     ## domainEXTvRAD * age_years - 16             |        0.05 | [ 0.03,  0.07] | < .001
-    ## domainINTvRAD * age_years - 16             |        0.01 | [-0.01,  0.03] | 0.345 
-    ## (group1 * domainADHDvRAD) * age_years - 16 |       -0.04 | [-0.07, -0.01] | 0.009 
-    ## (group1 * domainDESDvRAD) * age_years - 16 |       -0.04 | [-0.08,  0.00] | 0.044 
+    ## domainINTvRAD * age_years - 16             |        0.01 | [-0.01,  0.03] | 0.299 
+    ## (group1 * domainADHDvRAD) * age_years - 16 |       -0.04 | [-0.08, -0.01] | 0.007 
+    ## (group1 * domainDESDvRAD) * age_years - 16 |       -0.04 | [-0.08,  0.00] | 0.026 
     ## (group1 * domainEXTvRAD) * age_years - 16  |       -0.08 | [-0.11, -0.05] | < .001
-    ## (group1 * domainINTvRAD) * age_years - 16  |       -0.04 | [-0.08, -0.01] | 0.012
+    ## (group1 * domainINTvRAD) * age_years - 16  |       -0.04 | [-0.08, -0.01] | 0.015
 
 ### Additional analyses
 
@@ -3892,6 +3923,7 @@ mod_eeg_EO <- lmer(
   data = d_int_eegEO
 )
 
+set.seed(123456)
 mod_eeg_EO_parameters <-
   model_parameters(
     mod_eeg_EO,
@@ -3905,10 +3937,10 @@ mod_eeg_EO_parameters
 
     ## Parameter   | Coefficient |        95% CI |     p
     ## -------------------------------------------------
-    ## (Intercept) |       -0.02 | [-0.22, 0.16] | 0.814
-    ## group1      |        0.05 | [-0.22, 0.31] | 0.732
-    ## male [1]    |       -0.10 | [-0.35, 0.15] | 0.458
-    ## age_years   |    5.96e-03 | [-0.06, 0.07] | 0.864
+    ## (Intercept) |       -0.03 | [-0.23, 0.15] | 0.738
+    ## group1      |        0.05 | [-0.19, 0.32] | 0.683
+    ## male [1]    |       -0.10 | [-0.38, 0.15] | 0.451
+    ## age_years   |    3.93e-03 | [-0.06, 0.07] | 0.896
 
 ## Aim 3
 
@@ -3948,6 +3980,7 @@ a3_age_placement_raw <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_age_placement_parameters_std <-
   model_parameters(
     a3_age_placement_std,
@@ -3961,14 +3994,15 @@ a3_age_placement_parameters_std
 
     ## Parameter         | Coefficient |         95% CI |     p
     ## --------------------------------------------------------
-    ## (Intercept)       |        0.12 | [ 0.00,  0.25] | 0.058
-    ## FC_placement_age  |       -0.17 | [-0.30, -0.04] | 0.012
-    ## male [1]          |        0.21 | [-0.06,  0.46] | 0.122
-    ## age_years         |   -9.82e-03 | [-0.05,  0.04] | 0.660
-    ## constructIQvEEG   |        0.17 | [ 0.05,  0.29] | 0.009
-    ## constructPHYSvEEG |        0.13 | [ 0.04,  0.22] | 0.007
+    ## (Intercept)       |        0.12 | [-0.01,  0.24] | 0.085
+    ## FC_placement_age  |       -0.17 | [-0.29, -0.04] | 0.013
+    ## male [1]          |        0.24 | [-0.03,  0.50] | 0.077
+    ## age_years         |       -0.01 | [-0.05,  0.03] | 0.662
+    ## constructIQvEEG   |        0.16 | [ 0.05,  0.29] | 0.013
+    ## constructPHYSvEEG |        0.12 | [ 0.02,  0.22] | 0.012
 
 ``` r
+set.seed(123456)
 a3_age_placement_parameters_raw <-
   model_parameters(
     a3_age_placement_raw,
@@ -3982,12 +4016,12 @@ a3_age_placement_parameters_raw
 
     ## Parameter         | Coefficient |         95% CI |     p
     ## --------------------------------------------------------
-    ## (Intercept)       |        0.12 | [ 0.00,  0.25] | 0.053
-    ## FC_placement_age  |       -0.02 | [-0.04, -0.01] | 0.012
-    ## male [1]          |        0.21 | [-0.05,  0.50] | 0.115
-    ## age_years         |       -0.01 | [-0.05,  0.03] | 0.716
-    ## constructIQvEEG   |        0.18 | [ 0.06,  0.28] | 0.003
-    ## constructPHYSvEEG |        0.13 | [ 0.04,  0.23] | 0.013
+    ## (Intercept)       |        0.12 | [-0.01,  0.24] | 0.085
+    ## FC_placement_age  |       -0.02 | [-0.04, -0.01] | 0.013
+    ## male [1]          |        0.24 | [-0.03,  0.50] | 0.077
+    ## age_years         |       -0.01 | [-0.05,  0.03] | 0.662
+    ## constructIQvEEG   |        0.16 | [ 0.05,  0.29] | 0.013
+    ## constructPHYSvEEG |        0.12 | [ 0.02,  0.22] | 0.012
 
 ###### Two-way interactions
 
@@ -4006,21 +4040,21 @@ anova(a3_age_placement_std_X)
 
     ## Type III Analysis of Variance Table with Satterthwaite's method
     ##                                                                       Sum Sq
-    ## scale(FC_placement_age, scale = TRUE)                                 5.6841
-    ## male                                                                  1.8436
-    ## scale(age_years, scale = TRUE)                                        0.2721
-    ## construct                                                             7.5168
-    ## scale(FC_placement_age, scale = TRUE):male                            1.1443
-    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE)  4.9179
-    ## scale(FC_placement_age, scale = TRUE):construct                      10.7436
+    ## scale(FC_placement_age, scale = TRUE)                                 5.5016
+    ## male                                                                  2.1560
+    ## scale(age_years, scale = TRUE)                                        0.2671
+    ## construct                                                             6.6657
+    ## scale(FC_placement_age, scale = TRUE):male                            1.0641
+    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE)  4.9515
+    ## scale(FC_placement_age, scale = TRUE):construct                      10.2518
     ##                                                                      Mean Sq
-    ## scale(FC_placement_age, scale = TRUE)                                 5.6841
-    ## male                                                                  1.8436
-    ## scale(age_years, scale = TRUE)                                        0.2721
-    ## construct                                                             3.7584
-    ## scale(FC_placement_age, scale = TRUE):male                            1.1443
-    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE)  4.9179
-    ## scale(FC_placement_age, scale = TRUE):construct                       5.3718
+    ## scale(FC_placement_age, scale = TRUE)                                 5.5016
+    ## male                                                                  2.1560
+    ## scale(age_years, scale = TRUE)                                        0.2671
+    ## construct                                                             3.3329
+    ## scale(FC_placement_age, scale = TRUE):male                            1.0641
+    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE)  4.9515
+    ## scale(FC_placement_age, scale = TRUE):construct                       5.1259
     ##                                                                      NumDF
     ## scale(FC_placement_age, scale = TRUE)                                    1
     ## male                                                                     1
@@ -4030,37 +4064,37 @@ anova(a3_age_placement_std_X)
     ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE)     1
     ## scale(FC_placement_age, scale = TRUE):construct                          2
     ##                                                                        DenDF
-    ## scale(FC_placement_age, scale = TRUE)                                  64.65
-    ## male                                                                   60.44
-    ## scale(age_years, scale = TRUE)                                       1643.65
-    ## construct                                                            1618.13
-    ## scale(FC_placement_age, scale = TRUE):male                             62.82
-    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE) 1652.17
-    ## scale(FC_placement_age, scale = TRUE):construct                      1621.09
+    ## scale(FC_placement_age, scale = TRUE)                                  63.57
+    ## male                                                                   59.37
+    ## scale(age_years, scale = TRUE)                                       1617.67
+    ## construct                                                            1592.04
+    ## scale(FC_placement_age, scale = TRUE):male                             61.76
+    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE) 1625.96
+    ## scale(FC_placement_age, scale = TRUE):construct                      1595.00
     ##                                                                      F value
-    ## scale(FC_placement_age, scale = TRUE)                                 7.4816
-    ## male                                                                  2.4266
-    ## scale(age_years, scale = TRUE)                                        0.3582
-    ## construct                                                             4.9469
-    ## scale(FC_placement_age, scale = TRUE):male                            1.5062
-    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE)  6.4730
-    ## scale(FC_placement_age, scale = TRUE):construct                       7.0705
-    ##                                                                         Pr(>F)
-    ## scale(FC_placement_age, scale = TRUE)                                0.0080364
-    ## male                                                                 0.1245093
-    ## scale(age_years, scale = TRUE)                                       0.5496064
-    ## construct                                                            0.0072135
-    ## scale(FC_placement_age, scale = TRUE):male                           0.2243021
-    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE) 0.0110426
-    ## scale(FC_placement_age, scale = TRUE):construct                      0.0008763
-    ##                                                                         
-    ## scale(FC_placement_age, scale = TRUE)                                ** 
-    ## male                                                                    
-    ## scale(age_years, scale = TRUE)                                          
-    ## construct                                                            ** 
-    ## scale(FC_placement_age, scale = TRUE):male                              
-    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE) *  
-    ## scale(FC_placement_age, scale = TRUE):construct                      ***
+    ## scale(FC_placement_age, scale = TRUE)                                 7.2174
+    ## male                                                                  2.8285
+    ## scale(age_years, scale = TRUE)                                        0.3504
+    ## construct                                                             4.3723
+    ## scale(FC_placement_age, scale = TRUE):male                            1.3959
+    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE)  6.4957
+    ## scale(FC_placement_age, scale = TRUE):construct                       6.7245
+    ##                                                                        Pr(>F)
+    ## scale(FC_placement_age, scale = TRUE)                                0.009202
+    ## male                                                                 0.097861
+    ## scale(age_years, scale = TRUE)                                       0.553955
+    ## construct                                                            0.012775
+    ## scale(FC_placement_age, scale = TRUE):male                           0.241941
+    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE) 0.010905
+    ## scale(FC_placement_age, scale = TRUE):construct                      0.001235
+    ##                                                                        
+    ## scale(FC_placement_age, scale = TRUE)                                **
+    ## male                                                                 . 
+    ## scale(age_years, scale = TRUE)                                         
+    ## construct                                                            * 
+    ## scale(FC_placement_age, scale = TRUE):male                             
+    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE) * 
+    ## scale(FC_placement_age, scale = TRUE):construct                      **
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -4093,6 +4127,7 @@ a3_age_placement_EEG_raw <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_construct_EEG_parameters_std <- 
   model_parameters(
     a3_age_placement_EEG_std,
@@ -4103,18 +4138,19 @@ a3_construct_EEG_parameters_std <-
 a3_construct_EEG_parameters_std
 ```
 
-    ## Parameter                            | Coefficient |         95% CI |     p
-    ## ---------------------------------------------------------------------------
-    ## (Intercept)                          |        0.03 | [-0.13,  0.16] | 0.739
-    ## FC_placement_age                     |       -0.12 | [-0.26,  0.03] | 0.097
-    ## constructIQvEEG                      |        0.17 | [ 0.05,  0.29] | 0.005
-    ## constructPHYSvEEG                    |        0.13 | [ 0.02,  0.22] | 0.009
-    ## age_years                            |   -9.02e-03 | [-0.05,  0.03] | 0.666
-    ## male [1]                             |        0.21 | [-0.06,  0.46] | 0.103
-    ## FC_placement_age * constructIQvEEG   |       -0.21 | [-0.32, -0.09] | 0.002
-    ## FC_placement_age * constructPHYSvEEG |   -8.70e-03 | [-0.10,  0.08] | 0.839
+    ## Parameter                            | Coefficient |         95% CI |      p
+    ## ----------------------------------------------------------------------------
+    ## (Intercept)                          |        0.02 | [-0.12,  0.16] | 0.824 
+    ## FC_placement_age                     |       -0.12 | [-0.26,  0.01] | 0.102 
+    ## constructIQvEEG                      |        0.16 | [ 0.05,  0.29] | 0.014 
+    ## constructPHYSvEEG                    |        0.12 | [ 0.02,  0.22] | 0.012 
+    ## age_years                            |   -9.52e-03 | [-0.05,  0.03] | 0.691 
+    ## male [1]                             |        0.24 | [-0.03,  0.50] | 0.081 
+    ## FC_placement_age * constructIQvEEG   |       -0.21 | [-0.33, -0.08] | < .001
+    ## FC_placement_age * constructPHYSvEEG |   -5.30e-03 | [-0.10,  0.10] | 0.926
 
 ``` r
+set.seed(123456)
 a3_construct_EEG_parameters_raw <- 
   model_parameters(
     a3_age_placement_EEG_raw,
@@ -4127,14 +4163,14 @@ a3_construct_EEG_parameters_raw
 
     ## Parameter                            | Coefficient |         95% CI |      p
     ## ----------------------------------------------------------------------------
-    ## (Intercept)                          |        0.03 | [-0.11,  0.17] | 0.731 
-    ## FC_placement_age                     |       -0.02 | [-0.04,  0.00] | 0.100 
-    ## constructIQvEEG                      |        0.17 | [ 0.06,  0.29] | 0.010 
-    ## constructPHYSvEEG                    |        0.13 | [ 0.04,  0.22] | 0.011 
-    ## age_years                            |   -8.98e-03 | [-0.05,  0.03] | 0.693 
-    ## male [1]                             |        0.21 | [-0.03,  0.48] | 0.117 
+    ## (Intercept)                          |        0.02 | [-0.12,  0.16] | 0.824 
+    ## FC_placement_age                     |       -0.02 | [-0.04,  0.00] | 0.102 
+    ## constructIQvEEG                      |        0.16 | [ 0.05,  0.29] | 0.014 
+    ## constructPHYSvEEG                    |        0.12 | [ 0.02,  0.22] | 0.012 
+    ## age_years                            |   -9.52e-03 | [-0.05,  0.03] | 0.691 
+    ## male [1]                             |        0.24 | [-0.03,  0.50] | 0.081 
     ## FC_placement_age * constructIQvEEG   |       -0.03 | [-0.05, -0.01] | < .001
-    ## FC_placement_age * constructPHYSvEEG |   -1.23e-03 | [-0.02,  0.01] | 0.888
+    ## FC_placement_age * constructPHYSvEEG |   -7.78e-04 | [-0.01,  0.01] | 0.926
 
 ###### IQ
 
@@ -4163,6 +4199,7 @@ a3_age_placement_IQ_raw <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_construct_IQ_parameters_std <- 
   model_parameters(
     a3_age_placement_IQ_std,
@@ -4175,16 +4212,17 @@ a3_construct_IQ_parameters_std
 
     ## Parameter                           | Coefficient |         95% CI |      p
     ## ---------------------------------------------------------------------------
-    ## (Intercept)                         |        0.20 | [ 0.05,  0.35] | 0.010 
+    ## (Intercept)                         |        0.18 | [ 0.02,  0.33] | 0.026 
     ## FC_placement_age                    |       -0.33 | [-0.48, -0.18] | < .001
-    ## constructEEGvIQ                     |       -0.17 | [-0.29, -0.05] | 0.007 
-    ## constructPHYSvIQ                    |       -0.04 | [-0.15,  0.07] | 0.486 
-    ## age_years                           |   -9.64e-03 | [-0.05,  0.03] | 0.657 
-    ## male [1]                            |        0.21 | [-0.04,  0.48] | 0.119 
-    ## FC_placement_age * constructEEGvIQ  |        0.22 | [ 0.10,  0.34] | 0.003 
-    ## FC_placement_age * constructPHYSvIQ |        0.20 | [ 0.09,  0.32] | < .001
+    ## constructEEGvIQ                     |       -0.16 | [-0.29, -0.05] | 0.014 
+    ## constructPHYSvIQ                    |       -0.04 | [-0.15,  0.08] | 0.514 
+    ## age_years                           |   -9.52e-03 | [-0.05,  0.03] | 0.691 
+    ## male [1]                            |        0.24 | [-0.03,  0.50] | 0.081 
+    ## FC_placement_age * constructEEGvIQ  |        0.21 | [ 0.08,  0.33] | < .001
+    ## FC_placement_age * constructPHYSvIQ |        0.20 | [ 0.09,  0.31] | < .001
 
 ``` r
+set.seed(123456)
 a3_construct_IQ_parameters_raw <- 
   model_parameters(
     a3_age_placement_IQ_raw,
@@ -4197,12 +4235,12 @@ a3_construct_IQ_parameters_raw
 
     ## Parameter                           | Coefficient |         95% CI |      p
     ## ---------------------------------------------------------------------------
-    ## (Intercept)                         |        0.20 | [ 0.04,  0.35] | 0.012 
+    ## (Intercept)                         |        0.18 | [ 0.02,  0.33] | 0.026 
     ## FC_placement_age                    |       -0.05 | [-0.07, -0.03] | < .001
-    ## constructEEGvIQ                     |       -0.17 | [-0.29, -0.05] | 0.007 
-    ## constructPHYSvIQ                    |       -0.04 | [-0.16,  0.07] | 0.427 
-    ## age_years                           |   -9.84e-03 | [-0.05,  0.03] | 0.654 
-    ## male [1]                            |        0.21 | [-0.05,  0.46] | 0.115 
+    ## constructEEGvIQ                     |       -0.16 | [-0.29, -0.05] | 0.014 
+    ## constructPHYSvIQ                    |       -0.04 | [-0.15,  0.08] | 0.514 
+    ## age_years                           |   -9.52e-03 | [-0.05,  0.03] | 0.691 
+    ## male [1]                            |        0.24 | [-0.03,  0.50] | 0.081 
     ## FC_placement_age * constructEEGvIQ  |        0.03 | [ 0.01,  0.05] | < .001
     ## FC_placement_age * constructPHYSvIQ |        0.03 | [ 0.01,  0.05] | < .001
 
@@ -4233,6 +4271,7 @@ a3_age_placement_PHY_raw <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_construct_PHY_parameters_std <- 
   model_parameters(
     a3_age_placement_PHY_std,
@@ -4245,16 +4284,17 @@ a3_construct_PHY_parameters_std
 
     ## Parameter                            | Coefficient |         95% CI |      p
     ## ----------------------------------------------------------------------------
-    ## (Intercept)                          |        0.15 | [ 0.01,  0.29] | 0.027 
-    ## FC_placement_age                     |       -0.13 | [-0.26,  0.00] | 0.064 
-    ## constructEEGvPHYS                    |       -0.13 | [-0.22, -0.03] | 0.009 
-    ## constructIQvPHYS                     |        0.04 | [-0.08,  0.15] | 0.460 
-    ## age_years                            |   -9.13e-03 | [-0.05,  0.03] | 0.666 
-    ## male [1]                             |        0.21 | [-0.05,  0.47] | 0.117 
-    ## FC_placement_age * constructEEGvPHYS |        0.01 | [-0.09,  0.10] | 0.878 
-    ## FC_placement_age * constructIQvPHYS  |       -0.20 | [-0.31, -0.10] | < .001
+    ## (Intercept)                          |        0.14 | [ 0.01,  0.27] | 0.039 
+    ## FC_placement_age                     |       -0.12 | [-0.26,  0.01] | 0.072 
+    ## constructEEGvPHYS                    |       -0.12 | [-0.22, -0.02] | 0.012 
+    ## constructIQvPHYS                     |        0.04 | [-0.08,  0.15] | 0.514 
+    ## age_years                            |   -9.52e-03 | [-0.05,  0.03] | 0.691 
+    ## male [1]                             |        0.24 | [-0.03,  0.50] | 0.081 
+    ## FC_placement_age * constructEEGvPHYS |    5.30e-03 | [-0.10,  0.10] | 0.926 
+    ## FC_placement_age * constructIQvPHYS  |       -0.20 | [-0.31, -0.09] | < .001
 
 ``` r
+set.seed(123456)
 a3_construct_PHY_parameters_raw <- 
   model_parameters(
     a3_age_placement_PHY_raw,
@@ -4265,16 +4305,16 @@ a3_construct_PHY_parameters_raw <-
 a3_construct_PHY_parameters_raw
 ```
 
-    ## Parameter                            | Coefficient |         95% CI |     p
-    ## ---------------------------------------------------------------------------
-    ## (Intercept)                          |        0.15 | [ 0.02,  0.28] | 0.033
-    ## FC_placement_age                     |       -0.02 | [-0.04,  0.00] | 0.072
-    ## constructEEGvPHYS                    |       -0.13 | [-0.22, -0.03] | 0.008
-    ## constructIQvPHYS                     |        0.04 | [-0.06,  0.16] | 0.444
-    ## age_years                            |   -8.55e-03 | [-0.05,  0.03] | 0.672
-    ## male [1]                             |        0.21 | [-0.05,  0.47] | 0.112
-    ## FC_placement_age * constructEEGvPHYS |    1.37e-03 | [-0.01,  0.02] | 0.887
-    ## FC_placement_age * constructIQvPHYS  |       -0.03 | [-0.05, -0.01] | 0.002
+    ## Parameter                            | Coefficient |         95% CI |      p
+    ## ----------------------------------------------------------------------------
+    ## (Intercept)                          |        0.14 | [ 0.01,  0.27] | 0.039 
+    ## FC_placement_age                     |       -0.02 | [-0.04,  0.00] | 0.072 
+    ## constructEEGvPHYS                    |       -0.12 | [-0.22, -0.02] | 0.012 
+    ## constructIQvPHYS                     |        0.04 | [-0.08,  0.15] | 0.514 
+    ## age_years                            |   -9.52e-03 | [-0.05,  0.03] | 0.691 
+    ## male [1]                             |        0.24 | [-0.03,  0.50] | 0.081 
+    ## FC_placement_age * constructEEGvPHYS |    7.78e-04 | [-0.01,  0.01] | 0.926 
+    ## FC_placement_age * constructIQvPHYS  |       -0.03 | [-0.05, -0.01] | < .001
 
 ###### Simple effects of age of asssesment
 
@@ -4304,6 +4344,7 @@ a3_age_placement_age3_raw <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_age_placement_age3_std_parameters <- 
   model_parameters(
     a3_age_placement_age3_std,
@@ -4316,15 +4357,16 @@ a3_age_placement_age3_std_parameters
 
     ## Parameter                    | Coefficient |         95% CI |     p
     ## -------------------------------------------------------------------
-    ## (Intercept)                  |        0.13 | [-0.01,  0.27] | 0.066
-    ## FC_placement_age             |       -0.22 | [-0.36, -0.09] | 0.004
-    ## age_years - 3.5              |   -2.71e-03 | [-0.01,  0.01] | 0.531
-    ## constructIQvEEG              |        0.17 | [ 0.05,  0.29] | 0.007
-    ## constructPHYSvEEG            |        0.13 | [ 0.04,  0.22] | 0.008
-    ## male [1]                     |        0.21 | [-0.07,  0.49] | 0.138
-    ## FC_placement_age * age_years |        0.01 | [ 0.00,  0.02] | 0.005
+    ## (Intercept)                  |        0.12 | [-0.01,  0.25] | 0.063
+    ## FC_placement_age             |       -0.22 | [-0.35, -0.09] | 0.003
+    ## age_years - 3.5              |   -2.66e-03 | [-0.01,  0.01] | 0.510
+    ## constructIQvEEG              |        0.16 | [ 0.05,  0.29] | 0.013
+    ## constructPHYSvEEG            |        0.13 | [ 0.03,  0.22] | 0.011
+    ## male [1]                     |        0.24 | [-0.04,  0.49] | 0.084
+    ## FC_placement_age * age_years |        0.01 | [ 0.00,  0.02] | 0.008
 
 ``` r
+set.seed(123456)
 a3_age_placement_age3_parameters_raw <- 
   model_parameters(
     a3_age_placement_age3_raw,
@@ -4337,13 +4379,13 @@ a3_age_placement_age3_parameters_raw
 
     ## Parameter                    | Coefficient |         95% CI |     p
     ## -------------------------------------------------------------------
-    ## (Intercept)                  |        0.14 | [ 0.00,  0.27] | 0.049
+    ## (Intercept)                  |        0.12 | [-0.01,  0.25] | 0.063
     ## FC_placement_age             |       -0.03 | [-0.05, -0.01] | 0.003
-    ## age_years - 3.5              |   -2.43e-03 | [-0.01,  0.01] | 0.608
-    ## constructIQvEEG              |        0.17 | [ 0.05,  0.29] | 0.004
-    ## constructPHYSvEEG            |        0.13 | [ 0.04,  0.23] | 0.009
-    ## male [1]                     |        0.21 | [-0.06,  0.48] | 0.142
-    ## FC_placement_age * age_years |    1.72e-03 | [ 0.00,  0.00] | 0.009
+    ## age_years - 3.5              |   -2.66e-03 | [-0.01,  0.01] | 0.510
+    ## constructIQvEEG              |        0.16 | [ 0.05,  0.29] | 0.013
+    ## constructPHYSvEEG            |        0.13 | [ 0.03,  0.22] | 0.011
+    ## male [1]                     |        0.24 | [-0.04,  0.49] | 0.084
+    ## FC_placement_age * age_years |    1.71e-03 | [ 0.00,  0.00] | 0.008
 
 ###### 8 years
 
@@ -4366,6 +4408,7 @@ a3_age_placement_age8_raw <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_age_placement_age8_std_parameters <- 
   model_parameters(
     a3_age_placement_age8_std,
@@ -4378,15 +4421,16 @@ a3_age_placement_age8_std_parameters
 
     ## Parameter                    | Coefficient |         95% CI |     p
     ## -------------------------------------------------------------------
-    ## (Intercept)                  |        0.12 | [-0.01,  0.25] | 0.075
-    ## FC_placement_age             |       -0.17 | [-0.28, -0.03] | 0.014
-    ## age_years - 8                |   -2.48e-03 | [-0.01,  0.01] | 0.516
-    ## constructIQvEEG              |        0.17 | [ 0.05,  0.30] | 0.003
-    ## constructPHYSvEEG            |        0.13 | [ 0.04,  0.23] | 0.007
-    ## male [1]                     |        0.20 | [-0.06,  0.46] | 0.143
-    ## FC_placement_age * age_years |        0.01 | [ 0.00,  0.02] | 0.005
+    ## (Intercept)                  |        0.11 | [-0.01,  0.24] | 0.086
+    ## FC_placement_age             |       -0.16 | [-0.29, -0.04] | 0.013
+    ## age_years - 8                |   -2.66e-03 | [-0.01,  0.01] | 0.510
+    ## constructIQvEEG              |        0.16 | [ 0.05,  0.29] | 0.013
+    ## constructPHYSvEEG            |        0.13 | [ 0.03,  0.22] | 0.011
+    ## male [1]                     |        0.24 | [-0.04,  0.49] | 0.084
+    ## FC_placement_age * age_years |        0.01 | [ 0.00,  0.02] | 0.008
 
 ``` r
+set.seed(123456)
 a3_age_placement_age8_parameters_raw <- 
   model_parameters(
     a3_age_placement_age8_raw,
@@ -4399,13 +4443,13 @@ a3_age_placement_age8_parameters_raw
 
     ## Parameter                    | Coefficient |         95% CI |     p
     ## -------------------------------------------------------------------
-    ## (Intercept)                  |        0.12 | [ 0.00,  0.25] | 0.050
-    ## FC_placement_age             |       -0.03 | [-0.04,  0.00] | 0.012
-    ## age_years - 8                |   -2.42e-03 | [-0.01,  0.01] | 0.552
-    ## constructIQvEEG              |        0.17 | [ 0.05,  0.31] | 0.003
-    ## constructPHYSvEEG            |        0.13 | [ 0.04,  0.23] | 0.009
-    ## male [1]                     |        0.20 | [-0.07,  0.47] | 0.124
-    ## FC_placement_age * age_years |    1.72e-03 | [ 0.00,  0.00] | 0.004
+    ## (Intercept)                  |        0.11 | [-0.01,  0.24] | 0.086
+    ## FC_placement_age             |       -0.02 | [-0.04, -0.01] | 0.013
+    ## age_years - 8                |   -2.66e-03 | [-0.01,  0.01] | 0.510
+    ## constructIQvEEG              |        0.16 | [ 0.05,  0.29] | 0.013
+    ## constructPHYSvEEG            |        0.13 | [ 0.03,  0.22] | 0.011
+    ## male [1]                     |        0.24 | [-0.04,  0.49] | 0.084
+    ## FC_placement_age * age_years |    1.71e-03 | [ 0.00,  0.00] | 0.008
 
 ###### 16 years
 
@@ -4428,6 +4472,7 @@ a3_age_placement_age16_raw <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_age_placement_age16_std_parameters <- 
   model_parameters(
     a3_age_placement_age16_std,
@@ -4440,15 +4485,16 @@ a3_age_placement_age16_std_parameters
 
     ## Parameter                    | Coefficient |        95% CI |     p
     ## ------------------------------------------------------------------
-    ## (Intercept)                  |        0.11 | [-0.04, 0.26] | 0.157
-    ## FC_placement_age             |       -0.07 | [-0.23, 0.07] | 0.323
-    ## age_years - 16               |   -2.30e-03 | [-0.01, 0.01] | 0.569
-    ## constructIQvEEG              |        0.17 | [ 0.06, 0.29] | 0.004
-    ## constructPHYSvEEG            |        0.13 | [ 0.04, 0.23] | 0.012
-    ## male [1]                     |        0.21 | [-0.07, 0.47] | 0.130
-    ## FC_placement_age * age_years |        0.01 | [ 0.00, 0.02] | 0.009
+    ## (Intercept)                  |        0.09 | [-0.05, 0.24] | 0.215
+    ## FC_placement_age             |       -0.07 | [-0.22, 0.07] | 0.350
+    ## age_years - 16               |   -2.66e-03 | [-0.01, 0.01] | 0.510
+    ## constructIQvEEG              |        0.16 | [ 0.05, 0.29] | 0.013
+    ## constructPHYSvEEG            |        0.13 | [ 0.03, 0.22] | 0.011
+    ## male [1]                     |        0.24 | [-0.04, 0.49] | 0.084
+    ## FC_placement_age * age_years |        0.01 | [ 0.00, 0.02] | 0.008
 
 ``` r
+set.seed(123456)
 a3_age_placement_age16_parameters_raw <- 
   model_parameters(
     a3_age_placement_age16_raw,
@@ -4461,13 +4507,13 @@ a3_age_placement_age16_parameters_raw
 
     ## Parameter                    | Coefficient |        95% CI |     p
     ## ------------------------------------------------------------------
-    ## (Intercept)                  |        0.10 | [-0.05, 0.24] | 0.140
-    ## FC_placement_age             |       -0.01 | [-0.03, 0.01] | 0.324
-    ## age_years - 16               |   -2.60e-03 | [-0.01, 0.01] | 0.514
-    ## constructIQvEEG              |        0.17 | [ 0.06, 0.29] | 0.002
-    ## constructPHYSvEEG            |        0.13 | [ 0.04, 0.23] | 0.009
-    ## male [1]                     |        0.20 | [-0.06, 0.45] | 0.135
-    ## FC_placement_age * age_years |    1.74e-03 | [ 0.00, 0.00] | 0.008
+    ## (Intercept)                  |        0.09 | [-0.05, 0.24] | 0.215
+    ## FC_placement_age             |       -0.01 | [-0.03, 0.01] | 0.350
+    ## age_years - 16               |   -2.66e-03 | [-0.01, 0.01] | 0.510
+    ## constructIQvEEG              |        0.16 | [ 0.05, 0.29] | 0.013
+    ## constructPHYSvEEG            |        0.13 | [ 0.03, 0.22] | 0.011
+    ## male [1]                     |        0.24 | [-0.04, 0.49] | 0.084
+    ## FC_placement_age * age_years |    1.71e-03 | [ 0.00, 0.00] | 0.008
 
 #### Psychopathology
 
@@ -4509,6 +4555,7 @@ a3_psy_age_placement_raw <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_age_placement_parameters_std <-
   model_parameters(
     a3_psy_age_placement_std,
@@ -4522,17 +4569,18 @@ a3_psy_age_placement_parameters_std
 
     ## Parameter        | Coefficient |         95% CI |      p
     ## --------------------------------------------------------
-    ## (Intercept)      |       -0.12 | [-0.24, -0.02] | 0.037 
-    ## FC_placement_age |        0.04 | [-0.07,  0.14] | 0.493 
-    ## male [1]         |        0.31 | [ 0.10,  0.52] | 0.006 
-    ## age_years        |       -0.04 | [-0.07,  0.00] | 0.029 
-    ## domainDESDvADHD  |       -0.47 | [-0.59, -0.37] | < .001
-    ## domainEXTvADHD   |       -0.64 | [-0.74, -0.55] | < .001
-    ## domainINTvADHD   |       -0.73 | [-0.82, -0.63] | < .001
-    ## domainRADvADHD   |       -0.82 | [-0.93, -0.71] | < .001
-    ## informant1       |       -0.03 | [-0.13,  0.06] | 0.524
+    ## (Intercept)      |       -0.12 | [-0.23, -0.01] | 0.029 
+    ## FC_placement_age |        0.04 | [-0.07,  0.15] | 0.476 
+    ## male [1]         |        0.30 | [ 0.06,  0.53] | 0.011 
+    ## age_years        |       -0.03 | [-0.07,  0.00] | 0.075 
+    ## domainDESDvADHD  |       -0.48 | [-0.60, -0.37] | < .001
+    ## domainEXTvADHD   |       -0.65 | [-0.75, -0.55] | < .001
+    ## domainINTvADHD   |       -0.73 | [-0.83, -0.64] | < .001
+    ## domainRADvADHD   |       -0.83 | [-0.94, -0.71] | < .001
+    ## informant1       |       -0.03 | [-0.12,  0.06] | 0.521
 
 ``` r
+set.seed(123456)
 a3_psy_age_placement_parameters_raw <-
   model_parameters(
     a3_psy_age_placement_raw,
@@ -4546,15 +4594,15 @@ a3_psy_age_placement_parameters_raw
 
     ## Parameter        | Coefficient |         95% CI |      p
     ## --------------------------------------------------------
-    ## (Intercept)      |       -0.12 | [-0.23, -0.01] | 0.037 
-    ## FC_placement_age |    5.52e-03 | [-0.01,  0.02] | 0.470 
-    ## male [1]         |        0.30 | [ 0.07,  0.51] | 0.008 
-    ## age_years        |       -0.04 | [-0.07,  0.00] | 0.031 
-    ## domainDESDvADHD  |       -0.48 | [-0.59, -0.36] | < .001
-    ## domainEXTvADHD   |       -0.64 | [-0.73, -0.54] | < .001
-    ## domainINTvADHD   |       -0.73 | [-0.83, -0.63] | < .001
-    ## domainRADvADHD   |       -0.82 | [-0.94, -0.70] | < .001
-    ## informant1       |       -0.03 | [-0.12,  0.07] | 0.514
+    ## (Intercept)      |       -0.12 | [-0.23, -0.01] | 0.029 
+    ## FC_placement_age |    5.74e-03 | [-0.01,  0.02] | 0.476 
+    ## male [1]         |        0.30 | [ 0.06,  0.53] | 0.011 
+    ## age_years        |       -0.03 | [-0.07,  0.00] | 0.075 
+    ## domainDESDvADHD  |       -0.48 | [-0.60, -0.37] | < .001
+    ## domainEXTvADHD   |       -0.65 | [-0.75, -0.55] | < .001
+    ## domainINTvADHD   |       -0.73 | [-0.83, -0.64] | < .001
+    ## domainRADvADHD   |       -0.83 | [-0.94, -0.71] | < .001
+    ## informant1       |       -0.03 | [-0.12,  0.06] | 0.521
 
 ##### Two-way interactions
 
@@ -4574,23 +4622,23 @@ anova(a3_psy_age_placement_int)
 
     ## Type III Analysis of Variance Table with Satterthwaite's method
     ##                                                                       Sum Sq
-    ## scale(FC_placement_age, scale = TRUE)                                  0.166
-    ## male                                                                   4.490
-    ## scale(age_years, scale = TRUE)                                         2.230
-    ## domain                                                               195.636
-    ## informant                                                              0.154
-    ## scale(FC_placement_age, scale = TRUE):male                             0.064
-    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE)   8.988
-    ## scale(FC_placement_age, scale = TRUE):domain                           4.975
+    ## scale(FC_placement_age, scale = TRUE)                                  0.147
+    ## male                                                                   4.217
+    ## scale(age_years, scale = TRUE)                                         1.744
+    ## domain                                                               196.130
+    ## informant                                                              0.159
+    ## scale(FC_placement_age, scale = TRUE):male                             0.058
+    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE)   9.716
+    ## scale(FC_placement_age, scale = TRUE):domain                           4.670
     ##                                                                      Mean Sq
-    ## scale(FC_placement_age, scale = TRUE)                                  0.166
-    ## male                                                                   4.490
-    ## scale(age_years, scale = TRUE)                                         2.230
-    ## domain                                                                48.909
-    ## informant                                                              0.154
-    ## scale(FC_placement_age, scale = TRUE):male                             0.064
-    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE)   8.988
-    ## scale(FC_placement_age, scale = TRUE):domain                           1.244
+    ## scale(FC_placement_age, scale = TRUE)                                  0.147
+    ## male                                                                   4.217
+    ## scale(age_years, scale = TRUE)                                         1.744
+    ## domain                                                                49.032
+    ## informant                                                              0.159
+    ## scale(FC_placement_age, scale = TRUE):male                             0.058
+    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE)   9.716
+    ## scale(FC_placement_age, scale = TRUE):domain                           1.168
     ##                                                                      NumDF
     ## scale(FC_placement_age, scale = TRUE)                                    1
     ## male                                                                     1
@@ -4601,41 +4649,41 @@ anova(a3_psy_age_placement_int)
     ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE)     1
     ## scale(FC_placement_age, scale = TRUE):domain                             4
     ##                                                                        DenDF
-    ## scale(FC_placement_age, scale = TRUE)                                  62.15
-    ## male                                                                   60.30
-    ## scale(age_years, scale = TRUE)                                       2160.97
-    ## domain                                                               2119.49
-    ## informant                                                            2130.19
-    ## scale(FC_placement_age, scale = TRUE):male                             61.48
-    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE) 2165.67
-    ## scale(FC_placement_age, scale = TRUE):domain                         2119.58
+    ## scale(FC_placement_age, scale = TRUE)                                  61.11
+    ## male                                                                   59.28
+    ## scale(age_years, scale = TRUE)                                       2122.82
+    ## domain                                                               2081.52
+    ## informant                                                            2092.20
+    ## scale(FC_placement_age, scale = TRUE):male                             60.44
+    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE) 2127.23
+    ## scale(FC_placement_age, scale = TRUE):domain                         2081.60
     ##                                                                      F value
-    ## scale(FC_placement_age, scale = TRUE)                                 0.2745
-    ## male                                                                  7.4206
-    ## scale(age_years, scale = TRUE)                                        3.6855
-    ## domain                                                               80.8325
-    ## informant                                                             0.2546
-    ## scale(FC_placement_age, scale = TRUE):male                            0.1058
-    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE) 14.8542
-    ## scale(FC_placement_age, scale = TRUE):domain                          2.0556
+    ## scale(FC_placement_age, scale = TRUE)                                 0.2409
+    ## male                                                                  6.8872
+    ## scale(age_years, scale = TRUE)                                        2.8480
+    ## domain                                                               80.0874
+    ## informant                                                             0.2601
+    ## scale(FC_placement_age, scale = TRUE):male                            0.0947
+    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE) 15.8698
+    ## scale(FC_placement_age, scale = TRUE):domain                          1.9070
     ##                                                                                     Pr(>F)
-    ## scale(FC_placement_age, scale = TRUE)                                            0.6022025
-    ## male                                                                             0.0084238
-    ## scale(age_years, scale = TRUE)                                                   0.0550176
+    ## scale(FC_placement_age, scale = TRUE)                                              0.62533
+    ## male                                                                               0.01102
+    ## scale(age_years, scale = TRUE)                                                     0.09163
     ## domain                                                               < 0.00000000000000022
-    ## informant                                                                        0.6139068
-    ## scale(FC_placement_age, scale = TRUE):male                                       0.7461338
-    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE)             0.0001195
-    ## scale(FC_placement_age, scale = TRUE):domain                                     0.0841704
+    ## informant                                                                          0.61010
+    ## scale(FC_placement_age, scale = TRUE):male                                         0.75935
+    ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE)            0.00007013
+    ## scale(FC_placement_age, scale = TRUE):domain                                       0.10663
     ##                                                                         
     ## scale(FC_placement_age, scale = TRUE)                                   
-    ## male                                                                 ** 
+    ## male                                                                 *  
     ## scale(age_years, scale = TRUE)                                       .  
     ## domain                                                               ***
     ## informant                                                               
     ## scale(FC_placement_age, scale = TRUE):male                              
     ## scale(FC_placement_age, scale = TRUE):scale(age_years, scale = TRUE) ***
-    ## scale(FC_placement_age, scale = TRUE):domain                         .  
+    ## scale(FC_placement_age, scale = TRUE):domain                            
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -4672,6 +4720,7 @@ a3_ADHD_age_placement_raw <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_ADHD_age_placement_parameters_std <-
   model_parameters(
     a3_ADHD_age_placement_std,
@@ -4685,21 +4734,22 @@ a3_ADHD_age_placement_parameters_std
 
     ## Parameter                          | Coefficient |         95% CI |      p
     ## --------------------------------------------------------------------------
-    ## (Intercept)                        |        0.41 | [ 0.28,  0.54] | < .001
-    ## FC_placement_age                   |        0.10 | [-0.03,  0.22] | 0.123 
-    ## domainDESDvADHD                    |       -0.47 | [-0.59, -0.37] | < .001
-    ## domainEXTvADHD                     |       -0.64 | [-0.75, -0.54] | < .001
-    ## domainINTvADHD                     |       -0.72 | [-0.82, -0.62] | < .001
-    ## domainRADvADHD                     |       -0.82 | [-0.93, -0.71] | < .001
-    ## male [1]                           |        0.30 | [ 0.09,  0.52] | 0.010 
-    ## age_years                          |       -0.04 | [-0.07,  0.00] | 0.042 
-    ## informant1                         |       -0.03 | [-0.12,  0.06] | 0.518 
-    ## FC_placement_age * domainDESDvADHD |        0.01 | [-0.09,  0.12] | 0.788 
-    ## FC_placement_age * domainEXTvADHD  |       -0.08 | [-0.18,  0.02] | 0.105 
-    ## FC_placement_age * domainINTvADHD  |       -0.12 | [-0.22, -0.02] | 0.012 
-    ## FC_placement_age * domainRADvADHD  |       -0.08 | [-0.18,  0.03] | 0.165
+    ## (Intercept)                        |        0.42 | [ 0.30,  0.54] | < .001
+    ## FC_placement_age                   |        0.09 | [-0.03,  0.22] | 0.160 
+    ## domainDESDvADHD                    |       -0.48 | [-0.60, -0.37] | < .001
+    ## domainEXTvADHD                     |       -0.65 | [-0.75, -0.55] | < .001
+    ## domainINTvADHD                     |       -0.73 | [-0.83, -0.64] | < .001
+    ## domainRADvADHD                     |       -0.83 | [-0.94, -0.71] | < .001
+    ## male [1]                           |        0.30 | [ 0.06,  0.53] | 0.011 
+    ## age_years                          |       -0.03 | [-0.07,  0.00] | 0.075 
+    ## informant1                         |       -0.03 | [-0.12,  0.06] | 0.520 
+    ## FC_placement_age * domainDESDvADHD |        0.02 | [-0.09,  0.13] | 0.736 
+    ## FC_placement_age * domainEXTvADHD  |       -0.07 | [-0.17,  0.02] | 0.119 
+    ## FC_placement_age * domainINTvADHD  |       -0.11 | [-0.22, -0.01] | 0.033 
+    ## FC_placement_age * domainRADvADHD  |       -0.07 | [-0.18,  0.04] | 0.223
 
 ``` r
+set.seed(123456)
 a3_ADHD_age_placement_parameters_raw <-
   model_parameters(
     a3_ADHD_age_placement_raw,
@@ -4713,19 +4763,19 @@ a3_ADHD_age_placement_parameters_raw
 
     ## Parameter                          | Coefficient |         95% CI |      p
     ## --------------------------------------------------------------------------
-    ## (Intercept)                        |        0.41 | [ 0.28,  0.54] | < .001
-    ## FC_placement_age                   |        0.01 | [ 0.00,  0.03] | 0.143 
-    ## domainDESDvADHD                    |       -0.48 | [-0.59, -0.37] | < .001
-    ## domainEXTvADHD                     |       -0.64 | [-0.75, -0.54] | < .001
-    ## domainINTvADHD                     |       -0.72 | [-0.82, -0.63] | < .001
-    ## domainRADvADHD                     |       -0.82 | [-0.94, -0.70] | < .001
-    ## male [1]                           |        0.30 | [ 0.08,  0.53] | 0.009 
-    ## age_years                          |       -0.04 | [-0.07,  0.00] | 0.037 
-    ## informant1                         |       -0.03 | [-0.11,  0.06] | 0.477 
-    ## FC_placement_age * domainDESDvADHD |    2.09e-03 | [-0.01,  0.02] | 0.784 
-    ## FC_placement_age * domainEXTvADHD  |       -0.01 | [-0.02,  0.00] | 0.122 
-    ## FC_placement_age * domainINTvADHD  |       -0.02 | [-0.03,  0.00] | 0.027 
-    ## FC_placement_age * domainRADvADHD  |       -0.01 | [-0.03,  0.01] | 0.208
+    ## (Intercept)                        |        0.42 | [ 0.30,  0.54] | < .001
+    ## FC_placement_age                   |        0.01 | [ 0.00,  0.03] | 0.160 
+    ## domainDESDvADHD                    |       -0.48 | [-0.60, -0.37] | < .001
+    ## domainEXTvADHD                     |       -0.65 | [-0.75, -0.55] | < .001
+    ## domainINTvADHD                     |       -0.73 | [-0.83, -0.64] | < .001
+    ## domainRADvADHD                     |       -0.83 | [-0.94, -0.71] | < .001
+    ## male [1]                           |        0.30 | [ 0.06,  0.53] | 0.011 
+    ## age_years                          |       -0.03 | [-0.07,  0.00] | 0.075 
+    ## informant1                         |       -0.03 | [-0.12,  0.06] | 0.520 
+    ## FC_placement_age * domainDESDvADHD |    3.02e-03 | [-0.01,  0.02] | 0.736 
+    ## FC_placement_age * domainEXTvADHD  |       -0.01 | [-0.02,  0.00] | 0.119 
+    ## FC_placement_age * domainINTvADHD  |       -0.02 | [-0.03,  0.00] | 0.033 
+    ## FC_placement_age * domainRADvADHD  |   -9.68e-03 | [-0.03,  0.01] | 0.223
 
 ###### DESD
 
@@ -4758,6 +4808,7 @@ a3_DESD_age_placement_raw <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_DESD_age_placement_parameters_std <-
   model_parameters(
     a3_DESD_age_placement_std,
@@ -4771,21 +4822,22 @@ a3_DESD_age_placement_parameters_std
 
     ## Parameter                          | Coefficient |         95% CI |      p
     ## --------------------------------------------------------------------------
-    ## (Intercept)                        |       -0.07 | [-0.20,  0.08] | 0.346 
-    ## FC_placement_age                   |        0.11 | [-0.03,  0.24] | 0.119 
-    ## domainADHDvDESD                    |        0.48 | [ 0.37,  0.58] | < .001
-    ## domainEXTvDESD                     |       -0.17 | [-0.27, -0.06] | 0.002 
-    ## domainINTvDESD                     |       -0.25 | [-0.35, -0.14] | < .001
+    ## (Intercept)                        |       -0.06 | [-0.19,  0.08] | 0.398 
+    ## FC_placement_age                   |        0.11 | [-0.02,  0.24] | 0.107 
+    ## domainADHDvDESD                    |        0.48 | [ 0.37,  0.60] | < .001
+    ## domainEXTvDESD                     |       -0.17 | [-0.28, -0.06] | 0.004 
+    ## domainINTvDESD                     |       -0.25 | [-0.36, -0.14] | < .001
     ## domainRADvDESD                     |       -0.35 | [-0.46, -0.23] | < .001
-    ## male [1]                           |        0.30 | [ 0.07,  0.51] | 0.008 
-    ## age_years                          |       -0.04 | [-0.07, -0.01] | 0.030 
-    ## informant1                         |       -0.03 | [-0.12,  0.07] | 0.529 
-    ## FC_placement_age * domainADHDvDESD |       -0.01 | [-0.12,  0.09] | 0.824 
-    ## FC_placement_age * domainEXTvDESD  |       -0.09 | [-0.20,  0.02] | 0.090 
-    ## FC_placement_age * domainINTvDESD  |       -0.13 | [-0.24, -0.03] | 0.018 
-    ## FC_placement_age * domainRADvDESD  |       -0.09 | [-0.21,  0.03] | 0.146
+    ## male [1]                           |        0.30 | [ 0.06,  0.53] | 0.011 
+    ## age_years                          |       -0.03 | [-0.07,  0.00] | 0.075 
+    ## informant1                         |       -0.03 | [-0.12,  0.06] | 0.520 
+    ## FC_placement_age * domainADHDvDESD |       -0.02 | [-0.13,  0.09] | 0.736 
+    ## FC_placement_age * domainEXTvDESD  |       -0.09 | [-0.20,  0.01] | 0.093 
+    ## FC_placement_age * domainINTvDESD  |       -0.13 | [-0.24, -0.02] | 0.010 
+    ## FC_placement_age * domainRADvDESD  |       -0.09 | [-0.21,  0.04] | 0.169
 
 ``` r
+set.seed(123456)
 a3_DESD_age_placement_parameters_raw <-
   model_parameters(
     a3_DESD_age_placement_raw,
@@ -4799,19 +4851,19 @@ a3_DESD_age_placement_parameters_raw
 
     ## Parameter                          | Coefficient |         95% CI |      p
     ## --------------------------------------------------------------------------
-    ## (Intercept)                        |       -0.06 | [-0.20,  0.08] | 0.409 
-    ## FC_placement_age                   |        0.02 | [ 0.00,  0.03] | 0.093 
-    ## domainADHDvDESD                    |        0.47 | [ 0.36,  0.58] | < .001
-    ## domainEXTvDESD                     |       -0.17 | [-0.28, -0.06] | 0.002 
-    ## domainINTvDESD                     |       -0.26 | [-0.36, -0.15] | < .001
+    ## (Intercept)                        |       -0.06 | [-0.19,  0.08] | 0.398 
+    ## FC_placement_age                   |        0.02 | [ 0.00,  0.04] | 0.107 
+    ## domainADHDvDESD                    |        0.48 | [ 0.37,  0.60] | < .001
+    ## domainEXTvDESD                     |       -0.17 | [-0.28, -0.06] | 0.004 
+    ## domainINTvDESD                     |       -0.25 | [-0.36, -0.14] | < .001
     ## domainRADvDESD                     |       -0.35 | [-0.46, -0.23] | < .001
-    ## male [1]                           |        0.30 | [ 0.06,  0.53] | 0.005 
-    ## age_years                          |       -0.04 | [-0.07,  0.00] | 0.033 
-    ## informant1                         |       -0.03 | [-0.12,  0.06] | 0.545 
-    ## FC_placement_age * domainADHDvDESD |   -1.66e-03 | [-0.02,  0.01] | 0.817 
-    ## FC_placement_age * domainEXTvDESD  |       -0.01 | [-0.03,  0.00] | 0.071 
+    ## male [1]                           |        0.30 | [ 0.06,  0.53] | 0.011 
+    ## age_years                          |       -0.03 | [-0.07,  0.00] | 0.075 
+    ## informant1                         |       -0.03 | [-0.12,  0.06] | 0.520 
+    ## FC_placement_age * domainADHDvDESD |   -3.02e-03 | [-0.02,  0.01] | 0.736 
+    ## FC_placement_age * domainEXTvDESD  |       -0.01 | [-0.03,  0.00] | 0.093 
     ## FC_placement_age * domainINTvDESD  |       -0.02 | [-0.03,  0.00] | 0.010 
-    ## FC_placement_age * domainRADvDESD  |       -0.01 | [-0.03,  0.00] | 0.145
+    ## FC_placement_age * domainRADvDESD  |       -0.01 | [-0.03,  0.01] | 0.169
 
 ###### Externalizing
 
@@ -4845,6 +4897,7 @@ a3_EXT_age_placement_raw <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_EXT_age_placement_parameters_std <-
   model_parameters(
     a3_EXT_age_placement_std,
@@ -4858,21 +4911,22 @@ a3_EXT_age_placement_parameters_std
 
     ## Parameter                         | Coefficient |         95% CI |      p
     ## -------------------------------------------------------------------------
-    ## (Intercept)                       |       -0.23 | [-0.35, -0.10] | < .001
-    ## FC_placement_age                  |        0.01 | [-0.11,  0.13] | 0.874 
-    ## domainADHDvEXT                    |        0.64 | [ 0.54,  0.74] | < .001
-    ## domainDESDvEXT                    |        0.16 | [ 0.05,  0.27] | 0.005 
-    ## domainINTvEXT                     |       -0.09 | [-0.18,  0.02] | 0.090 
-    ## domainRADvEXT                     |       -0.18 | [-0.29, -0.07] | 0.002 
-    ## male [1]                          |        0.30 | [ 0.08,  0.52] | 0.007 
-    ## age_years                         |       -0.04 | [-0.07,  0.00] | 0.043 
-    ## informant1                        |       -0.03 | [-0.11,  0.07] | 0.565 
-    ## FC_placement_age * domainADHDvEXT |        0.08 | [-0.02,  0.18] | 0.123 
-    ## FC_placement_age * domainDESDvEXT |        0.09 | [-0.01,  0.20] | 0.086 
-    ## FC_placement_age * domainINTvEXT  |       -0.04 | [-0.14,  0.06] | 0.452 
-    ## FC_placement_age * domainRADvEXT  |    9.01e-03 | [-0.10,  0.11] | 0.882
+    ## (Intercept)                       |       -0.23 | [-0.35, -0.11] | < .001
+    ## FC_placement_age                  |        0.02 | [-0.12,  0.14] | 0.796 
+    ## domainADHDvEXT                    |        0.65 | [ 0.55,  0.75] | < .001
+    ## domainDESDvEXT                    |        0.17 | [ 0.06,  0.28] | 0.004 
+    ## domainINTvEXT                     |       -0.08 | [-0.18,  0.01] | 0.102 
+    ## domainRADvEXT                     |       -0.18 | [-0.29, -0.07] | < .001
+    ## male [1]                          |        0.30 | [ 0.06,  0.53] | 0.011 
+    ## age_years                         |       -0.03 | [-0.07,  0.00] | 0.075 
+    ## informant1                        |       -0.03 | [-0.12,  0.06] | 0.520 
+    ## FC_placement_age * domainADHDvEXT |        0.07 | [-0.02,  0.17] | 0.119 
+    ## FC_placement_age * domainDESDvEXT |        0.09 | [-0.01,  0.20] | 0.093 
+    ## FC_placement_age * domainINTvEXT  |       -0.04 | [-0.13,  0.06] | 0.438 
+    ## FC_placement_age * domainRADvEXT  |    9.26e-03 | [-0.11,  0.12] | 0.883
 
 ``` r
+set.seed(123456)
 a3_EXT_age_placement_parameters_raw <-
   model_parameters(
     a3_EXT_age_placement_raw,
@@ -4886,19 +4940,19 @@ a3_EXT_age_placement_parameters_raw
 
     ## Parameter                         | Coefficient |         95% CI |      p
     ## -------------------------------------------------------------------------
-    ## (Intercept)                       |       -0.23 | [-0.35, -0.10] | 0.003 
-    ## FC_placement_age                  |    1.44e-03 | [-0.02,  0.02] | 0.906 
-    ## domainADHDvEXT                    |        0.64 | [ 0.54,  0.74] | < .001
-    ## domainDESDvEXT                    |        0.16 | [ 0.06,  0.28] | 0.006 
-    ## domainINTvEXT                     |       -0.08 | [-0.18,  0.01] | 0.083 
+    ## (Intercept)                       |       -0.23 | [-0.35, -0.11] | < .001
+    ## FC_placement_age                  |    2.33e-03 | [-0.02,  0.02] | 0.796 
+    ## domainADHDvEXT                    |        0.65 | [ 0.55,  0.75] | < .001
+    ## domainDESDvEXT                    |        0.17 | [ 0.06,  0.28] | 0.004 
+    ## domainINTvEXT                     |       -0.08 | [-0.18,  0.01] | 0.102 
     ## domainRADvEXT                     |       -0.18 | [-0.29, -0.07] | < .001
-    ## male [1]                          |        0.30 | [ 0.09,  0.52] | 0.011 
-    ## age_years                         |       -0.04 | [-0.07,  0.00] | 0.036 
-    ## informant1                        |       -0.03 | [-0.12,  0.07] | 0.557 
-    ## FC_placement_age * domainADHDvEXT |        0.01 | [ 0.00,  0.02] | 0.108 
-    ## FC_placement_age * domainDESDvEXT |        0.01 | [ 0.00,  0.03] | 0.082 
-    ## FC_placement_age * domainINTvEXT  |   -5.09e-03 | [-0.02,  0.01] | 0.484 
-    ## FC_placement_age * domainRADvEXT  |    1.30e-03 | [-0.01,  0.02] | 0.864
+    ## male [1]                          |        0.30 | [ 0.06,  0.53] | 0.011 
+    ## age_years                         |       -0.03 | [-0.07,  0.00] | 0.075 
+    ## informant1                        |       -0.03 | [-0.12,  0.06] | 0.520 
+    ## FC_placement_age * domainADHDvEXT |        0.01 | [ 0.00,  0.02] | 0.119 
+    ## FC_placement_age * domainDESDvEXT |        0.01 | [ 0.00,  0.03] | 0.093 
+    ## FC_placement_age * domainINTvEXT  |   -5.68e-03 | [-0.02,  0.01] | 0.438 
+    ## FC_placement_age * domainRADvEXT  |    1.33e-03 | [-0.02,  0.02] | 0.883
 
 ###### Internalizing
 
@@ -4931,6 +4985,7 @@ a3_INT_age_placement_raw <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_INT_age_placement_parameters_std <-
   model_parameters(
     a3_INT_age_placement_std,
@@ -4944,21 +4999,22 @@ a3_INT_age_placement_parameters_std
 
     ## Parameter                         | Coefficient |         95% CI |      p
     ## -------------------------------------------------------------------------
-    ## (Intercept)                       |       -0.32 | [-0.44, -0.19] | < .001
-    ## FC_placement_age                  |       -0.02 | [-0.16,  0.10] | 0.722 
-    ## domainADHDvINT                    |        0.73 | [ 0.63,  0.82] | < .001
+    ## (Intercept)                       |       -0.31 | [-0.44, -0.19] | < .001
+    ## FC_placement_age                  |       -0.03 | [-0.15,  0.10] | 0.716 
+    ## domainADHDvINT                    |        0.73 | [ 0.64,  0.83] | < .001
     ## domainDESDvINT                    |        0.25 | [ 0.14,  0.36] | < .001
-    ## domainINTvINT                     |        0.08 | [-0.01,  0.18] | 0.095 
-    ## domainRADvINT                     |       -0.10 | [-0.21,  0.01] | 0.083 
-    ## male [1]                          |        0.30 | [ 0.08,  0.54] | 0.011 
-    ## age_years                         |       -0.04 | [-0.07,  0.00] | 0.033 
-    ## informant1                        |       -0.03 | [-0.12,  0.06] | 0.531 
-    ## FC_placement_age * domainADHDvINT |        0.12 | [ 0.02,  0.22] | 0.019 
-    ## FC_placement_age * domainDESDvINT |        0.14 | [ 0.02,  0.24] | 0.023 
-    ## FC_placement_age * domainINTvINT  |        0.04 | [-0.06,  0.14] | 0.404 
-    ## FC_placement_age * domainRADvINT  |        0.05 | [-0.06,  0.16] | 0.399
+    ## domainINTvINT                     |        0.08 | [-0.01,  0.18] | 0.102 
+    ## domainRADvINT                     |       -0.10 | [-0.20,  0.02] | 0.094 
+    ## male [1]                          |        0.30 | [ 0.06,  0.53] | 0.011 
+    ## age_years                         |       -0.03 | [-0.07,  0.00] | 0.075 
+    ## informant1                        |       -0.03 | [-0.12,  0.06] | 0.520 
+    ## FC_placement_age * domainADHDvINT |        0.11 | [ 0.01,  0.22] | 0.033 
+    ## FC_placement_age * domainDESDvINT |        0.13 | [ 0.02,  0.24] | 0.010 
+    ## FC_placement_age * domainINTvINT  |        0.04 | [-0.06,  0.13] | 0.438 
+    ## FC_placement_age * domainRADvINT  |        0.05 | [-0.06,  0.16] | 0.396
 
 ``` r
+set.seed(123456)
 a3_INT_age_placement_parameters_raw <-
   model_parameters(
     a3_INT_age_placement_raw,
@@ -4972,19 +5028,19 @@ a3_INT_age_placement_parameters_raw
 
     ## Parameter                         | Coefficient |         95% CI |      p
     ## -------------------------------------------------------------------------
-    ## (Intercept)                       |       -0.31 | [-0.43, -0.19] | < .001
-    ## FC_placement_age                  |   -3.36e-03 | [-0.02,  0.02] | 0.692 
-    ## domainADHDvINT                    |        0.73 | [ 0.63,  0.83] | < .001
+    ## (Intercept)                       |       -0.31 | [-0.44, -0.19] | < .001
+    ## FC_placement_age                  |   -3.68e-03 | [-0.02,  0.01] | 0.716 
+    ## domainADHDvINT                    |        0.73 | [ 0.64,  0.83] | < .001
     ## domainDESDvINT                    |        0.25 | [ 0.14,  0.36] | < .001
-    ## domainINTvINT                     |        0.08 | [-0.01,  0.18] | 0.088 
-    ## domainRADvINT                     |       -0.10 | [-0.20,  0.02] | 0.093 
-    ## male [1]                          |        0.30 | [ 0.07,  0.51] | 0.008 
-    ## age_years                         |       -0.04 | [-0.07,  0.00] | 0.029 
-    ## informant1                        |       -0.03 | [-0.12,  0.07] | 0.587 
-    ## FC_placement_age * domainADHDvINT |        0.02 | [ 0.00,  0.03] | 0.021 
-    ## FC_placement_age * domainDESDvINT |        0.02 | [ 0.00,  0.03] | 0.015 
-    ## FC_placement_age * domainINTvINT  |    5.66e-03 | [-0.01,  0.02] | 0.430 
-    ## FC_placement_age * domainRADvINT  |    6.85e-03 | [-0.01,  0.02] | 0.395
+    ## domainINTvINT                     |        0.08 | [-0.01,  0.18] | 0.102 
+    ## domainRADvINT                     |       -0.10 | [-0.20,  0.02] | 0.094 
+    ## male [1]                          |        0.30 | [ 0.06,  0.53] | 0.011 
+    ## age_years                         |       -0.03 | [-0.07,  0.00] | 0.075 
+    ## informant1                        |       -0.03 | [-0.12,  0.06] | 0.520 
+    ## FC_placement_age * domainADHDvINT |        0.02 | [ 0.00,  0.03] | 0.033 
+    ## FC_placement_age * domainDESDvINT |        0.02 | [ 0.00,  0.03] | 0.010 
+    ## FC_placement_age * domainINTvINT  |    5.68e-03 | [-0.01,  0.02] | 0.438 
+    ## FC_placement_age * domainRADvINT  |    6.81e-03 | [-0.01,  0.02] | 0.396
 
 ###### RAD
 
@@ -5017,6 +5073,7 @@ a3_RAD_age_placement_raw <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_RAD_age_placement_parameters_std <-
   model_parameters(
     a3_RAD_age_placement_std,
@@ -5030,21 +5087,22 @@ a3_RAD_age_placement_parameters_std
 
     ## Parameter                         | Coefficient |         95% CI |      p
     ## -------------------------------------------------------------------------
-    ## (Intercept)                       |       -0.41 | [-0.55, -0.27] | < .001
-    ## FC_placement_age                  |        0.02 | [-0.11,  0.16] | 0.761 
-    ## domainADHDvRAD                    |        0.82 | [ 0.70,  0.93] | < .001
-    ## domainDESDvRAD                    |        0.34 | [ 0.23,  0.46] | < .001
-    ## domainEXTvRAD                     |        0.18 | [ 0.06,  0.29] | 0.004 
-    ## domainINTvRAD                     |        0.10 | [-0.02,  0.20] | 0.084 
-    ## male [1]                          |        0.30 | [ 0.08,  0.53] | 0.012 
-    ## age_years                         |       -0.04 | [-0.08,  0.00] | 0.034 
-    ## informant1                        |       -0.03 | [-0.12,  0.07] | 0.547 
-    ## FC_placement_age * domainADHDvRAD |        0.07 | [-0.03,  0.18] | 0.202 
-    ## FC_placement_age * domainDESDvRAD |        0.09 | [-0.04,  0.21] | 0.151 
-    ## FC_placement_age * domainEXTvRAD  |   -6.40e-03 | [-0.11,  0.10] | 0.906 
-    ## FC_placement_age * domainINTvRAD  |       -0.05 | [-0.16,  0.06] | 0.388
+    ## (Intercept)                       |       -0.41 | [-0.54, -0.27] | < .001
+    ## FC_placement_age                  |        0.03 | [-0.11,  0.16] | 0.757 
+    ## domainADHDvRAD                    |        0.83 | [ 0.71,  0.94] | < .001
+    ## domainDESDvRAD                    |        0.35 | [ 0.23,  0.46] | < .001
+    ## domainEXTvRAD                     |        0.18 | [ 0.07,  0.29] | < .001
+    ## domainINTvRAD                     |        0.10 | [-0.02,  0.20] | 0.094 
+    ## male [1]                          |        0.30 | [ 0.06,  0.53] | 0.011 
+    ## age_years                         |       -0.03 | [-0.07,  0.00] | 0.075 
+    ## informant1                        |       -0.03 | [-0.12,  0.06] | 0.520 
+    ## FC_placement_age * domainADHDvRAD |        0.07 | [-0.04,  0.18] | 0.223 
+    ## FC_placement_age * domainDESDvRAD |        0.09 | [-0.04,  0.21] | 0.169 
+    ## FC_placement_age * domainEXTvRAD  |   -9.26e-03 | [-0.12,  0.11] | 0.883 
+    ## FC_placement_age * domainINTvRAD  |       -0.05 | [-0.16,  0.06] | 0.396
 
 ``` r
+set.seed(123456)
 a3_RAD_age_placement_parameters_raw <-
   model_parameters(
     a3_RAD_age_placement_raw,
@@ -5058,19 +5116,19 @@ a3_RAD_age_placement_parameters_raw
 
     ## Parameter                         | Coefficient |         95% CI |      p
     ## -------------------------------------------------------------------------
-    ## (Intercept)                       |       -0.41 | [-0.55, -0.27] | < .001
-    ## FC_placement_age                  |    2.72e-03 | [-0.02,  0.02] | 0.758 
-    ## domainADHDvRAD                    |        0.82 | [ 0.71,  0.93] | < .001
+    ## (Intercept)                       |       -0.41 | [-0.54, -0.27] | < .001
+    ## FC_placement_age                  |    3.71e-03 | [-0.02,  0.02] | 0.757 
+    ## domainADHDvRAD                    |        0.83 | [ 0.71,  0.94] | < .001
     ## domainDESDvRAD                    |        0.35 | [ 0.23,  0.46] | < .001
-    ## domainEXTvRAD                     |        0.18 | [ 0.07,  0.28] | < .001
-    ## domainINTvRAD                     |        0.10 | [-0.02,  0.21] | 0.088 
-    ## male [1]                          |        0.30 | [ 0.08,  0.53] | 0.009 
-    ## age_years                         |       -0.04 | [-0.07,  0.00] | 0.048 
-    ## informant1                        |       -0.03 | [-0.12,  0.06] | 0.548 
-    ## FC_placement_age * domainADHDvRAD |        0.01 | [-0.01,  0.03] | 0.195 
-    ## FC_placement_age * domainDESDvRAD |        0.01 | [ 0.00,  0.03] | 0.160 
-    ## FC_placement_age * domainEXTvRAD  |   -8.92e-04 | [-0.02,  0.02] | 0.929 
-    ## FC_placement_age * domainINTvRAD  |   -6.28e-03 | [-0.02,  0.01] | 0.408
+    ## domainEXTvRAD                     |        0.18 | [ 0.07,  0.29] | < .001
+    ## domainINTvRAD                     |        0.10 | [-0.02,  0.20] | 0.094 
+    ## male [1]                          |        0.30 | [ 0.06,  0.53] | 0.011 
+    ## age_years                         |       -0.03 | [-0.07,  0.00] | 0.075 
+    ## informant1                        |       -0.03 | [-0.12,  0.06] | 0.520 
+    ## FC_placement_age * domainADHDvRAD |    9.68e-03 | [-0.01,  0.03] | 0.223 
+    ## FC_placement_age * domainDESDvRAD |        0.01 | [-0.01,  0.03] | 0.169 
+    ## FC_placement_age * domainEXTvRAD  |   -1.33e-03 | [-0.02,  0.02] | 0.883 
+    ## FC_placement_age * domainINTvRAD  |   -6.81e-03 | [-0.02,  0.01] | 0.396
 
 ##### Simple effects of age of asssesment
 
@@ -5104,6 +5162,7 @@ a3_psy_age_placement_age3_raw <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_age_placement_age3_std_parameters <- 
   model_parameters(
     a3_psy_age_placement_age3_std,
@@ -5116,18 +5175,19 @@ a3_psy_age_placement_age3_std_parameters
 
     ## Parameter                    | Coefficient |         95% CI |      p
     ## --------------------------------------------------------------------
-    ## (Intercept)                  |       -0.08 | [-0.20,  0.05] | 0.210 
-    ## FC_placement_age             |        0.11 | [ 0.00,  0.22] | 0.051 
-    ## age_years - 3.5              |   -6.37e-03 | [-0.01,  0.00] | 0.077 
-    ## domainDESDvADHD              |       -0.48 | [-0.59, -0.36] | < .001
-    ## domainEXTvADHD               |       -0.64 | [-0.74, -0.55] | < .001
-    ## domainINTvADHD               |       -0.73 | [-0.82, -0.63] | < .001
-    ## domainRADvADHD               |       -0.82 | [-0.93, -0.71] | < .001
-    ## male [1]                     |        0.31 | [ 0.09,  0.52] | 0.005 
-    ## informant1                   |       -0.03 | [-0.12,  0.07] | 0.599 
+    ## (Intercept)                  |       -0.08 | [-0.20,  0.03] | 0.185 
+    ## FC_placement_age             |        0.11 | [ 0.00,  0.23] | 0.057 
+    ## age_years - 3.5              |   -5.82e-03 | [-0.01,  0.00] | 0.106 
+    ## domainDESDvADHD              |       -0.48 | [-0.60, -0.37] | < .001
+    ## domainEXTvADHD               |       -0.65 | [-0.75, -0.55] | < .001
+    ## domainINTvADHD               |       -0.73 | [-0.83, -0.64] | < .001
+    ## domainRADvADHD               |       -0.83 | [-0.94, -0.71] | < .001
+    ## male [1]                     |        0.31 | [ 0.07,  0.54] | 0.009 
+    ## informant1                   |       -0.03 | [-0.11,  0.07] | 0.593 
     ## FC_placement_age * age_years |       -0.01 | [-0.02, -0.01] | < .001
 
 ``` r
+set.seed(123456)
 a3_psy_age_placement_age3_parameters_raw <- 
   model_parameters(
     a3_psy_age_placement_age3_raw,
@@ -5140,16 +5200,16 @@ a3_psy_age_placement_age3_parameters_raw
 
     ## Parameter                    | Coefficient |         95% CI |      p
     ## --------------------------------------------------------------------
-    ## (Intercept)                  |       -0.08 | [-0.20,  0.03] | 0.155 
-    ## FC_placement_age             |        0.02 | [ 0.00,  0.03] | 0.052 
-    ## age_years - 3.5              |   -6.77e-03 | [-0.01,  0.00] | 0.033 
-    ## domainDESDvADHD              |       -0.47 | [-0.59, -0.37] | < .001
-    ## domainEXTvADHD               |       -0.65 | [-0.73, -0.55] | < .001
+    ## (Intercept)                  |       -0.08 | [-0.20,  0.03] | 0.185 
+    ## FC_placement_age             |        0.02 | [ 0.00,  0.03] | 0.057 
+    ## age_years - 3.5              |   -5.82e-03 | [-0.01,  0.00] | 0.106 
+    ## domainDESDvADHD              |       -0.48 | [-0.60, -0.37] | < .001
+    ## domainEXTvADHD               |       -0.65 | [-0.75, -0.55] | < .001
     ## domainINTvADHD               |       -0.73 | [-0.83, -0.64] | < .001
-    ## domainRADvADHD               |       -0.82 | [-0.93, -0.71] | < .001
-    ## male [1]                     |        0.32 | [ 0.10,  0.54] | 0.009 
-    ## informant1                   |       -0.03 | [-0.12,  0.07] | 0.567 
-    ## FC_placement_age * age_years |   -1.91e-03 | [ 0.00,  0.00] | < .001
+    ## domainRADvADHD               |       -0.83 | [-0.94, -0.71] | < .001
+    ## male [1]                     |        0.31 | [ 0.07,  0.54] | 0.009 
+    ## informant1                   |       -0.03 | [-0.11,  0.07] | 0.593 
+    ## FC_placement_age * age_years |   -2.03e-03 | [ 0.00,  0.00] | < .001
 
 ###### 8 years
 
@@ -5174,6 +5234,7 @@ a3_psy_age_placement_age8_raw <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_age_placement_age8_std_parameters <- 
   model_parameters(
     a3_psy_age_placement_age8_std,
@@ -5186,18 +5247,19 @@ a3_psy_age_placement_age8_std_parameters
 
     ## Parameter                    | Coefficient |         95% CI |      p
     ## --------------------------------------------------------------------
-    ## (Intercept)                  |       -0.11 | [-0.23,  0.00] | 0.053 
-    ## FC_placement_age             |        0.05 | [-0.06,  0.16] | 0.388 
-    ## age_years - 8                |   -6.56e-03 | [-0.01,  0.00] | 0.044 
-    ## domainDESDvADHD              |       -0.47 | [-0.58, -0.37] | < .001
-    ## domainEXTvADHD               |       -0.65 | [-0.74, -0.55] | < .001
-    ## domainINTvADHD               |       -0.73 | [-0.82, -0.64] | < .001
-    ## domainRADvADHD               |       -0.82 | [-0.93, -0.71] | < .001
-    ## male [1]                     |        0.32 | [ 0.07,  0.54] | 0.008 
-    ## informant1                   |       -0.02 | [-0.11,  0.07] | 0.681 
+    ## (Intercept)                  |       -0.10 | [-0.22,  0.00] | 0.054 
+    ## FC_placement_age             |        0.05 | [-0.06,  0.16] | 0.378 
+    ## age_years - 8                |   -5.82e-03 | [-0.01,  0.00] | 0.106 
+    ## domainDESDvADHD              |       -0.48 | [-0.60, -0.37] | < .001
+    ## domainEXTvADHD               |       -0.65 | [-0.75, -0.55] | < .001
+    ## domainINTvADHD               |       -0.73 | [-0.83, -0.64] | < .001
+    ## domainRADvADHD               |       -0.83 | [-0.94, -0.71] | < .001
+    ## male [1]                     |        0.31 | [ 0.07,  0.54] | 0.009 
+    ## informant1                   |       -0.03 | [-0.11,  0.07] | 0.593 
     ## FC_placement_age * age_years |       -0.01 | [-0.02, -0.01] | < .001
 
 ``` r
+set.seed(123456)
 a3_psy_age_placement_age8_parameters_raw <- 
   model_parameters(
     a3_psy_age_placement_age8_raw,
@@ -5210,16 +5272,16 @@ a3_psy_age_placement_age8_parameters_raw
 
     ## Parameter                    | Coefficient |         95% CI |      p
     ## --------------------------------------------------------------------
-    ## (Intercept)                  |       -0.11 | [-0.23,  0.00] | 0.063 
-    ## FC_placement_age             |    7.31e-03 | [-0.01,  0.02] | 0.374 
-    ## age_years - 8                |   -6.49e-03 | [-0.01,  0.00] | 0.048 
-    ## domainDESDvADHD              |       -0.47 | [-0.58, -0.37] | < .001
-    ## domainEXTvADHD               |       -0.64 | [-0.73, -0.55] | < .001
-    ## domainINTvADHD               |       -0.73 | [-0.83, -0.63] | < .001
-    ## domainRADvADHD               |       -0.82 | [-0.93, -0.71] | < .001
-    ## male [1]                     |        0.31 | [ 0.10,  0.55] | 0.005 
-    ## informant1                   |       -0.02 | [-0.11,  0.07] | 0.677 
-    ## FC_placement_age * age_years |   -1.92e-03 | [ 0.00,  0.00] | < .001
+    ## (Intercept)                  |       -0.10 | [-0.22,  0.00] | 0.054 
+    ## FC_placement_age             |    7.13e-03 | [-0.01,  0.02] | 0.378 
+    ## age_years - 8                |   -5.82e-03 | [-0.01,  0.00] | 0.106 
+    ## domainDESDvADHD              |       -0.48 | [-0.60, -0.37] | < .001
+    ## domainEXTvADHD               |       -0.65 | [-0.75, -0.55] | < .001
+    ## domainINTvADHD               |       -0.73 | [-0.83, -0.64] | < .001
+    ## domainRADvADHD               |       -0.83 | [-0.94, -0.71] | < .001
+    ## male [1]                     |        0.31 | [ 0.07,  0.54] | 0.009 
+    ## informant1                   |       -0.03 | [-0.11,  0.07] | 0.593 
+    ## FC_placement_age * age_years |   -2.03e-03 | [ 0.00,  0.00] | < .001
 
 ###### 16 years
 
@@ -5244,6 +5306,7 @@ a3_psy_age_placement_age16_raw <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_age_placement_age16_std_parameters <- 
   model_parameters(
     a3_psy_age_placement_age16_std,
@@ -5256,18 +5319,19 @@ a3_psy_age_placement_age16_std_parameters
 
     ## Parameter                    | Coefficient |         95% CI |      p
     ## --------------------------------------------------------------------
-    ## (Intercept)                  |       -0.16 | [-0.28, -0.04] | 0.015 
-    ## FC_placement_age             |       -0.06 | [-0.17,  0.06] | 0.340 
-    ## age_years - 16               |   -6.64e-03 | [-0.01,  0.00] | 0.047 
-    ## domainDESDvADHD              |       -0.47 | [-0.58, -0.37] | < .001
-    ## domainEXTvADHD               |       -0.64 | [-0.74, -0.56] | < .001
+    ## (Intercept)                  |       -0.15 | [-0.26, -0.04] | 0.013 
+    ## FC_placement_age             |       -0.06 | [-0.18,  0.06] | 0.293 
+    ## age_years - 16               |   -5.82e-03 | [-0.01,  0.00] | 0.106 
+    ## domainDESDvADHD              |       -0.48 | [-0.60, -0.37] | < .001
+    ## domainEXTvADHD               |       -0.65 | [-0.75, -0.55] | < .001
     ## domainINTvADHD               |       -0.73 | [-0.83, -0.64] | < .001
-    ## domainRADvADHD               |       -0.82 | [-0.93, -0.71] | < .001
-    ## male [1]                     |        0.31 | [ 0.09,  0.54] | 0.005 
-    ## informant1                   |       -0.02 | [-0.11,  0.07] | 0.657 
-    ## FC_placement_age * age_years |       -0.01 | [-0.02, -0.01] | 0.002
+    ## domainRADvADHD               |       -0.83 | [-0.94, -0.71] | < .001
+    ## male [1]                     |        0.31 | [ 0.07,  0.54] | 0.009 
+    ## informant1                   |       -0.03 | [-0.11,  0.07] | 0.593 
+    ## FC_placement_age * age_years |       -0.01 | [-0.02, -0.01] | < .001
 
 ``` r
+set.seed(123456)
 a3_psy_age_placement_age16_parameters_raw <- 
   model_parameters(
     a3_psy_age_placement_age16_raw,
@@ -5280,16 +5344,16 @@ a3_psy_age_placement_age16_parameters_raw
 
     ## Parameter                    | Coefficient |         95% CI |      p
     ## --------------------------------------------------------------------
-    ## (Intercept)                  |       -0.16 | [-0.28, -0.04] | 0.005 
-    ## FC_placement_age             |   -8.24e-03 | [-0.03,  0.01] | 0.329 
-    ## age_years - 16               |   -6.49e-03 | [-0.01,  0.00] | 0.064 
-    ## domainDESDvADHD              |       -0.47 | [-0.58, -0.36] | < .001
-    ## domainEXTvADHD               |       -0.64 | [-0.74, -0.55] | < .001
-    ## domainINTvADHD               |       -0.72 | [-0.82, -0.63] | < .001
-    ## domainRADvADHD               |       -0.81 | [-0.93, -0.71] | < .001
-    ## male [1]                     |        0.31 | [ 0.09,  0.54] | 0.005 
-    ## informant1                   |       -0.02 | [-0.12,  0.07] | 0.601 
-    ## FC_placement_age * age_years |   -1.95e-03 | [ 0.00,  0.00] | < .001
+    ## (Intercept)                  |       -0.15 | [-0.26, -0.04] | 0.013 
+    ## FC_placement_age             |   -8.97e-03 | [-0.03,  0.01] | 0.293 
+    ## age_years - 16               |   -5.82e-03 | [-0.01,  0.00] | 0.106 
+    ## domainDESDvADHD              |       -0.48 | [-0.60, -0.37] | < .001
+    ## domainEXTvADHD               |       -0.65 | [-0.75, -0.55] | < .001
+    ## domainINTvADHD               |       -0.73 | [-0.83, -0.64] | < .001
+    ## domainRADvADHD               |       -0.83 | [-0.94, -0.71] | < .001
+    ## male [1]                     |        0.31 | [ 0.07,  0.54] | 0.009 
+    ## informant1                   |       -0.03 | [-0.11,  0.07] | 0.593 
+    ## FC_placement_age * age_years |   -2.03e-03 | [ 0.00,  0.00] | < .001
 
 ### Stability
 
@@ -5328,6 +5392,7 @@ a3_cogbio_stability <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_cogbio_stability_parameters <-
   model_parameters(
     a3_cogbio_stability,
@@ -5339,15 +5404,15 @@ a3_cogbio_stability_parameters <-
 a3_cogbio_stability_parameters
 ```
 
-    ## Parameter           | Coefficient |         95% CI |      p
-    ## -----------------------------------------------------------
-    ## (Intercept)         |        0.13 | [-0.06,  0.30] | 0.154 
-    ## stable1             |        0.03 | [-0.10,  0.18] | 0.651 
-    ## age_years           |       -0.12 | [-0.22, -0.02] | 0.015 
-    ## male [1]            |        0.16 | [-0.12,  0.43] | 0.243 
-    ## constructIQvEEG     |        0.16 | [ 0.03,  0.29] | 0.014 
-    ## constructPHYSvEEG   |        0.12 | [ 0.02,  0.22] | 0.011 
-    ## stable1 * age_years |        0.18 | [ 0.07,  0.29] | < .001
+    ## Parameter           | Coefficient |         95% CI |     p
+    ## ----------------------------------------------------------
+    ## (Intercept)         |        0.12 | [-0.04,  0.29] | 0.141
+    ## stable1             |        0.04 | [-0.11,  0.19] | 0.599
+    ## age_years           |       -0.12 | [-0.21, -0.02] | 0.013
+    ## male [1]            |        0.16 | [-0.11,  0.43] | 0.241
+    ## constructIQvEEG     |        0.17 | [ 0.05,  0.29] | 0.011
+    ## constructPHYSvEEG   |        0.12 | [ 0.02,  0.22] | 0.012
+    ## stable1 * age_years |        0.18 | [ 0.07,  0.30] | 0.005
 
 ###### Simple effects of age of asssesment
 
@@ -5368,6 +5433,7 @@ a3_stab_age3 <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age3_parameters <- 
   model_parameters(
     a3_stab_age3,
@@ -5380,13 +5446,13 @@ a3_stab_age3_parameters
 
     ## Parameter                 | Coefficient |         95% CI |     p
     ## ----------------------------------------------------------------
-    ## (Intercept)               |        0.23 | [ 0.02,  0.45] | 0.037
-    ## stable1                   |       -0.12 | [-0.33,  0.06] | 0.228
+    ## (Intercept)               |        0.23 | [ 0.03,  0.44] | 0.029
+    ## stable1                   |       -0.12 | [-0.31,  0.08] | 0.216
     ## age_years - 3.5           |       -0.02 | [-0.04,  0.00] | 0.013
-    ## constructIQvEEG           |        0.16 | [ 0.04,  0.28] | 0.009
+    ## constructIQvEEG           |        0.17 | [ 0.05,  0.29] | 0.011
     ## constructPHYSvEEG         |        0.12 | [ 0.02,  0.22] | 0.012
-    ## male [1]                  |        0.15 | [-0.11,  0.42] | 0.282
-    ## stable1 * age_years - 3.5 |        0.03 | [ 0.01,  0.05] | 0.003
+    ## male [1]                  |        0.16 | [-0.11,  0.43] | 0.241
+    ## stable1 * age_years - 3.5 |        0.03 | [ 0.01,  0.06] | 0.005
 
 ###### 8 years
 
@@ -5400,6 +5466,7 @@ a3_stab_age8 <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age8_parameters <- 
   model_parameters(
     a3_stab_age8,
@@ -5412,13 +5479,13 @@ a3_stab_age8_parameters
 
     ## Parameter               | Coefficient |         95% CI |     p
     ## --------------------------------------------------------------
-    ## (Intercept)             |        0.13 | [-0.04,  0.30] | 0.148
-    ## stable1                 |        0.03 | [-0.11,  0.18] | 0.676
-    ## age_years - 8           |       -0.02 | [-0.04, -0.01] | 0.010
-    ## constructIQvEEG         |        0.16 | [ 0.04,  0.28] | 0.011
-    ## constructPHYSvEEG       |        0.12 | [ 0.02,  0.21] | 0.011
-    ## male [1]                |        0.15 | [-0.12,  0.43] | 0.249
-    ## stable1 * age_years - 8 |        0.03 | [ 0.01,  0.05] | 0.003
+    ## (Intercept)             |        0.13 | [-0.03,  0.30] | 0.125
+    ## stable1                 |        0.03 | [-0.12,  0.18] | 0.703
+    ## age_years - 8           |       -0.02 | [-0.04,  0.00] | 0.013
+    ## constructIQvEEG         |        0.17 | [ 0.05,  0.29] | 0.011
+    ## constructPHYSvEEG       |        0.12 | [ 0.02,  0.22] | 0.012
+    ## male [1]                |        0.16 | [-0.11,  0.43] | 0.241
+    ## stable1 * age_years - 8 |        0.03 | [ 0.01,  0.06] | 0.005
 
 ###### 16 years
 
@@ -5432,6 +5499,7 @@ a3_stab_age16 <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age16_parameters <- 
   model_parameters(
     a3_stab_age16,
@@ -5442,23 +5510,54 @@ a3_stab_age16_parameters <-
 a3_stab_age16_parameters
 ```
 
-    ## Parameter                | Coefficient |         95% CI |      p
-    ## ----------------------------------------------------------------
-    ## (Intercept)              |       -0.04 | [-0.23,  0.12] | 0.596 
-    ## stable1                  |        0.30 | [ 0.11,  0.49] | < .001
-    ## age_years - 16           |       -0.02 | [-0.04, -0.01] | 0.012 
-    ## constructIQvEEG          |        0.17 | [ 0.03,  0.29] | 0.014 
-    ## constructPHYSvEEG        |        0.12 | [ 0.03,  0.22] | 0.018 
-    ## male [1]                 |        0.15 | [-0.11,  0.41] | 0.302 
-    ## stable1 * age_years - 16 |        0.03 | [ 0.01,  0.06] | < .001
+    ## Parameter                | Coefficient |         95% CI |     p
+    ## ---------------------------------------------------------------
+    ## (Intercept)              |       -0.05 | [-0.24,  0.13] | 0.573
+    ## stable1                  |        0.30 | [ 0.10,  0.50] | 0.004
+    ## age_years - 16           |       -0.02 | [-0.04,  0.00] | 0.013
+    ## constructIQvEEG          |        0.17 | [ 0.05,  0.29] | 0.011
+    ## constructPHYSvEEG        |        0.12 | [ 0.02,  0.22] | 0.012
+    ## male [1]                 |        0.16 | [-0.11,  0.43] | 0.241
+    ## stable1 * age_years - 16 |        0.03 | [ 0.01,  0.06] | 0.005
 
-##### Three-way moderations
+##### Two-way moderation
+
+``` r
+a3_stability_X <- lmer(
+  value_z ~ 
+    stable * scale(age_years, scale = TRUE) +
+    construct +
+    male + 
+    (1|ID), 
+  data = d_fcg_cog_bio
+)
+
+anova(a3_stability_X)
+```
+
+    ## Type III Analysis of Variance Table with Satterthwaite's method
+    ##                                       Sum Sq Mean Sq NumDF   DenDF F value
+    ## stable                                0.2020  0.2020     1 1299.97  0.2634
+    ## scale(age_years, scale = TRUE)        0.9075  0.9075     1 1625.70  1.1832
+    ## construct                             6.6224  3.3112     2 1592.68  4.3173
+    ## male                                  0.9718  0.9718     1   60.37  1.2671
+    ## stable:scale(age_years, scale = TRUE) 7.7128  7.7128     1 1647.90 10.0564
+    ##                                         Pr(>F)   
+    ## stable                                0.607853   
+    ## scale(age_years, scale = TRUE)        0.276863   
+    ## construct                             0.013492 * 
+    ## male                                  0.264766   
+    ## stable:scale(age_years, scale = TRUE) 0.001546 **
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+##### Three-way moderation
 
 ``` r
 a3_stability_X <- lmer(
   value_z ~ 
     stable * scale(age_years, scale = TRUE) * construct +
-    stable * scale(age_years, scale = TRUE) * male + 
+    male + 
     (1|ID), 
   data = d_fcg_cog_bio
 )
@@ -5468,29 +5567,23 @@ anova(a3_stability_X)
 
     ## Type III Analysis of Variance Table with Satterthwaite's method
     ##                                                  Sum Sq Mean Sq NumDF   DenDF
-    ## stable                                           0.0091  0.0091     1 1347.08
-    ## scale(age_years, scale = TRUE)                   0.9416  0.9416     1 1627.41
-    ## construct                                        1.7877  0.8938     2 1582.13
-    ## male                                             0.7271  0.7271     1   67.93
-    ## stable:scale(age_years, scale = TRUE)            5.7964  5.7964     1 1637.94
-    ## stable:construct                                23.8692 11.9346     2 1582.44
-    ## scale(age_years, scale = TRUE):construct         0.2921  0.1461     2 1582.46
-    ## stable:male                                      0.1204  0.1204     1 1303.92
-    ## scale(age_years, scale = TRUE):male              7.0102  7.0102     1 1618.87
-    ## stable:scale(age_years, scale = TRUE):construct  5.2665  2.6332     2 1582.93
-    ## stable:scale(age_years, scale = TRUE):male       1.1613  1.1613     1 1638.92
+    ## stable                                           0.0136  0.0136     1 1356.43
+    ## scale(age_years, scale = TRUE)                   0.9535  0.9535     1 1631.00
+    ## construct                                        1.7284  0.8642     2 1585.19
+    ## male                                             0.8228  0.8228     1   60.47
+    ## stable:scale(age_years, scale = TRUE)            6.7586  6.7586     1 1640.40
+    ## stable:construct                                24.0290 12.0145     2 1585.44
+    ## scale(age_years, scale = TRUE):construct         0.2256  0.1128     2 1585.47
+    ## stable:scale(age_years, scale = TRUE):construct  5.7713  2.8856     2 1585.93
     ##                                                 F value       Pr(>F)    
-    ## stable                                           0.0124     0.911420    
-    ## scale(age_years, scale = TRUE)                   1.2785     0.258341    
-    ## construct                                        1.2136     0.297401    
-    ## male                                             0.9872     0.323952    
-    ## stable:scale(age_years, scale = TRUE)            7.8702     0.005085 ** 
-    ## stable:construct                                16.2043 0.0000001081 ***
-    ## scale(age_years, scale = TRUE):construct         0.1983     0.820141    
-    ## stable:male                                      0.1634     0.686095    
-    ## scale(age_years, scale = TRUE):male              9.5181     0.002069 ** 
-    ## stable:scale(age_years, scale = TRUE):construct  3.5753     0.028234 *  
-    ## stable:scale(age_years, scale = TRUE):male       1.5767     0.209410    
+    ## stable                                           0.0183      0.89242    
+    ## scale(age_years, scale = TRUE)                   1.2834      0.25743    
+    ## construct                                        1.1632      0.31276    
+    ## male                                             1.1075      0.29682    
+    ## stable:scale(age_years, scale = TRUE)            9.0968      0.00260 ** 
+    ## stable:construct                                16.1709 0.0000001116 ***
+    ## scale(age_years, scale = TRUE):construct         0.1518      0.85916    
+    ## stable:scale(age_years, scale = TRUE):construct  3.8839      0.02077 *  
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -5513,6 +5606,7 @@ a3_stab_age3_EEG <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age3_EEG_parameters <- 
   model_parameters(
     a3_stab_age3_EEG,
@@ -5525,19 +5619,19 @@ a3_stab_age3_EEG_parameters
 
     ## Parameter                                     | Coefficient |         95% CI |     p
     ## ------------------------------------------------------------------------------------
-    ## (Intercept)                                   |        0.32 | [ 0.00,  0.64] | 0.052
-    ## stable1                                       |       -0.37 | [-0.68, -0.08] | 0.018
-    ## age_years - 3.5                               |   -5.25e-03 | [-0.04,  0.02] | 0.772
-    ## constructIQvEEG                               |       -0.02 | [-0.40,  0.35] | 0.887
-    ## constructPHYSvEEG                             |       -0.18 | [-0.50,  0.17] | 0.291
-    ## male [1]                                      |        0.14 | [-0.11,  0.39] | 0.269
-    ## stable1 * age_years - 3.5                     |   -6.42e-03 | [-0.04,  0.03] | 0.684
-    ## stable1 * constructIQvEEG                     |        0.27 | [-0.16,  0.71] | 0.214
-    ## stable1 * constructPHYSvEEG                   |        0.41 | [ 0.03,  0.76] | 0.037
-    ## age_years - 3.5 * constructIQvEEG             |       -0.03 | [-0.07,  0.01] | 0.160
-    ## age_years - 3.5 * constructPHYSvEEG           |       -0.02 | [-0.06,  0.01] | 0.249
-    ## stable1 * age_years - 3.5 * constructIQvEEG   |        0.06 | [ 0.01,  0.11] | 0.015
-    ## stable1 * age_years - 3.5 * constructPHYSvEEG |        0.06 | [ 0.01,  0.10] | 0.010
+    ## (Intercept)                                   |        0.33 | [ 0.00,  0.61] | 0.042
+    ## stable1                                       |       -0.37 | [-0.68, -0.05] | 0.024
+    ## age_years - 3.5                               |   -5.47e-03 | [-0.03,  0.03] | 0.733
+    ## constructIQvEEG                               |       -0.04 | [-0.40,  0.36] | 0.869
+    ## constructPHYSvEEG                             |       -0.18 | [-0.51,  0.15] | 0.309
+    ## male [1]                                      |        0.15 | [-0.12,  0.42] | 0.271
+    ## stable1 * age_years - 3.5                     |   -6.62e-03 | [-0.04,  0.03] | 0.707
+    ## stable1 * constructIQvEEG                     |        0.28 | [-0.14,  0.70] | 0.189
+    ## stable1 * constructPHYSvEEG                   |        0.39 | [ 0.04,  0.77] | 0.036
+    ## age_years - 3.5 * constructIQvEEG             |       -0.03 | [-0.07,  0.01] | 0.166
+    ## age_years - 3.5 * constructPHYSvEEG           |       -0.02 | [-0.06,  0.01] | 0.242
+    ## stable1 * age_years - 3.5 * constructIQvEEG   |        0.06 | [ 0.01,  0.12] | 0.019
+    ## stable1 * age_years - 3.5 * constructPHYSvEEG |        0.06 | [ 0.01,  0.10] | 0.008
 
 ###### EEG, 8 years
 
@@ -5550,6 +5644,7 @@ a3_stab_age8_EEG <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age8_EEG_parameters <- 
   model_parameters(
     a3_stab_age8_EEG,
@@ -5562,19 +5657,19 @@ a3_stab_age8_EEG_parameters
 
     ## Parameter                                   | Coefficient |         95% CI |      p
     ## -----------------------------------------------------------------------------------
-    ## (Intercept)                                 |        0.30 | [ 0.08,  0.52] | 0.012 
-    ## stable1                                     |       -0.40 | [-0.61, -0.18] | < .001
-    ## age_years - 8                               |   -4.53e-03 | [-0.03,  0.02] | 0.805 
-    ## constructIQvEEG                             |       -0.16 | [-0.41,  0.06] | 0.190 
-    ## constructPHYSvEEG                           |       -0.27 | [-0.47, -0.06] | 0.009 
-    ## male [1]                                    |        0.15 | [-0.14,  0.40] | 0.308 
-    ## stable1 * age_years - 8                     |   -7.48e-03 | [-0.04,  0.03] | 0.668 
-    ## stable1 * constructIQvEEG                   |        0.56 | [ 0.27,  0.85] | < .001
-    ## stable1 * constructPHYSvEEG                 |        0.65 | [ 0.41,  0.88] | < .001
-    ## age_years - 8 * constructIQvEEG             |       -0.03 | [-0.07,  0.01] | 0.141 
-    ## age_years - 8 * constructPHYSvEEG           |       -0.02 | [-0.06,  0.01] | 0.204 
-    ## stable1 * age_years - 8 * constructIQvEEG   |        0.06 | [ 0.01,  0.11] | 0.024 
-    ## stable1 * age_years - 8 * constructPHYSvEEG |        0.06 | [ 0.01,  0.10] | 0.010
+    ## (Intercept)                                 |        0.30 | [ 0.07,  0.51] | 0.005 
+    ## stable1                                     |       -0.40 | [-0.62, -0.19] | < .001
+    ## age_years - 8                               |   -5.47e-03 | [-0.03,  0.03] | 0.733 
+    ## constructIQvEEG                             |       -0.16 | [-0.44,  0.10] | 0.199 
+    ## constructPHYSvEEG                           |       -0.27 | [-0.48, -0.06] | 0.010 
+    ## male [1]                                    |        0.15 | [-0.12,  0.42] | 0.271 
+    ## stable1 * age_years - 8                     |   -6.62e-03 | [-0.04,  0.03] | 0.707 
+    ## stable1 * constructIQvEEG                   |        0.56 | [ 0.25,  0.87] | < .001
+    ## stable1 * constructPHYSvEEG                 |        0.65 | [ 0.41,  0.90] | < .001
+    ## age_years - 8 * constructIQvEEG             |       -0.03 | [-0.07,  0.01] | 0.166 
+    ## age_years - 8 * constructPHYSvEEG           |       -0.02 | [-0.06,  0.01] | 0.242 
+    ## stable1 * age_years - 8 * constructIQvEEG   |        0.06 | [ 0.01,  0.12] | 0.019 
+    ## stable1 * age_years - 8 * constructPHYSvEEG |        0.06 | [ 0.01,  0.10] | 0.008
 
 ###### EEG, 16 years
 
@@ -5587,6 +5682,7 @@ a3_stab_age16_EEG <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age16_EEG_parameters <- 
   model_parameters(
     a3_stab_age16_EEG,
@@ -5599,19 +5695,19 @@ a3_stab_age16_EEG_parameters
 
     ## Parameter                                    | Coefficient |         95% CI |      p
     ## ------------------------------------------------------------------------------------
-    ## (Intercept)                                  |        0.25 | [ 0.01,  0.48] | 0.044 
-    ## stable1                                      |       -0.45 | [-0.74, -0.15] | 0.006 
-    ## age_years - 16                               |   -5.38e-03 | [-0.03,  0.02] | 0.726 
-    ## constructIQvEEG                              |       -0.42 | [-0.69, -0.07] | 0.012 
-    ## constructPHYSvEEG                            |       -0.46 | [-0.68, -0.21] | < .001
-    ## male [1]                                     |        0.13 | [-0.12,  0.40] | 0.302 
-    ## stable1 * age_years - 16                     |   -6.20e-03 | [-0.04,  0.03] | 0.740 
-    ## stable1 * constructIQvEEG                    |        1.07 | [ 0.59,  1.49] | < .001
-    ## stable1 * constructPHYSvEEG                  |        1.10 | [ 0.72,  1.44] | < .001
-    ## age_years - 16 * constructIQvEEG             |       -0.03 | [-0.07,  0.01] | 0.176 
-    ## age_years - 16 * constructPHYSvEEG           |       -0.02 | [-0.06,  0.02] | 0.262 
-    ## stable1 * age_years - 16 * constructIQvEEG   |        0.06 | [ 0.01,  0.12] | 0.021 
-    ## stable1 * age_years - 16 * constructPHYSvEEG |        0.06 | [ 0.01,  0.10] | 0.024
+    ## (Intercept)                                  |        0.26 | [ 0.03,  0.50] | 0.038 
+    ## stable1                                      |       -0.45 | [-0.76, -0.17] | 0.003 
+    ## age_years - 16                               |   -5.47e-03 | [-0.03,  0.03] | 0.733 
+    ## constructIQvEEG                              |       -0.41 | [-0.73, -0.10] | 0.014 
+    ## constructPHYSvEEG                            |       -0.45 | [-0.69, -0.22] | < .001
+    ## male [1]                                     |        0.15 | [-0.12,  0.42] | 0.271 
+    ## stable1 * age_years - 16                     |   -6.62e-03 | [-0.04,  0.03] | 0.707 
+    ## stable1 * constructIQvEEG                    |        1.06 | [ 0.62,  1.52] | < .001
+    ## stable1 * constructPHYSvEEG                  |        1.11 | [ 0.77,  1.44] | < .001
+    ## age_years - 16 * constructIQvEEG             |       -0.03 | [-0.07,  0.01] | 0.166 
+    ## age_years - 16 * constructPHYSvEEG           |       -0.02 | [-0.06,  0.01] | 0.242 
+    ## stable1 * age_years - 16 * constructIQvEEG   |        0.06 | [ 0.01,  0.12] | 0.019 
+    ## stable1 * age_years - 16 * constructPHYSvEEG |        0.06 | [ 0.01,  0.10] | 0.008
 
 ###### IQ, 42 months (3.5 years)
 
@@ -5630,6 +5726,7 @@ a3_stab_age3_IQ <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age3_IQ_parameters <- 
   model_parameters(
     a3_stab_age3_IQ,
@@ -5642,19 +5739,19 @@ a3_stab_age3_IQ_parameters
 
     ## Parameter                                    | Coefficient |         95% CI |     p
     ## -----------------------------------------------------------------------------------
-    ## (Intercept)                                  |        0.29 | [-0.02,  0.59] | 0.081
-    ## stable1                                      |       -0.08 | [-0.42,  0.25] | 0.580
-    ## age_years - 3.5                              |       -0.04 | [-0.07,  0.00] | 0.028
-    ## constructEEGvIQ                              |        0.03 | [-0.33,  0.40] | 0.853
-    ## constructPHYSvIQ                             |       -0.15 | [-0.49,  0.20] | 0.402
-    ## male [1]                                     |        0.14 | [-0.12,  0.42] | 0.284
-    ## stable1 * age_years - 3.5                    |        0.05 | [ 0.02,  0.09] | 0.005
-    ## stable1 * constructEEGvIQ                    |       -0.28 | [-0.69,  0.12] | 0.183
-    ## stable1 * constructPHYSvIQ                   |        0.11 | [-0.24,  0.48] | 0.548
-    ## age_years - 3.5 * constructEEGvIQ            |        0.03 | [-0.01,  0.07] | 0.169
-    ## age_years - 3.5 * constructPHYSvIQ           |    8.23e-03 | [-0.03,  0.05] | 0.696
-    ## stable1 * age_years - 3.5 * constructEEGvIQ  |       -0.06 | [-0.11, -0.01] | 0.019
-    ## stable1 * age_years - 3.5 * constructPHYSvIQ |   -4.82e-03 | [-0.06,  0.04] | 0.811
+    ## (Intercept)                                  |        0.29 | [-0.02,  0.58] | 0.061
+    ## stable1                                      |       -0.10 | [-0.40,  0.24] | 0.575
+    ## age_years - 3.5                              |       -0.04 | [-0.07,  0.00] | 0.029
+    ## constructEEGvIQ                              |        0.04 | [-0.36,  0.40] | 0.869
+    ## constructPHYSvIQ                             |       -0.14 | [-0.49,  0.17] | 0.401
+    ## male [1]                                     |        0.15 | [-0.12,  0.42] | 0.271
+    ## stable1 * age_years - 3.5                    |        0.06 | [ 0.02,  0.09] | 0.002
+    ## stable1 * constructEEGvIQ                    |       -0.28 | [-0.70,  0.14] | 0.189
+    ## stable1 * constructPHYSvIQ                   |        0.11 | [-0.24,  0.49] | 0.534
+    ## age_years - 3.5 * constructEEGvIQ            |        0.03 | [-0.01,  0.07] | 0.166
+    ## age_years - 3.5 * constructPHYSvIQ           |    7.33e-03 | [-0.03,  0.05] | 0.688
+    ## stable1 * age_years - 3.5 * constructEEGvIQ  |       -0.06 | [-0.12, -0.01] | 0.019
+    ## stable1 * age_years - 3.5 * constructPHYSvIQ |   -5.82e-03 | [-0.05,  0.04] | 0.803
 
 ###### IQ, 8 years
 
@@ -5667,6 +5764,7 @@ a3_stab_age8_IQ <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age8_IQ_parameters <- 
   model_parameters(
     a3_stab_age8_IQ,
@@ -5679,19 +5777,19 @@ a3_stab_age8_IQ_parameters
 
     ## Parameter                                  | Coefficient |         95% CI |      p
     ## ----------------------------------------------------------------------------------
-    ## (Intercept)                                |        0.12 | [-0.10,  0.38] | 0.265 
-    ## stable1                                    |        0.17 | [-0.09,  0.37] | 0.184 
-    ## age_years - 8                              |       -0.03 | [-0.07, -0.01] | 0.034 
-    ## constructEEGvIQ                            |        0.17 | [-0.08,  0.39] | 0.177 
-    ## constructPHYSvIQ                           |       -0.11 | [-0.34,  0.12] | 0.395 
-    ## male [1]                                   |        0.14 | [-0.12,  0.40] | 0.301 
-    ## stable1 * age_years - 8                    |        0.06 | [ 0.01,  0.09] | 0.006 
-    ## stable1 * constructEEGvIQ                  |       -0.57 | [-0.84, -0.27] | < .001
-    ## stable1 * constructPHYSvIQ                 |        0.09 | [-0.18,  0.37] | 0.558 
-    ## age_years - 8 * constructEEGvIQ            |        0.03 | [-0.01,  0.07] | 0.152 
-    ## age_years - 8 * constructPHYSvIQ           |    7.61e-03 | [-0.03,  0.05] | 0.685 
-    ## stable1 * age_years - 8 * constructEEGvIQ  |       -0.06 | [-0.11, -0.01] | 0.016 
-    ## stable1 * age_years - 8 * constructPHYSvIQ |   -5.55e-03 | [-0.05,  0.04] | 0.777
+    ## (Intercept)                                |        0.13 | [-0.11,  0.36] | 0.264 
+    ## stable1                                    |        0.16 | [-0.08,  0.41] | 0.224 
+    ## age_years - 8                              |       -0.04 | [-0.07,  0.00] | 0.029 
+    ## constructEEGvIQ                            |        0.16 | [-0.10,  0.44] | 0.199 
+    ## constructPHYSvIQ                           |       -0.10 | [-0.34,  0.11] | 0.346 
+    ## male [1]                                   |        0.15 | [-0.12,  0.42] | 0.271 
+    ## stable1 * age_years - 8                    |        0.06 | [ 0.02,  0.09] | 0.002 
+    ## stable1 * constructEEGvIQ                  |       -0.56 | [-0.87, -0.25] | < .001
+    ## stable1 * constructPHYSvIQ                 |        0.09 | [-0.18,  0.36] | 0.511 
+    ## age_years - 8 * constructEEGvIQ            |        0.03 | [-0.01,  0.07] | 0.166 
+    ## age_years - 8 * constructPHYSvIQ           |    7.33e-03 | [-0.03,  0.05] | 0.688 
+    ## stable1 * age_years - 8 * constructEEGvIQ  |       -0.06 | [-0.12, -0.01] | 0.019 
+    ## stable1 * age_years - 8 * constructPHYSvIQ |   -5.82e-03 | [-0.05,  0.04] | 0.803
 
 ###### IQ, 16 years
 
@@ -5704,6 +5802,7 @@ a3_stab_age16_IQ <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age16_IQ_parameters <- 
   model_parameters(
     a3_stab_age16_IQ,
@@ -5716,19 +5815,19 @@ a3_stab_age16_IQ_parameters
 
     ## Parameter                                   | Coefficient |         95% CI |      p
     ## -----------------------------------------------------------------------------------
-    ## (Intercept)                                 |       -0.15 | [-0.40,  0.12] | 0.278 
-    ## stable1                                     |        0.60 | [ 0.22,  0.95] | 0.002 
-    ## age_years - 16                              |       -0.03 | [-0.07, -0.01] | 0.028 
-    ## constructEEGvIQ                             |        0.41 | [ 0.11,  0.70] | 0.005 
-    ## constructPHYSvIQ                            |       -0.05 | [-0.32,  0.21] | 0.713 
-    ## male [1]                                    |        0.15 | [-0.10,  0.40] | 0.250 
-    ## stable1 * age_years - 16                    |        0.05 | [ 0.02,  0.09] | 0.005 
-    ## stable1 * constructEEGvIQ                   |       -1.06 | [-1.48, -0.60] | < .001
-    ## stable1 * constructPHYSvIQ                  |        0.05 | [-0.34,  0.44] | 0.790 
-    ## age_years - 16 * constructEEGvIQ            |        0.03 | [-0.01,  0.07] | 0.159 
-    ## age_years - 16 * constructPHYSvIQ           |    7.17e-03 | [-0.03,  0.05] | 0.725 
-    ## stable1 * age_years - 16 * constructEEGvIQ  |       -0.06 | [-0.11, -0.01] | 0.017 
-    ## stable1 * age_years - 16 * constructPHYSvIQ |   -4.49e-03 | [-0.05,  0.04] | 0.825
+    ## (Intercept)                                 |       -0.15 | [-0.44,  0.12] | 0.284 
+    ## stable1                                     |        0.60 | [ 0.23,  0.96] | < .001
+    ## age_years - 16                              |       -0.04 | [-0.07,  0.00] | 0.029 
+    ## constructEEGvIQ                             |        0.41 | [ 0.10,  0.73] | 0.014 
+    ## constructPHYSvIQ                            |       -0.04 | [-0.34,  0.24] | 0.758 
+    ## male [1]                                    |        0.15 | [-0.12,  0.42] | 0.271 
+    ## stable1 * age_years - 16                    |        0.06 | [ 0.02,  0.09] | 0.002 
+    ## stable1 * constructEEGvIQ                   |       -1.06 | [-1.52, -0.62] | < .001
+    ## stable1 * constructPHYSvIQ                  |        0.04 | [-0.36,  0.44] | 0.841 
+    ## age_years - 16 * constructEEGvIQ            |        0.03 | [-0.01,  0.07] | 0.166 
+    ## age_years - 16 * constructPHYSvIQ           |    7.33e-03 | [-0.03,  0.05] | 0.688 
+    ## stable1 * age_years - 16 * constructEEGvIQ  |       -0.06 | [-0.12, -0.01] | 0.019 
+    ## stable1 * age_years - 16 * constructPHYSvIQ |   -5.82e-03 | [-0.05,  0.04] | 0.803
 
 ###### Physical size, 42 months (3.5 years)
 
@@ -5747,6 +5846,7 @@ a3_stab_age3_PHYS <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age3_PHYS_parameters <- 
   model_parameters(
     a3_stab_age3_PHYS,
@@ -5759,19 +5859,19 @@ a3_stab_age3_PHYS_parameters
 
     ## Parameter                                     | Coefficient |         95% CI |     p
     ## ------------------------------------------------------------------------------------
-    ## (Intercept)                                   |        0.15 | [-0.12,  0.42] | 0.277
-    ## stable1                                       |        0.02 | [-0.23,  0.28] | 0.875
-    ## age_years - 3.5                               |       -0.03 | [-0.05,  0.00] | 0.032
-    ## constructEEGvPHYS                             |        0.17 | [-0.15,  0.49] | 0.317
-    ## constructIQvPHYS                              |        0.13 | [-0.20,  0.47] | 0.436
-    ## male [1]                                      |        0.16 | [-0.10,  0.40] | 0.222
+    ## (Intercept)                                   |        0.15 | [-0.11,  0.40] | 0.287
+    ## stable1                                       |        0.03 | [-0.22,  0.30] | 0.825
+    ## age_years - 3.5                               |       -0.03 | [-0.05,  0.00] | 0.026
+    ## constructEEGvPHYS                             |        0.18 | [-0.15,  0.51] | 0.309
+    ## constructIQvPHYS                              |        0.14 | [-0.17,  0.49] | 0.401
+    ## male [1]                                      |        0.15 | [-0.12,  0.42] | 0.271
     ## stable1 * age_years - 3.5                     |        0.05 | [ 0.02,  0.08] | 0.002
-    ## stable1 * constructEEGvPHYS                   |       -0.39 | [-0.72, -0.04] | 0.028
-    ## stable1 * constructIQvPHYS                    |       -0.11 | [-0.49,  0.26] | 0.583
-    ## age_years - 3.5 * constructEEGvPHYS           |        0.02 | [-0.01,  0.06] | 0.215
-    ## age_years - 3.5 * constructIQvPHYS            |   -6.82e-03 | [-0.05,  0.03] | 0.732
+    ## stable1 * constructEEGvPHYS                   |       -0.39 | [-0.77, -0.04] | 0.036
+    ## stable1 * constructIQvPHYS                    |       -0.11 | [-0.49,  0.24] | 0.534
+    ## age_years - 3.5 * constructEEGvPHYS           |        0.02 | [-0.01,  0.06] | 0.242
+    ## age_years - 3.5 * constructIQvPHYS            |   -7.33e-03 | [-0.05,  0.03] | 0.688
     ## stable1 * age_years - 3.5 * constructEEGvPHYS |       -0.06 | [-0.10, -0.01] | 0.008
-    ## stable1 * age_years - 3.5 * constructIQvPHYS  |    5.36e-03 | [-0.04,  0.05] | 0.805
+    ## stable1 * age_years - 3.5 * constructIQvPHYS  |    5.82e-03 | [-0.04,  0.05] | 0.803
 
 ###### Physical size, 8 years
 
@@ -5784,6 +5884,7 @@ a3_stab_age8_PHYS <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age8_PHYS_parameters <- 
   model_parameters(
     a3_stab_age8_PHYS,
@@ -5796,19 +5897,19 @@ a3_stab_age8_PHYS_parameters
 
     ## Parameter                                   | Coefficient |         95% CI |      p
     ## -----------------------------------------------------------------------------------
-    ## (Intercept)                                 |        0.02 | [-0.18,  0.21] | 0.830 
-    ## stable1                                     |        0.25 | [ 0.07,  0.44] | 0.016 
-    ## age_years - 8                               |       -0.03 | [-0.05,  0.00] | 0.041 
-    ## constructEEGvPHYS                           |        0.29 | [ 0.07,  0.49] | 0.011 
-    ## constructIQvPHYS                            |        0.12 | [-0.10,  0.34] | 0.316 
-    ## male [1]                                    |        0.14 | [-0.13,  0.38] | 0.311 
-    ## stable1 * age_years - 8                     |        0.05 | [ 0.02,  0.08] | < .001
-    ## stable1 * constructEEGvPHYS                 |       -0.66 | [-0.89, -0.40] | < .001
-    ## stable1 * constructIQvPHYS                  |       -0.10 | [-0.36,  0.17] | 0.471 
-    ## age_years - 8 * constructEEGvPHYS           |        0.02 | [-0.02,  0.06] | 0.237 
-    ## age_years - 8 * constructIQvPHYS            |   -7.02e-03 | [-0.05,  0.03] | 0.664 
-    ## stable1 * age_years - 8 * constructEEGvPHYS |       -0.05 | [-0.10, -0.01] | 0.013 
-    ## stable1 * age_years - 8 * constructIQvPHYS  |    5.55e-03 | [-0.04,  0.05] | 0.770
+    ## (Intercept)                                 |        0.02 | [-0.16,  0.22] | 0.836 
+    ## stable1                                     |        0.25 | [ 0.07,  0.43] | 0.008 
+    ## age_years - 8                               |       -0.03 | [-0.05,  0.00] | 0.026 
+    ## constructEEGvPHYS                           |        0.27 | [ 0.06,  0.48] | 0.010 
+    ## constructIQvPHYS                            |        0.10 | [-0.11,  0.34] | 0.346 
+    ## male [1]                                    |        0.15 | [-0.12,  0.42] | 0.271 
+    ## stable1 * age_years - 8                     |        0.05 | [ 0.02,  0.08] | 0.002 
+    ## stable1 * constructEEGvPHYS                 |       -0.65 | [-0.90, -0.41] | < .001
+    ## stable1 * constructIQvPHYS                  |       -0.09 | [-0.36,  0.18] | 0.511 
+    ## age_years - 8 * constructEEGvPHYS           |        0.02 | [-0.01,  0.06] | 0.242 
+    ## age_years - 8 * constructIQvPHYS            |   -7.33e-03 | [-0.05,  0.03] | 0.688 
+    ## stable1 * age_years - 8 * constructEEGvPHYS |       -0.06 | [-0.10, -0.01] | 0.008 
+    ## stable1 * age_years - 8 * constructIQvPHYS  |    5.82e-03 | [-0.04,  0.05] | 0.803
 
 ###### Physical size, 16 years
 
@@ -5821,6 +5922,7 @@ a3_stab_age16_PHYS <- lmer(
   data = d_fcg_cog_bio
 )
 
+set.seed(123456)
 a3_stab_age16_PHYS_parameters <- 
   model_parameters(
     a3_stab_age16_PHYS,
@@ -5833,19 +5935,19 @@ a3_stab_age16_PHYS_parameters
 
     ## Parameter                                    | Coefficient |         95% CI |      p
     ## ------------------------------------------------------------------------------------
-    ## (Intercept)                                  |       -0.20 | [-0.39,  0.01] | 0.056 
-    ## stable1                                      |        0.64 | [ 0.41,  0.87] | < .001
-    ## age_years - 16                               |       -0.03 | [-0.05,  0.00] | 0.035 
-    ## constructEEGvPHYS                            |        0.46 | [ 0.23,  0.70] | < .001
-    ## constructIQvPHYS                             |        0.05 | [-0.22,  0.32] | 0.711 
-    ## male [1]                                     |        0.15 | [-0.12,  0.42] | 0.254 
-    ## stable1 * age_years - 16                     |        0.05 | [ 0.02,  0.08] | 0.003 
-    ## stable1 * constructEEGvPHYS                  |       -1.10 | [-1.42, -0.78] | < .001
-    ## stable1 * constructIQvPHYS                   |       -0.04 | [-0.42,  0.32] | 0.821 
-    ## age_years - 16 * constructEEGvPHYS           |        0.02 | [-0.01,  0.06] | 0.187 
-    ## age_years - 16 * constructIQvPHYS            |   -6.06e-03 | [-0.04,  0.03] | 0.731 
-    ## stable1 * age_years - 16 * constructEEGvPHYS |       -0.06 | [-0.10, -0.02] | 0.011 
-    ## stable1 * age_years - 16 * constructIQvPHYS  |    4.81e-03 | [-0.04,  0.05] | 0.840
+    ## (Intercept)                                  |       -0.20 | [-0.41,  0.02] | 0.073 
+    ## stable1                                      |        0.65 | [ 0.39,  0.89] | < .001
+    ## age_years - 16                               |       -0.03 | [-0.05,  0.00] | 0.026 
+    ## constructEEGvPHYS                            |        0.45 | [ 0.22,  0.69] | < .001
+    ## constructIQvPHYS                             |        0.04 | [-0.24,  0.34] | 0.758 
+    ## male [1]                                     |        0.15 | [-0.12,  0.42] | 0.271 
+    ## stable1 * age_years - 16                     |        0.05 | [ 0.02,  0.08] | 0.002 
+    ## stable1 * constructEEGvPHYS                  |       -1.11 | [-1.44, -0.77] | < .001
+    ## stable1 * constructIQvPHYS                   |       -0.04 | [-0.44,  0.36] | 0.841 
+    ## age_years - 16 * constructEEGvPHYS           |        0.02 | [-0.01,  0.06] | 0.242 
+    ## age_years - 16 * constructIQvPHYS            |   -7.33e-03 | [-0.05,  0.03] | 0.688 
+    ## stable1 * age_years - 16 * constructEEGvPHYS |       -0.06 | [-0.10, -0.01] | 0.008 
+    ## stable1 * age_years - 16 * constructIQvPHYS  |    5.82e-03 | [-0.04,  0.05] | 0.803
 
 #### Psychopathology
 
@@ -5877,6 +5979,7 @@ a3_psy_stability <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stability_parameters <-
   model_parameters(
     a3_psy_stability,
@@ -5890,16 +5993,16 @@ a3_psy_stability_parameters
 
     ## Parameter           | Coefficient |         95% CI |      p
     ## -----------------------------------------------------------
-    ## (Intercept)         |       -0.10 | [-0.22,  0.04] | 0.185 
-    ## stable1             |       -0.07 | [-0.20,  0.04] | 0.225 
-    ## age_years           |        0.04 | [-0.03,  0.12] | 0.243 
-    ## male [1]            |        0.31 | [ 0.11,  0.51] | 0.003 
-    ## domainDESDvADHD     |       -0.48 | [-0.59, -0.37] | < .001
+    ## (Intercept)         |       -0.09 | [-0.22,  0.03] | 0.162 
+    ## stable1             |       -0.07 | [-0.19,  0.05] | 0.248 
+    ## age_years           |        0.04 | [-0.03,  0.12] | 0.261 
+    ## male [1]            |        0.32 | [ 0.09,  0.53] | 0.006 
+    ## domainDESDvADHD     |       -0.48 | [-0.60, -0.37] | < .001
     ## domainEXTvADHD      |       -0.65 | [-0.75, -0.55] | < .001
-    ## domainINTvADHD      |       -0.74 | [-0.82, -0.63] | < .001
-    ## domainRADvADHD      |       -0.83 | [-0.94, -0.72] | < .001
-    ## informant1          |       -0.02 | [-0.11,  0.07] | 0.735 
-    ## stable1 * age_years |       -0.14 | [-0.22, -0.05] | 0.004
+    ## domainINTvADHD      |       -0.73 | [-0.83, -0.64] | < .001
+    ## domainRADvADHD      |       -0.83 | [-0.94, -0.71] | < .001
+    ## informant1          |       -0.02 | [-0.11,  0.08] | 0.735 
+    ## stable1 * age_years |       -0.14 | [-0.22, -0.05] | < .001
 
 ###### Simple effects of age of asssesment
 
@@ -5923,6 +6026,7 @@ a3_psy_stab_age3 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stab_age3_parameters <- 
   model_parameters(
     a3_psy_stab_age3,
@@ -5935,16 +6039,16 @@ a3_psy_stab_age3_parameters
 
     ## Parameter                 | Coefficient |         95% CI |      p
     ## -----------------------------------------------------------------
-    ## (Intercept)               |       -0.14 | [-0.31,  0.03] | 0.112 
-    ## stable1                   |        0.08 | [-0.09,  0.22] | 0.345 
-    ## age_years - 3.5           |    8.05e-03 | [-0.01,  0.02] | 0.261 
-    ## domainDESDvADHD           |       -0.48 | [-0.59, -0.36] | < .001
-    ## domainEXTvADHD            |       -0.65 | [-0.75, -0.56] | < .001
-    ## domainINTvADHD            |       -0.73 | [-0.84, -0.64] | < .001
-    ## domainRADvADHD            |       -0.83 | [-0.94, -0.72] | < .001
-    ## male [1]                  |        0.31 | [ 0.10,  0.51] | < .001
-    ## informant1                |       -0.02 | [-0.11,  0.09] | 0.760 
-    ## stable1 * age_years - 3.5 |       -0.03 | [-0.04, -0.01] | 0.004
+    ## (Intercept)               |       -0.14 | [-0.31,  0.03] | 0.121 
+    ## stable1                   |        0.08 | [-0.09,  0.24] | 0.349 
+    ## age_years - 3.5           |    8.14e-03 | [-0.01,  0.02] | 0.261 
+    ## domainDESDvADHD           |       -0.48 | [-0.60, -0.37] | < .001
+    ## domainEXTvADHD            |       -0.65 | [-0.75, -0.55] | < .001
+    ## domainINTvADHD            |       -0.73 | [-0.83, -0.64] | < .001
+    ## domainRADvADHD            |       -0.83 | [-0.94, -0.71] | < .001
+    ## male [1]                  |        0.32 | [ 0.09,  0.53] | 0.006 
+    ## informant1                |       -0.02 | [-0.11,  0.08] | 0.735 
+    ## stable1 * age_years - 3.5 |       -0.03 | [-0.04, -0.01] | < .001
 
 ###### 8 years
 
@@ -5959,6 +6063,7 @@ a3_psy_stab_age8 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stab_age8_parameters <- 
   model_parameters(
     a3_psy_stab_age8,
@@ -5971,16 +6076,16 @@ a3_psy_stab_age8_parameters
 
     ## Parameter               | Coefficient |         95% CI |      p
     ## ---------------------------------------------------------------
-    ## (Intercept)             |       -0.10 | [-0.24,  0.04] | 0.161 
-    ## stable1                 |       -0.04 | [-0.16,  0.09] | 0.556 
-    ## age_years - 8           |    8.19e-03 | [ 0.00,  0.02] | 0.218 
-    ## domainDESDvADHD         |       -0.48 | [-0.59, -0.37] | < .001
+    ## (Intercept)             |       -0.10 | [-0.24,  0.03] | 0.127 
+    ## stable1                 |       -0.03 | [-0.16,  0.09] | 0.577 
+    ## age_years - 8           |    8.14e-03 | [-0.01,  0.02] | 0.261 
+    ## domainDESDvADHD         |       -0.48 | [-0.60, -0.37] | < .001
     ## domainEXTvADHD          |       -0.65 | [-0.75, -0.55] | < .001
-    ## domainINTvADHD          |       -0.73 | [-0.82, -0.64] | < .001
-    ## domainRADvADHD          |       -0.82 | [-0.94, -0.71] | < .001
-    ## male [1]                |        0.31 | [ 0.08,  0.53] | 0.006 
-    ## informant1              |       -0.02 | [-0.11,  0.08] | 0.751 
-    ## stable1 * age_years - 8 |       -0.03 | [-0.04, -0.01] | 0.002
+    ## domainINTvADHD          |       -0.73 | [-0.83, -0.64] | < .001
+    ## domainRADvADHD          |       -0.83 | [-0.94, -0.71] | < .001
+    ## male [1]                |        0.32 | [ 0.09,  0.53] | 0.006 
+    ## informant1              |       -0.02 | [-0.11,  0.08] | 0.735 
+    ## stable1 * age_years - 8 |       -0.03 | [-0.04, -0.01] | < .001
 
 ###### 16 years
 
@@ -5995,6 +6100,7 @@ a3_psy_stab_age16 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stab_age16_parameters <- 
   model_parameters(
     a3_psy_stab_age16,
@@ -6007,16 +6113,50 @@ a3_psy_stab_age16_parameters
 
     ## Parameter                | Coefficient |         95% CI |      p
     ## ----------------------------------------------------------------
-    ## (Intercept)              |       -0.04 | [-0.18,  0.10] | 0.608 
-    ## stable1                  |       -0.24 | [-0.39, -0.09] | 0.002 
-    ## age_years - 16           |    8.06e-03 | [-0.01,  0.02] | 0.260 
-    ## domainDESDvADHD          |       -0.48 | [-0.59, -0.36] | < .001
-    ## domainEXTvADHD           |       -0.65 | [-0.75, -0.56] | < .001
+    ## (Intercept)              |       -0.04 | [-0.17,  0.09] | 0.549 
+    ## stable1                  |       -0.24 | [-0.39, -0.10] | 0.003 
+    ## age_years - 16           |    8.14e-03 | [-0.01,  0.02] | 0.261 
+    ## domainDESDvADHD          |       -0.48 | [-0.60, -0.37] | < .001
+    ## domainEXTvADHD           |       -0.65 | [-0.75, -0.55] | < .001
     ## domainINTvADHD           |       -0.73 | [-0.83, -0.64] | < .001
-    ## domainRADvADHD           |       -0.82 | [-0.94, -0.72] | < .001
-    ## male [1]                 |        0.32 | [ 0.10,  0.53] | 0.005 
-    ## informant1               |       -0.01 | [-0.11,  0.08] | 0.760 
-    ## stable1 * age_years - 16 |       -0.03 | [-0.04, -0.01] | 0.002
+    ## domainRADvADHD           |       -0.83 | [-0.94, -0.71] | < .001
+    ## male [1]                 |        0.32 | [ 0.09,  0.53] | 0.006 
+    ## informant1               |       -0.02 | [-0.11,  0.08] | 0.735 
+    ## stable1 * age_years - 16 |       -0.03 | [-0.04, -0.01] | < .001
+
+##### Two-way moderation
+
+``` r
+a3_psy_stability_X <- lmer(
+  value_z ~ 
+    stable * scale(age_years, scale = TRUE) +
+    domain +
+    male +
+    informant +
+    (1|ID), 
+  data = d_fcg_psy
+)
+
+anova(a3_psy_stability_X)
+```
+
+    ## Type III Analysis of Variance Table with Satterthwaite's method
+    ##                                        Sum Sq Mean Sq NumDF   DenDF F value
+    ## stable                                  0.854   0.854     1 1308.29  1.3853
+    ## scale(age_years, scale = TRUE)          0.780   0.780     1 2081.20  1.2657
+    ## domain                                195.935  48.984     4 2083.97 79.4835
+    ## male                                    5.050   5.050     1   59.72  8.1948
+    ## informant                               0.066   0.066     1 2099.95  0.1069
+    ## stable:scale(age_years, scale = TRUE)   5.746   5.746     1 2141.16  9.3239
+    ##                                                      Pr(>F)    
+    ## stable                                             0.239422    
+    ## scale(age_years, scale = TRUE)                     0.260700    
+    ## domain                                < 0.00000000000000022 ***
+    ## male                                               0.005786 ** 
+    ## informant                                          0.743698    
+    ## stable:scale(age_years, scale = TRUE)              0.002290 ** 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ##### Three-way moderations
 
@@ -6085,6 +6225,7 @@ a3_ADHD_age3 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_ADHD_age3_parameters <- 
   model_parameters(
     a3_ADHD_age3,
@@ -6098,27 +6239,27 @@ a3_ADHD_age3_parameters
 
     ## Parameter                                     | Coefficient |         95% CI |      p
     ## -------------------------------------------------------------------------------------
-    ## (Intercept)                                   |        0.17 | [-0.09,  0.46] | 0.215 
-    ## stable1                                       |        0.37 | [ 0.07,  0.65] | 0.014 
-    ## domainDESDvADHD                               |       -0.56 | [-0.95, -0.16] | 0.006 
-    ## domainEXTvADHD                                |       -0.40 | [-0.79, -0.06] | 0.029 
-    ## domainINTvADHD                                |       -0.11 | [-0.49,  0.27] | 0.587 
-    ## domainRADvADHD                                |       -0.52 | [-0.89, -0.16] | 0.008 
-    ## age_years - 3.5                               |        0.04 | [ 0.01,  0.07] | 0.002 
-    ## male [1]                                      |        0.31 | [ 0.11,  0.52] | 0.007 
-    ## informant1                                    |   -1.56e-05 | [-0.10,  0.09] | 0.956 
-    ## stable1 * domainDESDvADHD                     |        0.07 | [-0.37,  0.48] | 0.758 
-    ## stable1 * domainEXTvADHD                      |       -0.26 | [-0.62,  0.16] | 0.209 
-    ## stable1 * domainINTvADHD                      |       -0.74 | [-1.14, -0.33] | < .001
-    ## stable1 * domainRADvADHD                      |       -0.52 | [-0.91, -0.12] | 0.020 
+    ## (Intercept)                                   |        0.18 | [-0.10,  0.45] | 0.213 
+    ## stable1                                       |        0.37 | [ 0.09,  0.65] | 0.012 
+    ## domainDESDvADHD                               |       -0.56 | [-0.90, -0.20] | 0.005 
+    ## domainEXTvADHD                                |       -0.40 | [-0.77, -0.04] | 0.030 
+    ## domainINTvADHD                                |       -0.11 | [-0.48,  0.22] | 0.525 
+    ## domainRADvADHD                                |       -0.52 | [-0.88, -0.15] | 0.005 
+    ## age_years - 3.5                               |        0.04 | [ 0.02,  0.07] | 0.005 
+    ## male [1]                                      |        0.32 | [ 0.09,  0.53] | 0.006 
+    ## informant1                                    |   -4.34e-03 | [-0.10,  0.09] | 0.955 
+    ## stable1 * domainDESDvADHD                     |        0.06 | [-0.32,  0.48] | 0.748 
+    ## stable1 * domainEXTvADHD                      |       -0.25 | [-0.66,  0.14] | 0.230 
+    ## stable1 * domainINTvADHD                      |       -0.72 | [-1.10, -0.33] | < .001
+    ## stable1 * domainRADvADHD                      |       -0.51 | [-0.89, -0.12] | 0.014 
     ## stable1 * age_years - 3.5                     |       -0.08 | [-0.11, -0.05] | < .001
-    ## domainDESDvADHD * age_years - 3.5             |   -5.50e-03 | [-0.05,  0.04] | 0.755 
-    ## domainEXTvADHD * age_years - 3.5              |       -0.04 | [-0.07,  0.00] | 0.066 
-    ## domainINTvADHD * age_years - 3.5              |       -0.08 | [-0.12, -0.04] | < .001
-    ## domainRADvADHD * age_years - 3.5              |       -0.03 | [-0.07,  0.01] | 0.105 
-    ## (stable1 * domainDESDvADHD) * age_years - 3.5 |        0.03 | [-0.02,  0.08] | 0.245 
-    ## (stable1 * domainEXTvADHD) * age_years - 3.5  |        0.05 | [ 0.00,  0.09] | 0.043 
-    ## (stable1 * domainINTvADHD) * age_years - 3.5  |        0.12 | [ 0.07,  0.16] | < .001
+    ## domainDESDvADHD * age_years - 3.5             |   -6.09e-03 | [-0.05,  0.03] | 0.735 
+    ## domainEXTvADHD * age_years - 3.5              |       -0.04 | [-0.07,  0.00] | 0.056 
+    ## domainINTvADHD * age_years - 3.5              |       -0.08 | [-0.12, -0.05] | < .001
+    ## domainRADvADHD * age_years - 3.5              |       -0.03 | [-0.07,  0.00] | 0.098 
+    ## (stable1 * domainDESDvADHD) * age_years - 3.5 |        0.03 | [-0.02,  0.08] | 0.215 
+    ## (stable1 * domainEXTvADHD) * age_years - 3.5  |        0.05 | [ 0.00,  0.09] | 0.046 
+    ## (stable1 * domainINTvADHD) * age_years - 3.5  |        0.11 | [ 0.07,  0.16] | < .001
     ## (stable1 * domainRADvADHD) * age_years - 3.5  |        0.09 | [ 0.04,  0.14] | < .001
 
 ###### ADHD, 8 years
@@ -6133,6 +6274,7 @@ a3_ADHD_age8 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_ADHD_age8_parameters <- 
   model_parameters(
     a3_ADHD_age8,
@@ -6146,27 +6288,27 @@ a3_ADHD_age8_parameters
 
     ## Parameter                                   | Coefficient |         95% CI |      p
     ## -----------------------------------------------------------------------------------
-    ## (Intercept)                                 |        0.35 | [ 0.15,  0.57] | 0.004 
-    ## stable1                                     |        0.02 | [-0.18,  0.22] | 0.830 
-    ## domainDESDvADHD                             |       -0.57 | [-0.81, -0.34] | < .001
-    ## domainEXTvADHD                              |       -0.56 | [-0.79, -0.34] | < .001
-    ## domainINTvADHD                              |       -0.47 | [-0.69, -0.23] | < .001
-    ## domainRADvADHD                              |       -0.66 | [-0.90, -0.44] | < .001
-    ## age_years - 8                               |        0.04 | [ 0.02,  0.07] | 0.002 
-    ## male [1]                                    |        0.31 | [ 0.11,  0.53] | 0.005 
-    ## informant1                                  |   -2.14e-03 | [-0.10,  0.09] | 0.958 
-    ## stable1 * domainDESDvADHD                   |        0.18 | [-0.11,  0.45] | 0.193 
-    ## stable1 * domainEXTvADHD                    |       -0.05 | [-0.32,  0.20] | 0.685 
-    ## stable1 * domainINTvADHD                    |       -0.22 | [-0.48,  0.04] | 0.095 
-    ## stable1 * domainRADvADHD                    |       -0.11 | [-0.39,  0.17] | 0.423 
+    ## (Intercept)                                 |        0.36 | [ 0.16,  0.56] | < .001
+    ## stable1                                     |        0.01 | [-0.19,  0.21] | 0.898 
+    ## domainDESDvADHD                             |       -0.58 | [-0.83, -0.35] | < .001
+    ## domainEXTvADHD                              |       -0.57 | [-0.80, -0.34] | < .001
+    ## domainINTvADHD                              |       -0.48 | [-0.71, -0.26] | < .001
+    ## domainRADvADHD                              |       -0.67 | [-0.91, -0.45] | < .001
+    ## age_years - 8                               |        0.04 | [ 0.02,  0.07] | 0.005 
+    ## male [1]                                    |        0.32 | [ 0.09,  0.53] | 0.006 
+    ## informant1                                  |   -4.34e-03 | [-0.10,  0.09] | 0.955 
+    ## stable1 * domainDESDvADHD                   |        0.19 | [-0.06,  0.47] | 0.154 
+    ## stable1 * domainEXTvADHD                    |       -0.04 | [-0.30,  0.22] | 0.739 
+    ## stable1 * domainINTvADHD                    |       -0.21 | [-0.46,  0.05] | 0.109 
+    ## stable1 * domainRADvADHD                    |       -0.10 | [-0.37,  0.17] | 0.475 
     ## stable1 * age_years - 8                     |       -0.08 | [-0.11, -0.05] | < .001
-    ## domainDESDvADHD * age_years - 8             |   -7.58e-03 | [-0.05,  0.03] | 0.725 
-    ## domainEXTvADHD * age_years - 8              |       -0.04 | [-0.07,  0.00] | 0.044 
+    ## domainDESDvADHD * age_years - 8             |   -6.09e-03 | [-0.05,  0.03] | 0.735 
+    ## domainEXTvADHD * age_years - 8              |       -0.04 | [-0.07,  0.00] | 0.056 
     ## domainINTvADHD * age_years - 8              |       -0.08 | [-0.12, -0.05] | < .001
-    ## domainRADvADHD * age_years - 8              |       -0.03 | [-0.08,  0.01] | 0.099 
+    ## domainRADvADHD * age_years - 8              |       -0.03 | [-0.07,  0.00] | 0.098 
     ## (stable1 * domainDESDvADHD) * age_years - 8 |        0.03 | [-0.02,  0.08] | 0.215 
-    ## (stable1 * domainEXTvADHD) * age_years - 8  |        0.05 | [ 0.01,  0.09] | 0.031 
-    ## (stable1 * domainINTvADHD) * age_years - 8  |        0.12 | [ 0.07,  0.16] | < .001
+    ## (stable1 * domainEXTvADHD) * age_years - 8  |        0.05 | [ 0.00,  0.09] | 0.046 
+    ## (stable1 * domainINTvADHD) * age_years - 8  |        0.11 | [ 0.07,  0.16] | < .001
     ## (stable1 * domainRADvADHD) * age_years - 8  |        0.09 | [ 0.04,  0.14] | < .001
 
 ###### ADHD, 16 years
@@ -6181,6 +6323,7 @@ a3_ADHD_age16 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_ADHD_age16_parameters <- 
   model_parameters(
     a3_ADHD_age16,
@@ -6195,27 +6338,27 @@ a3_ADHD_age16_parameters
     ## Parameter                                    | Coefficient |         95% CI |      p
     ## ------------------------------------------------------------------------------------
     ## (Intercept)                                  |        0.69 | [ 0.51,  0.87] | < .001
-    ## stable1                                      |       -0.63 | [-0.85, -0.41] | < .001
-    ## domainDESDvADHD                              |       -0.64 | [-0.90, -0.38] | < .001
-    ## domainEXTvADHD                               |       -0.85 | [-1.06, -0.66] | < .001
-    ## domainINTvADHD                               |       -1.13 | [-1.32, -0.93] | < .001
-    ## domainRADvADHD                               |       -0.95 | [-1.22, -0.65] | < .001
-    ## age_years - 16                               |        0.04 | [ 0.02,  0.07] | 0.002 
-    ## male [1]                                     |        0.31 | [ 0.09,  0.50] | 0.007 
-    ## informant1                                   |    2.88e-03 | [-0.10,  0.10] | > .999
-    ## stable1 * domainDESDvADHD                    |        0.45 | [ 0.08,  0.81] | 0.012 
-    ## stable1 * domainEXTvADHD                     |        0.32 | [ 0.04,  0.63] | 0.035 
-    ## stable1 * domainINTvADHD                     |        0.72 | [ 0.44,  0.98] | < .001
-    ## stable1 * domainRADvADHD                     |        0.66 | [ 0.28,  1.01] | < .001
+    ## stable1                                      |       -0.62 | [-0.86, -0.40] | < .001
+    ## domainDESDvADHD                              |       -0.64 | [-0.92, -0.37] | < .001
+    ## domainEXTvADHD                               |       -0.85 | [-1.05, -0.64] | < .001
+    ## domainINTvADHD                               |       -1.13 | [-1.32, -0.94] | < .001
+    ## domainRADvADHD                               |       -0.94 | [-1.22, -0.67] | < .001
+    ## age_years - 16                               |        0.04 | [ 0.02,  0.07] | 0.005 
+    ## male [1]                                     |        0.32 | [ 0.09,  0.53] | 0.006 
+    ## informant1                                   |   -4.34e-03 | [-0.10,  0.09] | 0.955 
+    ## stable1 * domainDESDvADHD                    |        0.43 | [ 0.06,  0.85] | 0.035 
+    ## stable1 * domainEXTvADHD                     |        0.32 | [ 0.05,  0.62] | 0.023 
+    ## stable1 * domainINTvADHD                     |        0.71 | [ 0.44,  0.99] | < .001
+    ## stable1 * domainRADvADHD                     |        0.65 | [ 0.23,  1.02] | 0.002 
     ## stable1 * age_years - 16                     |       -0.08 | [-0.11, -0.05] | < .001
-    ## domainDESDvADHD * age_years - 16             |   -8.02e-03 | [-0.04,  0.03] | 0.683 
-    ## domainEXTvADHD * age_years - 16              |       -0.04 | [-0.07,  0.00] | 0.044 
+    ## domainDESDvADHD * age_years - 16             |   -6.09e-03 | [-0.05,  0.03] | 0.735 
+    ## domainEXTvADHD * age_years - 16              |       -0.04 | [-0.07,  0.00] | 0.056 
     ## domainINTvADHD * age_years - 16              |       -0.08 | [-0.12, -0.05] | < .001
-    ## domainRADvADHD * age_years - 16              |       -0.03 | [-0.08,  0.01] | 0.114 
-    ## (stable1 * domainDESDvADHD) * age_years - 16 |        0.03 | [-0.01,  0.08] | 0.158 
-    ## (stable1 * domainEXTvADHD) * age_years - 16  |        0.05 | [ 0.01,  0.09] | 0.030 
-    ## (stable1 * domainINTvADHD) * age_years - 16  |        0.12 | [ 0.08,  0.16] | < .001
-    ## (stable1 * domainRADvADHD) * age_years - 16  |        0.09 | [ 0.05,  0.14] | 0.002
+    ## domainRADvADHD * age_years - 16              |       -0.03 | [-0.07,  0.00] | 0.098 
+    ## (stable1 * domainDESDvADHD) * age_years - 16 |        0.03 | [-0.02,  0.08] | 0.215 
+    ## (stable1 * domainEXTvADHD) * age_years - 16  |        0.05 | [ 0.00,  0.09] | 0.046 
+    ## (stable1 * domainINTvADHD) * age_years - 16  |        0.11 | [ 0.07,  0.16] | < .001
+    ## (stable1 * domainRADvADHD) * age_years - 16  |        0.09 | [ 0.04,  0.14] | < .001
 
 ###### DESD, 42 months (3.5 years)
 
@@ -6237,6 +6380,7 @@ a3_DESD_age3 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_DESD_age3_parameters <-
   model_parameters(
     a3_DESD_age3,
@@ -6249,28 +6393,28 @@ a3_DESD_age3_parameters
 
     ## Parameter                                     | Coefficient |         95% CI |      p
     ## -------------------------------------------------------------------------------------
-    ## (Intercept)                                   |       -0.37 | [-0.67, -0.07] | 0.012 
-    ## stable1                                       |        0.43 | [ 0.11,  0.71] | 0.009 
-    ## domainADHDvDESD                               |        0.56 | [ 0.17,  0.89] | 0.004 
-    ## domainEXTvDESD                                |        0.14 | [-0.25,  0.49] | 0.467 
-    ## domainINTvDESD                                |        0.44 | [ 0.05,  0.80] | 0.025 
-    ## domainRADvDESD                                |        0.04 | [-0.31,  0.38] | 0.863 
-    ## age_years - 3.5                               |        0.03 | [ 0.00,  0.07] | 0.044 
-    ## male [1]                                      |        0.30 | [ 0.08,  0.51] | 0.007 
-    ## informant1                                    |   -9.27e-04 | [-0.10,  0.09] | 0.989 
-    ## stable1 * domainADHDvDESD                     |       -0.06 | [-0.44,  0.36] | 0.793 
-    ## stable1 * domainEXTvDESD                      |       -0.30 | [-0.70,  0.10] | 0.138 
-    ## stable1 * domainINTvDESD                      |       -0.78 | [-1.17, -0.37] | < .001
-    ## stable1 * domainRADvDESD                      |       -0.59 | [-0.94, -0.15] | 0.004 
-    ## stable1 * age_years - 3.5                     |       -0.05 | [-0.09, -0.01] | 0.023 
-    ## domainADHDvDESD * age_years - 3.5             |    7.05e-03 | [-0.03,  0.05] | 0.762 
-    ## domainEXTvDESD * age_years - 3.5              |       -0.03 | [-0.07,  0.01] | 0.179 
-    ## domainINTvDESD * age_years - 3.5              |       -0.07 | [-0.11, -0.03] | 0.002 
-    ## domainRADvDESD * age_years - 3.5              |       -0.03 | [-0.07,  0.02] | 0.240 
-    ## (stable1 * domainADHDvDESD) * age_years - 3.5 |       -0.03 | [-0.08,  0.02] | 0.227 
-    ## (stable1 * domainEXTvDESD) * age_years - 3.5  |        0.01 | [-0.03,  0.07] | 0.554 
-    ## (stable1 * domainINTvDESD) * age_years - 3.5  |        0.08 | [ 0.04,  0.13] | < .001
-    ## (stable1 * domainRADvDESD) * age_years - 3.5  |        0.06 | [ 0.01,  0.12] | 0.030
+    ## (Intercept)                                   |       -0.38 | [-0.68, -0.08] | 0.015 
+    ## stable1                                       |        0.44 | [ 0.13,  0.74] | 0.008 
+    ## domainADHDvDESD                               |        0.56 | [ 0.20,  0.90] | 0.005 
+    ## domainEXTvDESD                                |        0.15 | [-0.23,  0.50] | 0.438 
+    ## domainINTvDESD                                |        0.44 | [ 0.06,  0.78] | 0.024 
+    ## domainRADvDESD                                |        0.03 | [-0.34,  0.40] | 0.839 
+    ## age_years - 3.5                               |        0.03 | [ 0.00,  0.07] | 0.036 
+    ## male [1]                                      |        0.32 | [ 0.09,  0.53] | 0.006 
+    ## informant1                                    |   -4.34e-03 | [-0.10,  0.09] | 0.955 
+    ## stable1 * domainADHDvDESD                     |       -0.06 | [-0.48,  0.32] | 0.748 
+    ## stable1 * domainEXTvDESD                      |       -0.32 | [-0.71,  0.13] | 0.134 
+    ## stable1 * domainINTvDESD                      |       -0.80 | [-1.14, -0.37] | < .001
+    ## stable1 * domainRADvDESD                      |       -0.57 | [-0.99, -0.18] | 0.007 
+    ## stable1 * age_years - 3.5                     |       -0.05 | [-0.09, -0.01] | 0.016 
+    ## domainADHDvDESD * age_years - 3.5             |    6.09e-03 | [-0.03,  0.05] | 0.735 
+    ## domainEXTvDESD * age_years - 3.5              |       -0.03 | [-0.07,  0.01] | 0.182 
+    ## domainINTvDESD * age_years - 3.5              |       -0.07 | [-0.11, -0.03] | < .001
+    ## domainRADvDESD * age_years - 3.5              |       -0.03 | [-0.07,  0.02] | 0.210 
+    ## (stable1 * domainADHDvDESD) * age_years - 3.5 |       -0.03 | [-0.08,  0.02] | 0.215 
+    ## (stable1 * domainEXTvDESD) * age_years - 3.5  |        0.02 | [-0.04,  0.06] | 0.521 
+    ## (stable1 * domainINTvDESD) * age_years - 3.5  |        0.09 | [ 0.04,  0.13] | < .001
+    ## (stable1 * domainRADvDESD) * age_years - 3.5  |        0.06 | [ 0.01,  0.12] | 0.023
 
 ###### DESD, 8 years
 
@@ -6284,6 +6428,7 @@ a3_DESD_age8 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_DESD_age8_parameters <-
   model_parameters(
     a3_DESD_age8,
@@ -6296,28 +6441,28 @@ a3_DESD_age8_parameters
 
     ## Parameter                                   | Coefficient |         95% CI |      p
     ## -----------------------------------------------------------------------------------
-    ## (Intercept)                                 |       -0.22 | [-0.45, -0.01] | 0.049 
-    ## stable1                                     |        0.21 | [-0.01,  0.44] | 0.065 
-    ## domainADHDvDESD                             |        0.58 | [ 0.34,  0.82] | < .001
-    ## domainEXTvDESD                              |        0.02 | [-0.23,  0.27] | 0.870 
-    ## domainINTvDESD                              |        0.11 | [-0.13,  0.35] | 0.367 
-    ## domainRADvDESD                              |       -0.09 | [-0.31,  0.14] | 0.446 
-    ## age_years - 8                               |        0.03 | [ 0.00,  0.07] | 0.040 
-    ## male [1]                                    |        0.31 | [ 0.09,  0.51] | 0.008 
-    ## informant1                                  |   -3.23e-03 | [-0.09,  0.09] | 0.989 
-    ## stable1 * domainADHDvDESD                   |       -0.19 | [-0.46,  0.07] | 0.188 
-    ## stable1 * domainEXTvDESD                    |       -0.24 | [-0.53,  0.02] | 0.092 
-    ## stable1 * domainINTvDESD                    |       -0.41 | [-0.68, -0.14] | 0.004 
-    ## stable1 * domainRADvDESD                    |       -0.29 | [-0.55, -0.02] | 0.038 
-    ## stable1 * age_years - 8                     |       -0.05 | [-0.09, -0.01] | 0.020 
-    ## domainADHDvDESD * age_years - 8             |    7.91e-03 | [-0.03,  0.05] | 0.681 
-    ## domainEXTvDESD * age_years - 8              |       -0.03 | [-0.07,  0.01] | 0.174 
-    ## domainINTvDESD * age_years - 8              |       -0.08 | [-0.11, -0.03] | 0.003 
-    ## domainRADvDESD * age_years - 8              |       -0.03 | [-0.07,  0.01] | 0.222 
-    ## (stable1 * domainADHDvDESD) * age_years - 8 |       -0.03 | [-0.08,  0.02] | 0.202 
-    ## (stable1 * domainEXTvDESD) * age_years - 8  |        0.02 | [-0.04,  0.06] | 0.542 
-    ## (stable1 * domainINTvDESD) * age_years - 8  |        0.09 | [ 0.04,  0.14] | 0.002 
-    ## (stable1 * domainRADvDESD) * age_years - 8  |        0.06 | [ 0.01,  0.11] | 0.028
+    ## (Intercept)                                 |       -0.22 | [-0.43, -0.03] | 0.035 
+    ## stable1                                     |        0.21 | [ 0.00,  0.42] | 0.056 
+    ## domainADHDvDESD                             |        0.58 | [ 0.35,  0.83] | < .001
+    ## domainEXTvDESD                              |        0.02 | [-0.22,  0.24] | 0.880 
+    ## domainINTvDESD                              |        0.11 | [-0.14,  0.34] | 0.365 
+    ## domainRADvDESD                              |       -0.09 | [-0.32,  0.14] | 0.441 
+    ## age_years - 8                               |        0.03 | [ 0.00,  0.07] | 0.036 
+    ## male [1]                                    |        0.32 | [ 0.09,  0.53] | 0.006 
+    ## informant1                                  |   -4.34e-03 | [-0.10,  0.09] | 0.955 
+    ## stable1 * domainADHDvDESD                   |       -0.19 | [-0.47,  0.06] | 0.154 
+    ## stable1 * domainEXTvDESD                    |       -0.24 | [-0.53,  0.03] | 0.092 
+    ## stable1 * domainINTvDESD                    |       -0.40 | [-0.67, -0.13] | 0.003 
+    ## stable1 * domainRADvDESD                    |       -0.29 | [-0.56,  0.01] | 0.051 
+    ## stable1 * age_years - 8                     |       -0.05 | [-0.09, -0.01] | 0.016 
+    ## domainADHDvDESD * age_years - 8             |    6.09e-03 | [-0.03,  0.05] | 0.735 
+    ## domainEXTvDESD * age_years - 8              |       -0.03 | [-0.07,  0.01] | 0.182 
+    ## domainINTvDESD * age_years - 8              |       -0.07 | [-0.11, -0.03] | < .001
+    ## domainRADvDESD * age_years - 8              |       -0.03 | [-0.07,  0.02] | 0.210 
+    ## (stable1 * domainADHDvDESD) * age_years - 8 |       -0.03 | [-0.08,  0.02] | 0.215 
+    ## (stable1 * domainEXTvDESD) * age_years - 8  |        0.02 | [-0.04,  0.06] | 0.521 
+    ## (stable1 * domainINTvDESD) * age_years - 8  |        0.09 | [ 0.04,  0.13] | < .001
+    ## (stable1 * domainRADvDESD) * age_years - 8  |        0.06 | [ 0.01,  0.12] | 0.023
 
 ###### DESD, 16 years
 
@@ -6331,6 +6476,7 @@ a3_DESD_age16 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_DESD_age16_parameters <-
   model_parameters(
     a3_DESD_age16,
@@ -6343,28 +6489,28 @@ a3_DESD_age16_parameters
 
     ## Parameter                                    | Coefficient |         95% CI |      p
     ## ------------------------------------------------------------------------------------
-    ## (Intercept)                                  |        0.05 | [-0.21,  0.31] | 0.746 
-    ## stable1                                      |       -0.18 | [-0.54,  0.17] | 0.309 
-    ## domainADHDvDESD                              |        0.64 | [ 0.39,  0.91] | < .001
-    ## domainEXTvDESD                               |       -0.21 | [-0.49,  0.06] | 0.138 
-    ## domainINTvDESD                               |       -0.49 | [-0.75, -0.22] | 0.002 
-    ## domainRADvDESD                               |       -0.31 | [-0.62,  0.04] | 0.079 
-    ## age_years - 16                               |        0.03 | [ 0.00,  0.07] | 0.043 
-    ## male [1]                                     |        0.31 | [ 0.10,  0.52] | 0.008 
-    ## informant1                                   |   -4.76e-03 | [-0.10,  0.09] | 0.925 
-    ## stable1 * domainADHDvDESD                    |       -0.44 | [-0.83, -0.07] | 0.029 
-    ## stable1 * domainEXTvDESD                     |       -0.13 | [-0.50,  0.25] | 0.523 
-    ## stable1 * domainINTvDESD                     |        0.26 | [-0.14,  0.65] | 0.166 
-    ## stable1 * domainRADvDESD                     |        0.18 | [-0.25,  0.66] | 0.414 
-    ## stable1 * age_years - 16                     |       -0.05 | [-0.09, -0.01] | 0.011 
-    ## domainADHDvDESD * age_years - 16             |    8.03e-03 | [-0.03,  0.05] | 0.719 
-    ## domainEXTvDESD * age_years - 16              |       -0.03 | [-0.07,  0.01] | 0.191 
+    ## (Intercept)                                  |        0.05 | [-0.21,  0.30] | 0.723 
+    ## stable1                                      |       -0.19 | [-0.54,  0.17] | 0.283 
+    ## domainADHDvDESD                              |        0.64 | [ 0.37,  0.92] | < .001
+    ## domainEXTvDESD                               |       -0.22 | [-0.49,  0.06] | 0.135 
+    ## domainINTvDESD                               |       -0.49 | [-0.76, -0.22] | < .001
+    ## domainRADvDESD                               |       -0.31 | [-0.64,  0.01] | 0.062 
+    ## age_years - 16                               |        0.03 | [ 0.00,  0.07] | 0.036 
+    ## male [1]                                     |        0.32 | [ 0.09,  0.53] | 0.006 
+    ## informant1                                   |   -4.34e-03 | [-0.10,  0.09] | 0.955 
+    ## stable1 * domainADHDvDESD                    |       -0.43 | [-0.85, -0.06] | 0.035 
+    ## stable1 * domainEXTvDESD                     |       -0.11 | [-0.52,  0.30] | 0.605 
+    ## stable1 * domainINTvDESD                     |        0.28 | [-0.12,  0.66] | 0.173 
+    ## stable1 * domainRADvDESD                     |        0.21 | [-0.26,  0.67] | 0.379 
+    ## stable1 * age_years - 16                     |       -0.05 | [-0.09, -0.01] | 0.016 
+    ## domainADHDvDESD * age_years - 16             |    6.09e-03 | [-0.03,  0.05] | 0.735 
+    ## domainEXTvDESD * age_years - 16              |       -0.03 | [-0.07,  0.01] | 0.182 
     ## domainINTvDESD * age_years - 16              |       -0.07 | [-0.11, -0.03] | < .001
-    ## domainRADvDESD * age_years - 16              |       -0.03 | [-0.08,  0.02] | 0.254 
-    ## (stable1 * domainADHDvDESD) * age_years - 16 |       -0.03 | [-0.08,  0.02] | 0.198 
-    ## (stable1 * domainEXTvDESD) * age_years - 16  |        0.01 | [-0.04,  0.06] | 0.578 
-    ## (stable1 * domainINTvDESD) * age_years - 16  |        0.08 | [ 0.04,  0.13] | 0.002 
-    ## (stable1 * domainRADvDESD) * age_years - 16  |        0.06 | [ 0.01,  0.12] | 0.046
+    ## domainRADvDESD * age_years - 16              |       -0.03 | [-0.07,  0.02] | 0.210 
+    ## (stable1 * domainADHDvDESD) * age_years - 16 |       -0.03 | [-0.08,  0.02] | 0.215 
+    ## (stable1 * domainEXTvDESD) * age_years - 16  |        0.02 | [-0.04,  0.06] | 0.521 
+    ## (stable1 * domainINTvDESD) * age_years - 16  |        0.09 | [ 0.04,  0.13] | < .001
+    ## (stable1 * domainRADvDESD) * age_years - 16  |        0.06 | [ 0.01,  0.12] | 0.023
 
 ###### Externalizing, 42 months (3.5 years)
 
@@ -6386,6 +6532,7 @@ a3_EXT_age3 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_EXT_age3_parameters <-
   model_parameters(
     a3_EXT_age3,
@@ -6397,30 +6544,30 @@ a3_EXT_age3_parameters <-
 a3_EXT_age3_parameters
 ```
 
-    ## Parameter                                    | Coefficient |         95% CI |     p
-    ## -----------------------------------------------------------------------------------
-    ## (Intercept)                                  |       -0.24 | [-0.51,  0.06] | 0.107
-    ## stable1                                      |        0.12 | [-0.17,  0.42] | 0.434
-    ## domainADHDvEXT                               |        0.41 | [ 0.04,  0.75] | 0.028
-    ## domainDESDvEXT                               |       -0.14 | [-0.56,  0.21] | 0.450
-    ## domainINTvEXT                                |        0.30 | [-0.08,  0.65] | 0.110
-    ## domainRADvEXT                                |       -0.13 | [-0.48,  0.25] | 0.504
-    ## age_years - 3.5                              |    5.60e-03 | [-0.02,  0.03] | 0.688
-    ## male [1]                                     |        0.31 | [ 0.11,  0.52] | 0.006
-    ## informant1                                   |   -5.04e-03 | [-0.10,  0.09] | 0.922
-    ## stable1 * domainADHDvEXT                     |        0.26 | [-0.14,  0.67] | 0.193
-    ## stable1 * domainDESDvEXT                     |        0.31 | [-0.11,  0.75] | 0.154
-    ## stable1 * domainINTvEXT                      |       -0.49 | [-0.86, -0.05] | 0.023
-    ## stable1 * domainRADvEXT                      |       -0.24 | [-0.68,  0.15] | 0.226
-    ## stable1 * age_years - 3.5                    |       -0.03 | [-0.07,  0.00] | 0.037
-    ## domainADHDvEXT * age_years - 3.5             |        0.04 | [ 0.00,  0.07] | 0.047
-    ## domainDESDvEXT * age_years - 3.5             |        0.03 | [-0.01,  0.07] | 0.187
-    ## domainINTvEXT * age_years - 3.5              |       -0.05 | [-0.08, -0.01] | 0.006
-    ## domainRADvEXT * age_years - 3.5              |    3.03e-03 | [-0.04,  0.05] | 0.860
-    ## (stable1 * domainADHDvEXT) * age_years - 3.5 |       -0.05 | [-0.09,  0.00] | 0.049
-    ## (stable1 * domainDESDvEXT) * age_years - 3.5 |       -0.01 | [-0.07,  0.04] | 0.544
-    ## (stable1 * domainINTvEXT) * age_years - 3.5  |        0.07 | [ 0.02,  0.11] | 0.003
-    ## (stable1 * domainRADvEXT) * age_years - 3.5  |        0.04 | [-0.01,  0.09] | 0.082
+    ## Parameter                                    | Coefficient |         95% CI |      p
+    ## ------------------------------------------------------------------------------------
+    ## (Intercept)                                  |       -0.22 | [-0.54,  0.07] | 0.124 
+    ## stable1                                      |        0.12 | [-0.19,  0.45] | 0.453 
+    ## domainADHDvEXT                               |        0.40 | [ 0.04,  0.77] | 0.030 
+    ## domainDESDvEXT                               |       -0.15 | [-0.50,  0.23] | 0.438 
+    ## domainINTvEXT                                |        0.29 | [-0.08,  0.65] | 0.110 
+    ## domainRADvEXT                                |       -0.12 | [-0.49,  0.28] | 0.567 
+    ## age_years - 3.5                              |    5.10e-03 | [-0.02,  0.03] | 0.697 
+    ## male [1]                                     |        0.32 | [ 0.09,  0.53] | 0.006 
+    ## informant1                                   |   -4.34e-03 | [-0.10,  0.09] | 0.955 
+    ## stable1 * domainADHDvEXT                     |        0.25 | [-0.14,  0.66] | 0.230 
+    ## stable1 * domainDESDvEXT                     |        0.32 | [-0.13,  0.71] | 0.134 
+    ## stable1 * domainINTvEXT                      |       -0.47 | [-0.88, -0.05] | 0.030 
+    ## stable1 * domainRADvEXT                      |       -0.26 | [-0.69,  0.16] | 0.225 
+    ## stable1 * age_years - 3.5                    |       -0.03 | [-0.07,  0.00] | 0.039 
+    ## domainADHDvEXT * age_years - 3.5             |        0.04 | [ 0.00,  0.07] | 0.056 
+    ## domainDESDvEXT * age_years - 3.5             |        0.03 | [-0.01,  0.07] | 0.182 
+    ## domainINTvEXT * age_years - 3.5              |       -0.05 | [-0.08, -0.01] | 0.014 
+    ## domainRADvEXT * age_years - 3.5              |    1.34e-03 | [-0.04,  0.04] | 0.943 
+    ## (stable1 * domainADHDvEXT) * age_years - 3.5 |       -0.05 | [-0.09,  0.00] | 0.046 
+    ## (stable1 * domainDESDvEXT) * age_years - 3.5 |       -0.02 | [-0.06,  0.04] | 0.521 
+    ## (stable1 * domainINTvEXT) * age_years - 3.5  |        0.07 | [ 0.02,  0.11] | < .001
+    ## (stable1 * domainRADvEXT) * age_years - 3.5  |        0.05 | [ 0.00,  0.10] | 0.070
 
 ###### Externalizing, 8 years
 
@@ -6434,6 +6581,7 @@ a3_EXT_age8 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_EXT_age8_parameters <-
   model_parameters(
     a3_EXT_age8,
@@ -6447,28 +6595,28 @@ a3_EXT_age8_parameters
 
     ## Parameter                                  | Coefficient |         95% CI |      p
     ## ----------------------------------------------------------------------------------
-    ## (Intercept)                                |       -0.20 | [-0.41, -0.02] | 0.043 
-    ## stable1                                    |       -0.03 | [-0.24,  0.17] | 0.737 
-    ## domainADHDvEXT                             |        0.56 | [ 0.34,  0.80] | < .001
-    ## domainDESDvEXT                             |       -0.02 | [-0.24,  0.22] | 0.864 
-    ## domainINTvEXT                              |        0.09 | [-0.14,  0.31] | 0.463 
-    ## domainRADvEXT                              |       -0.11 | [-0.36,  0.13] | 0.342 
-    ## age_years - 8                              |    4.55e-03 | [-0.02,  0.03] | 0.718 
-    ## male [1]                                   |        0.31 | [ 0.10,  0.52] | 0.007 
-    ## informant1                                 |   -2.70e-03 | [-0.11,  0.09] | 0.952 
-    ## stable1 * domainADHDvEXT                   |        0.06 | [-0.19,  0.31] | 0.667 
-    ## stable1 * domainDESDvEXT                   |        0.24 | [-0.02,  0.51] | 0.074 
-    ## stable1 * domainINTvEXT                    |       -0.16 | [-0.43,  0.10] | 0.229 
-    ## stable1 * domainRADvEXT                    |       -0.05 | [-0.32,  0.22] | 0.771 
-    ## stable1 * age_years - 8                    |       -0.03 | [-0.07,  0.00] | 0.038 
-    ## domainADHDvEXT * age_years - 8             |        0.04 | [ 0.00,  0.07] | 0.060 
-    ## domainDESDvEXT * age_years - 8             |        0.03 | [-0.01,  0.07] | 0.196 
-    ## domainINTvEXT * age_years - 8              |       -0.05 | [-0.08, -0.01] | 0.017 
-    ## domainRADvEXT * age_years - 8              |    3.58e-03 | [-0.04,  0.04] | 0.904 
-    ## (stable1 * domainADHDvEXT) * age_years - 8 |       -0.05 | [-0.09,  0.00] | 0.041 
-    ## (stable1 * domainDESDvEXT) * age_years - 8 |       -0.01 | [-0.06,  0.04] | 0.577 
-    ## (stable1 * domainINTvEXT) * age_years - 8  |        0.07 | [ 0.03,  0.11] | 0.002 
-    ## (stable1 * domainRADvEXT) * age_years - 8  |        0.04 | [ 0.00,  0.10] | 0.079
+    ## (Intercept)                                |       -0.20 | [-0.43,  0.00] | 0.057 
+    ## stable1                                    |       -0.03 | [-0.24,  0.19] | 0.780 
+    ## domainADHDvEXT                             |        0.57 | [ 0.34,  0.80] | < .001
+    ## domainDESDvEXT                             |       -0.02 | [-0.24,  0.22] | 0.880 
+    ## domainINTvEXT                              |        0.09 | [-0.15,  0.32] | 0.452 
+    ## domainRADvEXT                              |       -0.10 | [-0.36,  0.14] | 0.393 
+    ## age_years - 8                              |    5.10e-03 | [-0.02,  0.03] | 0.697 
+    ## male [1]                                   |        0.32 | [ 0.09,  0.53] | 0.006 
+    ## informant1                                 |   -4.34e-03 | [-0.10,  0.09] | 0.955 
+    ## stable1 * domainADHDvEXT                   |        0.04 | [-0.22,  0.30] | 0.739 
+    ## stable1 * domainDESDvEXT                   |        0.24 | [-0.03,  0.53] | 0.092 
+    ## stable1 * domainINTvEXT                    |       -0.16 | [-0.43,  0.11] | 0.223 
+    ## stable1 * domainRADvEXT                    |       -0.05 | [-0.33,  0.25] | 0.721 
+    ## stable1 * age_years - 8                    |       -0.03 | [-0.07,  0.00] | 0.039 
+    ## domainADHDvEXT * age_years - 8             |        0.04 | [ 0.00,  0.07] | 0.056 
+    ## domainDESDvEXT * age_years - 8             |        0.03 | [-0.01,  0.07] | 0.182 
+    ## domainINTvEXT * age_years - 8              |       -0.05 | [-0.08, -0.01] | 0.014 
+    ## domainRADvEXT * age_years - 8              |    1.34e-03 | [-0.04,  0.04] | 0.943 
+    ## (stable1 * domainADHDvEXT) * age_years - 8 |       -0.05 | [-0.09,  0.00] | 0.046 
+    ## (stable1 * domainDESDvEXT) * age_years - 8 |       -0.02 | [-0.06,  0.04] | 0.521 
+    ## (stable1 * domainINTvEXT) * age_years - 8  |        0.07 | [ 0.02,  0.11] | < .001
+    ## (stable1 * domainRADvEXT) * age_years - 8  |        0.05 | [ 0.00,  0.10] | 0.070
 
 ###### Externalizing, 16 years
 
@@ -6482,6 +6630,7 @@ a3_EXT_age16 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_EXT_age16_parameters <-
   model_parameters(
     a3_EXT_age16,
@@ -6495,28 +6644,28 @@ a3_EXT_age16_parameters
 
     ## Parameter                                   | Coefficient |         95% CI |      p
     ## -----------------------------------------------------------------------------------
-    ## (Intercept)                                 |       -0.17 | [-0.33,  0.03] | 0.078 
-    ## stable1                                     |       -0.30 | [-0.54, -0.07] | 0.013 
-    ## domainADHDvEXT                              |        0.85 | [ 0.65,  1.06] | < .001
-    ## domainDESDvEXT                              |        0.21 | [-0.06,  0.49] | 0.127 
-    ## domainINTvEXT                               |       -0.28 | [-0.48, -0.08] | 0.010 
-    ## domainRADvEXT                               |       -0.09 | [-0.37,  0.18] | 0.523 
-    ## age_years - 16                              |    4.97e-03 | [-0.02,  0.03] | 0.682 
-    ## male [1]                                    |        0.31 | [ 0.11,  0.52] | 0.003 
-    ## informant1                                  |   -3.34e-03 | [-0.09,  0.09] | 0.949 
-    ## stable1 * domainADHDvEXT                    |       -0.33 | [-0.61, -0.02] | 0.037 
-    ## stable1 * domainDESDvEXT                    |        0.12 | [-0.29,  0.48] | 0.547 
-    ## stable1 * domainINTvEXT                     |        0.38 | [ 0.11,  0.68] | 0.007 
-    ## stable1 * domainRADvEXT                     |        0.31 | [-0.08,  0.69] | 0.134 
-    ## stable1 * age_years - 16                    |       -0.03 | [-0.06,  0.00] | 0.036 
-    ## domainADHDvEXT * age_years - 16             |        0.04 | [ 0.00,  0.07] | 0.047 
-    ## domainDESDvEXT * age_years - 16             |        0.03 | [-0.01,  0.07] | 0.152 
-    ## domainINTvEXT * age_years - 16              |       -0.05 | [-0.08, -0.01] | 0.018 
-    ## domainRADvEXT * age_years - 16              |    1.31e-03 | [-0.04,  0.04] | 0.930 
-    ## (stable1 * domainADHDvEXT) * age_years - 16 |       -0.05 | [-0.09, -0.01] | 0.026 
-    ## (stable1 * domainDESDvEXT) * age_years - 16 |       -0.02 | [-0.06,  0.03] | 0.508 
-    ## (stable1 * domainINTvEXT) * age_years - 16  |        0.07 | [ 0.03,  0.11] | < .001
-    ## (stable1 * domainRADvEXT) * age_years - 16  |        0.05 | [ 0.00,  0.09] | 0.064
+    ## (Intercept)                                 |       -0.17 | [-0.34,  0.00] | 0.057 
+    ## stable1                                     |       -0.30 | [-0.52, -0.08] | 0.011 
+    ## domainADHDvEXT                              |        0.85 | [ 0.64,  1.05] | < .001
+    ## domainDESDvEXT                              |        0.22 | [-0.06,  0.49] | 0.135 
+    ## domainINTvEXT                               |       -0.27 | [-0.46, -0.08] | 0.008 
+    ## domainRADvEXT                               |       -0.10 | [-0.37,  0.18] | 0.489 
+    ## age_years - 16                              |    5.10e-03 | [-0.02,  0.03] | 0.697 
+    ## male [1]                                    |        0.32 | [ 0.09,  0.53] | 0.006 
+    ## informant1                                  |   -4.34e-03 | [-0.10,  0.09] | 0.955 
+    ## stable1 * domainADHDvEXT                    |       -0.32 | [-0.62, -0.05] | 0.023 
+    ## stable1 * domainDESDvEXT                    |        0.11 | [-0.30,  0.52] | 0.605 
+    ## stable1 * domainINTvEXT                     |        0.39 | [ 0.11,  0.65] | 0.007 
+    ## stable1 * domainRADvEXT                     |        0.32 | [-0.08,  0.71] | 0.110 
+    ## stable1 * age_years - 16                    |       -0.03 | [-0.07,  0.00] | 0.039 
+    ## domainADHDvEXT * age_years - 16             |        0.04 | [ 0.00,  0.07] | 0.056 
+    ## domainDESDvEXT * age_years - 16             |        0.03 | [-0.01,  0.07] | 0.182 
+    ## domainINTvEXT * age_years - 16              |       -0.05 | [-0.08, -0.01] | 0.014 
+    ## domainRADvEXT * age_years - 16              |    1.34e-03 | [-0.04,  0.04] | 0.943 
+    ## (stable1 * domainADHDvEXT) * age_years - 16 |       -0.05 | [-0.09,  0.00] | 0.046 
+    ## (stable1 * domainDESDvEXT) * age_years - 16 |       -0.02 | [-0.06,  0.04] | 0.521 
+    ## (stable1 * domainINTvEXT) * age_years - 16  |        0.07 | [ 0.02,  0.11] | < .001
+    ## (stable1 * domainRADvEXT) * age_years - 16  |        0.05 | [ 0.00,  0.10] | 0.070
 
 ###### Internalizing, 42 months (3.5 years)
 
@@ -6538,6 +6687,7 @@ a3_INT_age3 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a2_INT_age3_parameters <-
   model_parameters(
     a3_INT_age3,
@@ -6551,28 +6701,28 @@ a2_INT_age3_parameters
 
     ## Parameter                                    | Coefficient |         95% CI |      p
     ## ------------------------------------------------------------------------------------
-    ## (Intercept)                                  |        0.06 | [-0.22,  0.37] | 0.666 
-    ## stable1                                      |       -0.35 | [-0.67, -0.04] | 0.027 
-    ## domainADHDvINT                               |        0.12 | [-0.24,  0.45] | 0.544 
-    ## domainDESDvINT                               |       -0.43 | [-0.80, -0.08] | 0.018 
-    ## domainINTvINT                                |       -0.30 | [-0.68,  0.05] | 0.108 
-    ## domainRADvINT                                |       -0.41 | [-0.78, -0.03] | 0.030 
-    ## age_years - 3.5                              |       -0.04 | [-0.07, -0.01] | 0.006 
-    ## male [1]                                     |        0.31 | [ 0.10,  0.52] | 0.004 
-    ## informant1                                   |   -3.94e-03 | [-0.10,  0.09] | 0.949 
-    ## stable1 * domainADHDvINT                     |        0.73 | [ 0.35,  1.15] | 0.002 
-    ## stable1 * domainDESDvINT                     |        0.79 | [ 0.42,  1.18] | < .001
-    ## stable1 * domainINTvINT                      |        0.48 | [ 0.09,  0.88] | 0.020 
-    ## stable1 * domainRADvINT                      |        0.22 | [-0.19,  0.63] | 0.303 
-    ## stable1 * age_years - 3.5                    |        0.04 | [ 0.00,  0.07] | 0.036 
+    ## (Intercept)                                  |        0.06 | [-0.23,  0.33] | 0.677 
+    ## stable1                                      |       -0.35 | [-0.65, -0.05] | 0.016 
+    ## domainADHDvINT                               |        0.11 | [-0.22,  0.48] | 0.525 
+    ## domainDESDvINT                               |       -0.44 | [-0.78, -0.06] | 0.024 
+    ## domainINTvINT                                |       -0.29 | [-0.65,  0.08] | 0.110 
+    ## domainRADvINT                                |       -0.40 | [-0.77, -0.04] | 0.028 
+    ## age_years - 3.5                              |       -0.04 | [-0.07, -0.01] | 0.005 
+    ## male [1]                                     |        0.32 | [ 0.09,  0.53] | 0.006 
+    ## informant1                                   |   -4.34e-03 | [-0.10,  0.09] | 0.955 
+    ## stable1 * domainADHDvINT                     |        0.72 | [ 0.33,  1.10] | < .001
+    ## stable1 * domainDESDvINT                     |        0.80 | [ 0.37,  1.14] | < .001
+    ## stable1 * domainINTvINT                      |        0.47 | [ 0.05,  0.88] | 0.030 
+    ## stable1 * domainRADvINT                      |        0.21 | [-0.19,  0.60] | 0.293 
+    ## stable1 * age_years - 3.5                    |        0.03 | [ 0.01,  0.07] | 0.023 
     ## domainADHDvINT * age_years - 3.5             |        0.08 | [ 0.05,  0.12] | < .001
-    ## domainDESDvINT * age_years - 3.5             |        0.07 | [ 0.04,  0.11] | < .001
-    ## domainINTvINT * age_years - 3.5              |        0.05 | [ 0.01,  0.08] | 0.013 
-    ## domainRADvINT * age_years - 3.5              |        0.05 | [ 0.01,  0.09] | 0.028 
-    ## (stable1 * domainADHDvINT) * age_years - 3.5 |       -0.12 | [-0.16, -0.07] | < .001
-    ## (stable1 * domainDESDvINT) * age_years - 3.5 |       -0.08 | [-0.13, -0.04] | 0.002 
-    ## (stable1 * domainINTvINT) * age_years - 3.5  |       -0.07 | [-0.11, -0.03] | 0.002 
-    ## (stable1 * domainRADvINT) * age_years - 3.5  |       -0.02 | [-0.07,  0.03] | 0.379
+    ## domainDESDvINT * age_years - 3.5             |        0.07 | [ 0.03,  0.11] | < .001
+    ## domainINTvINT * age_years - 3.5              |        0.05 | [ 0.01,  0.08] | 0.014 
+    ## domainRADvINT * age_years - 3.5              |        0.05 | [ 0.01,  0.08] | 0.023 
+    ## (stable1 * domainADHDvINT) * age_years - 3.5 |       -0.11 | [-0.16, -0.07] | < .001
+    ## (stable1 * domainDESDvINT) * age_years - 3.5 |       -0.09 | [-0.13, -0.04] | < .001
+    ## (stable1 * domainINTvINT) * age_years - 3.5  |       -0.07 | [-0.11, -0.02] | < .001
+    ## (stable1 * domainRADvINT) * age_years - 3.5  |       -0.02 | [-0.07,  0.03] | 0.345
 
 ###### Internalizing, 8 years
 
@@ -6586,6 +6736,7 @@ a3_INT_age8 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_INT_age8_parameters <-
   model_parameters(
     a3_INT_age8,
@@ -6599,28 +6750,28 @@ a3_INT_age8_parameters
 
     ## Parameter                                  | Coefficient |         95% CI |      p
     ## ----------------------------------------------------------------------------------
-    ## (Intercept)                                |       -0.11 | [-0.33,  0.08] | 0.240 
-    ## stable1                                    |       -0.20 | [-0.40,  0.00] | 0.054 
-    ## domainADHDvINT                             |        0.47 | [ 0.25,  0.68] | < .001
-    ## domainDESDvINT                             |       -0.10 | [-0.34,  0.13] | 0.361 
-    ## domainINTvINT                              |       -0.09 | [-0.32,  0.12] | 0.399 
-    ## domainRADvINT                              |       -0.20 | [-0.43,  0.02] | 0.073 
-    ## age_years - 8                              |       -0.04 | [-0.07, -0.01] | 0.004 
-    ## male [1]                                   |        0.31 | [ 0.10,  0.53] | 0.004 
-    ## informant1                                 |   -6.55e-03 | [-0.10,  0.09] | 0.910 
-    ## stable1 * domainADHDvINT                   |        0.21 | [-0.03,  0.48] | 0.086 
-    ## stable1 * domainDESDvINT                   |        0.40 | [ 0.15,  0.66] | 0.002 
-    ## stable1 * domainINTvINT                    |        0.17 | [-0.08,  0.42] | 0.179 
-    ## stable1 * domainRADvINT                    |        0.12 | [-0.14,  0.37] | 0.356 
-    ## stable1 * age_years - 8                    |        0.04 | [ 0.00,  0.07] | 0.027 
+    ## (Intercept)                                |       -0.12 | [-0.32,  0.07] | 0.223 
+    ## stable1                                    |       -0.20 | [-0.39,  0.01] | 0.062 
+    ## domainADHDvINT                             |        0.48 | [ 0.26,  0.71] | < .001
+    ## domainDESDvINT                             |       -0.11 | [-0.34,  0.14] | 0.365 
+    ## domainINTvINT                              |       -0.09 | [-0.32,  0.15] | 0.452 
+    ## domainRADvINT                              |       -0.19 | [-0.42,  0.04] | 0.112 
+    ## age_years - 8                              |       -0.04 | [-0.07, -0.01] | 0.005 
+    ## male [1]                                   |        0.32 | [ 0.09,  0.53] | 0.006 
+    ## informant1                                 |   -4.34e-03 | [-0.10,  0.09] | 0.955 
+    ## stable1 * domainADHDvINT                   |        0.21 | [-0.05,  0.46] | 0.109 
+    ## stable1 * domainDESDvINT                   |        0.40 | [ 0.13,  0.67] | 0.003 
+    ## stable1 * domainINTvINT                    |        0.16 | [-0.11,  0.43] | 0.223 
+    ## stable1 * domainRADvINT                    |        0.11 | [-0.15,  0.38] | 0.423 
+    ## stable1 * age_years - 8                    |        0.03 | [ 0.01,  0.07] | 0.023 
     ## domainADHDvINT * age_years - 8             |        0.08 | [ 0.05,  0.12] | < .001
-    ## domainDESDvINT * age_years - 8             |        0.07 | [ 0.04,  0.11] | 0.002 
-    ## domainINTvINT * age_years - 8              |        0.05 | [ 0.01,  0.08] | 0.005 
-    ## domainRADvINT * age_years - 8              |        0.05 | [ 0.01,  0.09] | 0.015 
-    ## (stable1 * domainADHDvINT) * age_years - 8 |       -0.12 | [-0.16, -0.07] | < .001
-    ## (stable1 * domainDESDvINT) * age_years - 8 |       -0.08 | [-0.13, -0.04] | 0.003 
-    ## (stable1 * domainINTvINT) * age_years - 8  |       -0.07 | [-0.11, -0.03] | < .001
-    ## (stable1 * domainRADvINT) * age_years - 8  |       -0.02 | [-0.07,  0.02] | 0.277
+    ## domainDESDvINT * age_years - 8             |        0.07 | [ 0.03,  0.11] | < .001
+    ## domainINTvINT * age_years - 8              |        0.05 | [ 0.01,  0.08] | 0.014 
+    ## domainRADvINT * age_years - 8              |        0.05 | [ 0.01,  0.08] | 0.023 
+    ## (stable1 * domainADHDvINT) * age_years - 8 |       -0.11 | [-0.16, -0.07] | < .001
+    ## (stable1 * domainDESDvINT) * age_years - 8 |       -0.09 | [-0.13, -0.04] | < .001
+    ## (stable1 * domainINTvINT) * age_years - 8  |       -0.07 | [-0.11, -0.02] | < .001
+    ## (stable1 * domainRADvINT) * age_years - 8  |       -0.02 | [-0.07,  0.03] | 0.345
 
 ###### Internalizing, 16 years
 
@@ -6634,6 +6785,7 @@ a3_INT_age16 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_INT_age16_parameters <-
   model_parameters(
     a3_INT_age16,
@@ -6647,28 +6799,28 @@ a3_INT_age16_parameters
 
     ## Parameter                                   | Coefficient |         95% CI |      p
     ## -----------------------------------------------------------------------------------
-    ## (Intercept)                                 |       -0.44 | [-0.63, -0.26] | < .001
-    ## stable1                                     |        0.09 | [-0.14,  0.32] | 0.444 
-    ## domainADHDvINT                              |        1.13 | [ 0.92,  1.34] | < .001
-    ## domainDESDvINT                              |        0.49 | [ 0.20,  0.75] | < .001
-    ## domainINTvINT                               |        0.28 | [ 0.08,  0.49] | 0.007 
-    ## domainRADvINT                               |        0.19 | [-0.08,  0.44] | 0.175 
-    ## age_years - 16                              |       -0.04 | [-0.07, -0.02] | 0.003 
-    ## male [1]                                    |        0.31 | [ 0.09,  0.50] | 0.005 
-    ## informant1                                  |   -4.31e-03 | [-0.10,  0.09] | 0.917 
-    ## stable1 * domainADHDvINT                    |       -0.71 | [-1.00, -0.39] | < .001
-    ## stable1 * domainDESDvINT                    |       -0.28 | [-0.65,  0.09] | 0.141 
-    ## stable1 * domainINTvINT                     |       -0.40 | [-0.69, -0.11] | 0.012 
-    ## stable1 * domainRADvINT                     |       -0.08 | [-0.48,  0.30] | 0.679 
-    ## stable1 * age_years - 16                    |        0.04 | [ 0.01,  0.07] | 0.021 
+    ## (Intercept)                                 |       -0.44 | [-0.62, -0.26] | < .001
+    ## stable1                                     |        0.08 | [-0.14,  0.30] | 0.479 
+    ## domainADHDvINT                              |        1.13 | [ 0.94,  1.32] | < .001
+    ## domainDESDvINT                              |        0.49 | [ 0.22,  0.76] | < .001
+    ## domainINTvINT                               |        0.27 | [ 0.08,  0.46] | 0.008 
+    ## domainRADvINT                               |        0.18 | [-0.09,  0.45] | 0.213 
+    ## age_years - 16                              |       -0.04 | [-0.07, -0.01] | 0.005 
+    ## male [1]                                    |        0.32 | [ 0.09,  0.53] | 0.006 
+    ## informant1                                  |   -4.34e-03 | [-0.10,  0.09] | 0.955 
+    ## stable1 * domainADHDvINT                    |       -0.71 | [-0.99, -0.44] | < .001
+    ## stable1 * domainDESDvINT                    |       -0.28 | [-0.66,  0.12] | 0.173 
+    ## stable1 * domainINTvINT                     |       -0.39 | [-0.65, -0.11] | 0.007 
+    ## stable1 * domainRADvINT                     |       -0.07 | [-0.48,  0.32] | 0.726 
+    ## stable1 * age_years - 16                    |        0.03 | [ 0.01,  0.07] | 0.023 
     ## domainADHDvINT * age_years - 16             |        0.08 | [ 0.05,  0.12] | < .001
-    ## domainDESDvINT * age_years - 16             |        0.08 | [ 0.03,  0.12] | 0.003 
-    ## domainINTvINT * age_years - 16              |        0.05 | [ 0.01,  0.08] | 0.011 
-    ## domainRADvINT * age_years - 16              |        0.05 | [ 0.01,  0.09] | 0.014 
-    ## (stable1 * domainADHDvINT) * age_years - 16 |       -0.12 | [-0.16, -0.07] | < .001
-    ## (stable1 * domainDESDvINT) * age_years - 16 |       -0.09 | [-0.14, -0.04] | 0.002 
-    ## (stable1 * domainINTvINT) * age_years - 16  |       -0.07 | [-0.11, -0.03] | 0.002 
-    ## (stable1 * domainRADvINT) * age_years - 16  |       -0.03 | [-0.07,  0.02] | 0.307
+    ## domainDESDvINT * age_years - 16             |        0.07 | [ 0.03,  0.11] | < .001
+    ## domainINTvINT * age_years - 16              |        0.05 | [ 0.01,  0.08] | 0.014 
+    ## domainRADvINT * age_years - 16              |        0.05 | [ 0.01,  0.08] | 0.023 
+    ## (stable1 * domainADHDvINT) * age_years - 16 |       -0.11 | [-0.16, -0.07] | < .001
+    ## (stable1 * domainDESDvINT) * age_years - 16 |       -0.09 | [-0.13, -0.04] | < .001
+    ## (stable1 * domainINTvINT) * age_years - 16  |       -0.07 | [-0.11, -0.02] | < .001
+    ## (stable1 * domainRADvINT) * age_years - 16  |       -0.02 | [-0.07,  0.03] | 0.345
 
 ###### RAD, 42 months (3.5 years)
 
@@ -6690,6 +6842,7 @@ a3_RAD_age3 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_RAD_age3_parameters <- 
   model_parameters(
     a3_RAD_age3,
@@ -6703,28 +6856,28 @@ a3_RAD_age3_parameters
 
     ## Parameter                                    | Coefficient |         95% CI |      p
     ## ------------------------------------------------------------------------------------
-    ## (Intercept)                                  |       -0.34 | [-0.64, -0.04] | 0.028 
-    ## stable1                                      |       -0.14 | [-0.43,  0.18] | 0.425 
-    ## domainADHDvRAD                               |        0.52 | [ 0.15,  0.92] | 0.010 
-    ## domainDESDvRAD                               |       -0.02 | [-0.39,  0.37] | 0.918 
-    ## domainEXTvRAD                                |        0.12 | [-0.23,  0.48] | 0.522 
-    ## domainINTvRAD                                |        0.41 | [ 0.05,  0.77] | 0.032 
-    ## age_years - 3.5                              |    7.04e-03 | [-0.02,  0.04] | 0.664 
-    ## male [1]                                     |        0.31 | [ 0.08,  0.52] | 0.007 
-    ## informant1                                   |   -3.00e-03 | [-0.10,  0.09] | 0.949 
-    ## stable1 * domainADHDvRAD                     |        0.50 | [ 0.09,  0.89] | 0.020 
-    ## stable1 * domainDESDvRAD                     |        0.55 | [ 0.16,  0.97] | 0.010 
-    ## stable1 * domainEXTvRAD                      |        0.25 | [-0.16,  0.64] | 0.220 
-    ## stable1 * domainINTvRAD                      |       -0.22 | [-0.60,  0.20] | 0.296 
-    ## stable1 * age_years - 3.5                    |        0.01 | [-0.03,  0.05] | 0.574 
-    ## domainADHDvRAD * age_years - 3.5             |        0.03 | [-0.01,  0.07] | 0.099 
-    ## domainDESDvRAD * age_years - 3.5             |        0.03 | [-0.02,  0.07] | 0.256 
-    ## domainEXTvRAD * age_years - 3.5              |   -2.58e-03 | [-0.04,  0.04] | 0.904 
-    ## domainINTvRAD * age_years - 3.5              |       -0.05 | [-0.09, -0.01] | 0.019 
+    ## (Intercept)                                  |       -0.34 | [-0.62, -0.07] | 0.021 
+    ## stable1                                      |       -0.14 | [-0.45,  0.17] | 0.374 
+    ## domainADHDvRAD                               |        0.52 | [ 0.15,  0.88] | 0.005 
+    ## domainDESDvRAD                               |       -0.03 | [-0.40,  0.34] | 0.839 
+    ## domainEXTvRAD                                |        0.12 | [-0.28,  0.49] | 0.567 
+    ## domainINTvRAD                                |        0.40 | [ 0.04,  0.77] | 0.028 
+    ## age_years - 3.5                              |    6.51e-03 | [-0.02,  0.04] | 0.682 
+    ## male [1]                                     |        0.32 | [ 0.09,  0.53] | 0.006 
+    ## informant1                                   |   -4.34e-03 | [-0.10,  0.09] | 0.955 
+    ## stable1 * domainADHDvRAD                     |        0.51 | [ 0.12,  0.89] | 0.014 
+    ## stable1 * domainDESDvRAD                     |        0.57 | [ 0.18,  0.99] | 0.007 
+    ## stable1 * domainEXTvRAD                      |        0.26 | [-0.16,  0.69] | 0.225 
+    ## stable1 * domainINTvRAD                      |       -0.21 | [-0.60,  0.19] | 0.293 
+    ## stable1 * age_years - 3.5                    |        0.01 | [-0.02,  0.05] | 0.548 
+    ## domainADHDvRAD * age_years - 3.5             |        0.03 | [ 0.00,  0.07] | 0.098 
+    ## domainDESDvRAD * age_years - 3.5             |        0.03 | [-0.02,  0.07] | 0.210 
+    ## domainEXTvRAD * age_years - 3.5              |   -1.34e-03 | [-0.04,  0.04] | 0.943 
+    ## domainINTvRAD * age_years - 3.5              |       -0.05 | [-0.08, -0.01] | 0.023 
     ## (stable1 * domainADHDvRAD) * age_years - 3.5 |       -0.09 | [-0.14, -0.04] | < .001
-    ## (stable1 * domainDESDvRAD) * age_years - 3.5 |       -0.06 | [-0.11, -0.01] | 0.014 
-    ## (stable1 * domainEXTvRAD) * age_years - 3.5  |       -0.04 | [-0.09,  0.00] | 0.081 
-    ## (stable1 * domainINTvRAD) * age_years - 3.5  |        0.02 | [-0.02,  0.07] | 0.347
+    ## (stable1 * domainDESDvRAD) * age_years - 3.5 |       -0.06 | [-0.12, -0.01] | 0.023 
+    ## (stable1 * domainEXTvRAD) * age_years - 3.5  |       -0.05 | [-0.10,  0.00] | 0.070 
+    ## (stable1 * domainINTvRAD) * age_years - 3.5  |        0.02 | [-0.03,  0.07] | 0.345
 
 ###### RAD, 8 years
 
@@ -6738,6 +6891,7 @@ a3_RAD_age8 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_RAD_age8_parameters <- 
   model_parameters(
     a3_RAD_age8,
@@ -6751,28 +6905,28 @@ a3_RAD_age8_parameters
 
     ## Parameter                                  | Coefficient |         95% CI |      p
     ## ----------------------------------------------------------------------------------
-    ## (Intercept)                                |       -0.31 | [-0.53, -0.09] | 0.002 
-    ## stable1                                    |       -0.09 | [-0.33,  0.14] | 0.400 
-    ## domainADHDvRAD                             |        0.67 | [ 0.42,  0.90] | < .001
-    ## domainDESDvRAD                             |        0.09 | [-0.15,  0.31] | 0.450 
-    ## domainEXTvRAD                              |        0.10 | [-0.14,  0.35] | 0.416 
-    ## domainINTvRAD                              |        0.19 | [-0.04,  0.43] | 0.119 
-    ## age_years - 8                              |    6.87e-03 | [-0.03,  0.04] | 0.677 
-    ## male [1]                                   |        0.31 | [ 0.09,  0.53] | 0.006 
-    ## informant1                                 |   -3.31e-03 | [-0.10,  0.09] | 0.944 
-    ## stable1 * domainADHDvRAD                   |        0.10 | [-0.17,  0.38] | 0.468 
-    ## stable1 * domainDESDvRAD                   |        0.29 | [ 0.01,  0.58] | 0.046 
-    ## stable1 * domainEXTvRAD                    |        0.06 | [-0.20,  0.34] | 0.697 
-    ## stable1 * domainINTvRAD                    |       -0.11 | [-0.40,  0.17] | 0.435 
-    ## stable1 * age_years - 8                    |        0.01 | [-0.03,  0.05] | 0.539 
-    ## domainADHDvRAD * age_years - 8             |        0.03 | [ 0.00,  0.08] | 0.097 
-    ## domainDESDvRAD * age_years - 8             |        0.03 | [-0.02,  0.07] | 0.221 
-    ## domainEXTvRAD * age_years - 8              |   -9.56e-04 | [-0.04,  0.04] | 0.976 
-    ## domainINTvRAD * age_years - 8              |       -0.05 | [-0.09, -0.01] | 0.029 
-    ## (stable1 * domainADHDvRAD) * age_years - 8 |       -0.09 | [-0.15, -0.04] | 0.002 
-    ## (stable1 * domainDESDvRAD) * age_years - 8 |       -0.06 | [-0.12,  0.00] | 0.025 
-    ## (stable1 * domainEXTvRAD) * age_years - 8  |       -0.05 | [-0.10,  0.00] | 0.069 
-    ## (stable1 * domainINTvRAD) * age_years - 8  |        0.02 | [-0.02,  0.07] | 0.394
+    ## (Intercept)                                |       -0.31 | [-0.53, -0.12] | < .001
+    ## stable1                                    |       -0.08 | [-0.32,  0.14] | 0.474 
+    ## domainADHDvRAD                             |        0.67 | [ 0.45,  0.91] | < .001
+    ## domainDESDvRAD                             |        0.09 | [-0.14,  0.32] | 0.441 
+    ## domainEXTvRAD                              |        0.10 | [-0.14,  0.36] | 0.393 
+    ## domainINTvRAD                              |        0.19 | [-0.04,  0.42] | 0.112 
+    ## age_years - 8                              |    6.51e-03 | [-0.02,  0.04] | 0.682 
+    ## male [1]                                   |        0.32 | [ 0.09,  0.53] | 0.006 
+    ## informant1                                 |   -4.34e-03 | [-0.10,  0.09] | 0.955 
+    ## stable1 * domainADHDvRAD                   |        0.10 | [-0.17,  0.37] | 0.475 
+    ## stable1 * domainDESDvRAD                   |        0.29 | [-0.01,  0.56] | 0.051 
+    ## stable1 * domainEXTvRAD                    |        0.05 | [-0.25,  0.33] | 0.721 
+    ## stable1 * domainINTvRAD                    |       -0.11 | [-0.38,  0.15] | 0.423 
+    ## stable1 * age_years - 8                    |        0.01 | [-0.02,  0.05] | 0.548 
+    ## domainADHDvRAD * age_years - 8             |        0.03 | [ 0.00,  0.07] | 0.098 
+    ## domainDESDvRAD * age_years - 8             |        0.03 | [-0.02,  0.07] | 0.210 
+    ## domainEXTvRAD * age_years - 8              |   -1.34e-03 | [-0.04,  0.04] | 0.943 
+    ## domainINTvRAD * age_years - 8              |       -0.05 | [-0.08, -0.01] | 0.023 
+    ## (stable1 * domainADHDvRAD) * age_years - 8 |       -0.09 | [-0.14, -0.04] | < .001
+    ## (stable1 * domainDESDvRAD) * age_years - 8 |       -0.06 | [-0.12, -0.01] | 0.023 
+    ## (stable1 * domainEXTvRAD) * age_years - 8  |       -0.05 | [-0.10,  0.00] | 0.070 
+    ## (stable1 * domainINTvRAD) * age_years - 8  |        0.02 | [-0.03,  0.07] | 0.345
 
 ###### RAD, 16 years
 
@@ -6786,6 +6940,7 @@ a3_RAD_age16 <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_RAD_age16_parameters <- 
   model_parameters(
     a3_RAD_age16,
@@ -6799,28 +6954,28 @@ a3_RAD_age16_parameters
 
     ## Parameter                                   | Coefficient |         95% CI |      p
     ## -----------------------------------------------------------------------------------
-    ## (Intercept)                                 |       -0.25 | [-0.52,  0.01] | 0.065 
-    ## stable1                                     |    9.28e-03 | [-0.36,  0.37] | 0.966 
+    ## (Intercept)                                 |       -0.26 | [-0.53, -0.01] | 0.052 
+    ## stable1                                     |        0.02 | [-0.34,  0.36] | 0.939 
     ## domainADHDvRAD                              |        0.94 | [ 0.67,  1.22] | < .001
-    ## domainDESDvRAD                              |        0.30 | [-0.02,  0.63] | 0.075 
-    ## domainEXTvRAD                               |        0.09 | [-0.18,  0.35] | 0.542 
-    ## domainINTvRAD                               |       -0.18 | [-0.46,  0.10] | 0.196 
-    ## age_years - 16                              |    7.89e-03 | [-0.02,  0.04] | 0.659 
-    ## male [1]                                    |        0.31 | [ 0.09,  0.55] | 0.008 
-    ## informant1                                  |   -2.05e-04 | [-0.10,  0.09] | 0.979 
-    ## stable1 * domainADHDvRAD                    |       -0.62 | [-1.04, -0.23] | 0.004 
-    ## stable1 * domainDESDvRAD                    |       -0.19 | [-0.66,  0.28] | 0.429 
-    ## stable1 * domainEXTvRAD                     |       -0.31 | [-0.70,  0.11] | 0.150 
-    ## stable1 * domainINTvRAD                     |        0.07 | [-0.30,  0.50] | 0.706 
-    ## stable1 * age_years - 16                    |        0.01 | [-0.03,  0.05] | 0.587 
-    ## domainADHDvRAD * age_years - 16             |        0.03 | [-0.01,  0.07] | 0.112 
-    ## domainDESDvRAD * age_years - 16             |        0.02 | [-0.02,  0.07] | 0.255 
-    ## domainEXTvRAD * age_years - 16              |   -1.75e-03 | [-0.04,  0.04] | 0.918 
-    ## domainINTvRAD * age_years - 16              |       -0.05 | [-0.09, -0.01] | 0.020 
+    ## domainDESDvRAD                              |        0.31 | [-0.01,  0.64] | 0.062 
+    ## domainEXTvRAD                               |        0.10 | [-0.18,  0.37] | 0.489 
+    ## domainINTvRAD                               |       -0.18 | [-0.45,  0.09] | 0.213 
+    ## age_years - 16                              |    6.51e-03 | [-0.02,  0.04] | 0.682 
+    ## male [1]                                    |        0.32 | [ 0.09,  0.53] | 0.006 
+    ## informant1                                  |   -4.34e-03 | [-0.10,  0.09] | 0.955 
+    ## stable1 * domainADHDvRAD                    |       -0.65 | [-1.02, -0.23] | 0.002 
+    ## stable1 * domainDESDvRAD                    |       -0.21 | [-0.67,  0.26] | 0.379 
+    ## stable1 * domainEXTvRAD                     |       -0.32 | [-0.71,  0.08] | 0.110 
+    ## stable1 * domainINTvRAD                     |        0.07 | [-0.32,  0.48] | 0.726 
+    ## stable1 * age_years - 16                    |        0.01 | [-0.02,  0.05] | 0.548 
+    ## domainADHDvRAD * age_years - 16             |        0.03 | [ 0.00,  0.07] | 0.098 
+    ## domainDESDvRAD * age_years - 16             |        0.03 | [-0.02,  0.07] | 0.210 
+    ## domainEXTvRAD * age_years - 16              |   -1.34e-03 | [-0.04,  0.04] | 0.943 
+    ## domainINTvRAD * age_years - 16              |       -0.05 | [-0.08, -0.01] | 0.023 
     ## (stable1 * domainADHDvRAD) * age_years - 16 |       -0.09 | [-0.14, -0.04] | < .001
-    ## (stable1 * domainDESDvRAD) * age_years - 16 |       -0.06 | [-0.12, -0.01] | 0.032 
-    ## (stable1 * domainEXTvRAD) * age_years - 16  |       -0.05 | [-0.09,  0.01] | 0.074 
-    ## (stable1 * domainINTvRAD) * age_years - 16  |        0.02 | [-0.02,  0.07] | 0.348
+    ## (stable1 * domainDESDvRAD) * age_years - 16 |       -0.06 | [-0.12, -0.01] | 0.023 
+    ## (stable1 * domainEXTvRAD) * age_years - 16  |       -0.05 | [-0.10,  0.00] | 0.070 
+    ## (stable1 * domainINTvRAD) * age_years - 16  |        0.02 | [-0.03,  0.07] | 0.345
 
 ###### Simple effects of age of asssesment
 
@@ -6845,6 +7000,7 @@ a3_psy_stab_age3_male <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stab_age3_male_parameters <- 
   model_parameters(
     a3_psy_stab_age3_male,
@@ -6857,18 +7013,18 @@ a3_psy_stab_age3_male_parameters
 
     ## Parameter                              | Coefficient |         95% CI |      p
     ## ------------------------------------------------------------------------------
-    ## (Intercept)                            |       -0.09 | [-0.33,  0.16] | 0.478 
-    ## stable1                                |        0.23 | [ 0.01,  0.46] | 0.040 
-    ## age_years - 3.5                        |        0.02 | [ 0.00,  0.04] | 0.065 
-    ## male [1]                               |       -0.08 | [-0.46,  0.26] | 0.666 
+    ## (Intercept)                            |       -0.08 | [-0.32,  0.15] | 0.488 
+    ## stable1                                |        0.23 | [ 0.01,  0.46] | 0.039 
+    ## age_years - 3.5                        |        0.02 | [ 0.00,  0.04] | 0.076 
+    ## male [1]                               |       -0.11 | [-0.45,  0.27] | 0.594 
     ## domainDESDvADHD                        |       -0.48 | [-0.60, -0.37] | < .001
-    ## domainEXTvADHD                         |       -0.65 | [-0.75, -0.56] | < .001
-    ## domainINTvADHD                         |       -0.73 | [-0.83, -0.63] | < .001
-    ## domainRADvADHD                         |       -0.82 | [-0.94, -0.70] | < .001
-    ## informant1                             |       -0.01 | [-0.11,  0.07] | 0.768 
-    ## stable1 * age_years - 3.5              |       -0.04 | [-0.06, -0.02] | < .001
-    ## stable1 * male [1]                     |       -0.34 | [-0.64,  0.01] | 0.049 
-    ## age_years - 3.5 * male [1]             |       -0.02 | [-0.05,  0.01] | 0.140 
+    ## domainEXTvADHD                         |       -0.65 | [-0.75, -0.55] | < .001
+    ## domainINTvADHD                         |       -0.73 | [-0.83, -0.64] | < .001
+    ## domainRADvADHD                         |       -0.83 | [-0.93, -0.71] | < .001
+    ## informant1                             |       -0.02 | [-0.11,  0.08] | 0.760 
+    ## stable1 * age_years - 3.5              |       -0.04 | [-0.07, -0.02] | < .001
+    ## stable1 * male [1]                     |       -0.34 | [-0.66,  0.00] | 0.050 
+    ## age_years - 3.5 * male [1]             |       -0.02 | [-0.05,  0.01] | 0.158 
     ## (stable1 * age_years - 3.5) * male [1] |        0.04 | [ 0.01,  0.07] | 0.014
 
 ###### Male, 8 years
@@ -6883,6 +7039,7 @@ a3_psy_stab_age8_male <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stab_age8_male_parameters <- 
   model_parameters(
     a3_psy_stab_age8_male,
@@ -6895,19 +7052,19 @@ a3_psy_stab_age8_male_parameters
 
     ## Parameter                            | Coefficient |         95% CI |      p
     ## ----------------------------------------------------------------------------
-    ## (Intercept)                          |       -0.01 | [-0.20,  0.17] | 0.902 
-    ## stable1                              |        0.04 | [-0.12,  0.21] | 0.622 
-    ## age_years - 8                        |        0.02 | [ 0.00,  0.04] | 0.061 
-    ## male [1]                             |       -0.18 | [-0.45,  0.11] | 0.212 
-    ## domainDESDvADHD                      |       -0.48 | [-0.59, -0.36] | < .001
-    ## domainEXTvADHD                       |       -0.65 | [-0.75, -0.56] | < .001
+    ## (Intercept)                          |   -3.30e-03 | [-0.19,  0.18] | 0.952 
+    ## stable1                              |        0.04 | [-0.13,  0.21] | 0.666 
+    ## age_years - 8                        |        0.02 | [ 0.00,  0.04] | 0.076 
+    ## male [1]                             |       -0.19 | [-0.46,  0.10] | 0.186 
+    ## domainDESDvADHD                      |       -0.48 | [-0.60, -0.37] | < .001
+    ## domainEXTvADHD                       |       -0.65 | [-0.75, -0.55] | < .001
     ## domainINTvADHD                       |       -0.73 | [-0.83, -0.64] | < .001
-    ## domainRADvADHD                       |       -0.83 | [-0.94, -0.72] | < .001
-    ## informant1                           |       -0.01 | [-0.11,  0.08] | 0.765 
+    ## domainRADvADHD                       |       -0.83 | [-0.93, -0.71] | < .001
+    ## informant1                           |       -0.02 | [-0.11,  0.08] | 0.760 
     ## stable1 * age_years - 8              |       -0.04 | [-0.07, -0.02] | < .001
-    ## stable1 * male [1]                   |       -0.16 | [-0.40,  0.09] | 0.184 
-    ## age_years - 8 * male [1]             |       -0.02 | [-0.05,  0.01] | 0.121 
-    ## (stable1 * age_years - 8) * male [1] |        0.04 | [ 0.01,  0.07] | 0.015
+    ## stable1 * male [1]                   |       -0.15 | [-0.38,  0.11] | 0.227 
+    ## age_years - 8 * male [1]             |       -0.02 | [-0.05,  0.01] | 0.158 
+    ## (stable1 * age_years - 8) * male [1] |        0.04 | [ 0.01,  0.07] | 0.014
 
 ###### Male, 16 years
 
@@ -6921,6 +7078,7 @@ a3_psy_stab_age16_male <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stab_age16_male_parameters <- 
   model_parameters(
     a3_psy_stab_age16_male,
@@ -6933,19 +7091,19 @@ a3_psy_stab_age16_male_parameters
 
     ## Parameter                             | Coefficient |         95% CI |      p
     ## -----------------------------------------------------------------------------
-    ## (Intercept)                           |        0.13 | [-0.06,  0.31] | 0.172 
-    ## stable1                               |       -0.32 | [-0.52, -0.10] | 0.003 
-    ## age_years - 16                        |        0.02 | [ 0.00,  0.04] | 0.080 
-    ## male [1]                              |       -0.35 | [-0.63, -0.09] | 0.013 
+    ## (Intercept)                           |        0.14 | [-0.05,  0.32] | 0.160 
+    ## stable1                               |       -0.31 | [-0.51, -0.11] | 0.003 
+    ## age_years - 16                        |        0.02 | [ 0.00,  0.04] | 0.076 
+    ## male [1]                              |       -0.35 | [-0.62, -0.10] | 0.016 
     ## domainDESDvADHD                       |       -0.48 | [-0.60, -0.37] | < .001
-    ## domainEXTvADHD                        |       -0.65 | [-0.75, -0.56] | < .001
+    ## domainEXTvADHD                        |       -0.65 | [-0.75, -0.55] | < .001
     ## domainINTvADHD                        |       -0.73 | [-0.83, -0.64] | < .001
-    ## domainRADvADHD                        |       -0.83 | [-0.94, -0.72] | < .001
-    ## informant1                            |       -0.02 | [-0.11,  0.08] | 0.694 
+    ## domainRADvADHD                        |       -0.83 | [-0.93, -0.71] | < .001
+    ## informant1                            |       -0.02 | [-0.11,  0.08] | 0.760 
     ## stable1 * age_years - 16              |       -0.04 | [-0.07, -0.02] | < .001
-    ## stable1 * male [1]                    |        0.18 | [-0.13,  0.46] | 0.253 
-    ## age_years - 16 * male [1]             |       -0.02 | [-0.05,  0.01] | 0.143 
-    ## (stable1 * age_years - 16) * male [1] |        0.04 | [ 0.01,  0.07] | 0.019
+    ## stable1 * male [1]                    |        0.18 | [-0.11,  0.46] | 0.243 
+    ## age_years - 16 * male [1]             |       -0.02 | [-0.05,  0.01] | 0.158 
+    ## (stable1 * age_years - 16) * male [1] |        0.04 | [ 0.01,  0.07] | 0.014
 
 ###### Female, 42 months (3.5 years)
 
@@ -6961,6 +7119,7 @@ a3_psy_stab_age3_female <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stab_age3_female_parameters <- 
   model_parameters(
     a3_psy_stab_age3_female,
@@ -6973,19 +7132,19 @@ a3_psy_stab_age3_female_parameters
 
     ## Parameter                              | Coefficient |         95% CI |      p
     ## ------------------------------------------------------------------------------
-    ## (Intercept)                            |       -0.17 | [-0.43,  0.08] | 0.174 
-    ## stable1                                |       -0.10 | [-0.35,  0.13] | 0.391 
-    ## age_years - 3.5                        |   -3.68e-03 | [-0.02,  0.02] | 0.696 
-    ## male [1]                               |        0.08 | [-0.27,  0.43] | 0.629 
-    ## domainDESDvADHD                        |       -0.48 | [-0.59, -0.37] | < .001
-    ## domainEXTvADHD                         |       -0.65 | [-0.75, -0.56] | < .001
+    ## (Intercept)                            |       -0.18 | [-0.45,  0.07] | 0.163 
+    ## stable1                                |       -0.09 | [-0.34,  0.14] | 0.432 
+    ## age_years - 3.5                        |   -2.56e-03 | [-0.02,  0.02] | 0.780 
+    ## male [1]                               |        0.11 | [-0.27,  0.45] | 0.594 
+    ## domainDESDvADHD                        |       -0.48 | [-0.60, -0.37] | < .001
+    ## domainEXTvADHD                         |       -0.65 | [-0.75, -0.55] | < .001
     ## domainINTvADHD                         |       -0.73 | [-0.83, -0.64] | < .001
-    ## domainRADvADHD                         |       -0.83 | [-0.94, -0.72] | < .001
-    ## informant1                             |       -0.02 | [-0.11,  0.08] | 0.738 
-    ## stable1 * age_years - 3.5              |   -2.89e-03 | [-0.03,  0.02] | 0.835 
-    ## stable1 * male [1]                     |        0.34 | [ 0.02,  0.69] | 0.046 
-    ## age_years - 3.5 * male [1]             |        0.02 | [ 0.00,  0.05] | 0.124 
-    ## (stable1 * age_years - 3.5) * male [1] |       -0.04 | [-0.08, -0.01] | 0.018
+    ## domainRADvADHD                         |       -0.83 | [-0.93, -0.71] | < .001
+    ## informant1                             |       -0.02 | [-0.11,  0.08] | 0.760 
+    ## stable1 * age_years - 3.5              |   -3.50e-03 | [-0.03,  0.02] | 0.791 
+    ## stable1 * male [1]                     |        0.34 | [ 0.00,  0.66] | 0.050 
+    ## age_years - 3.5 * male [1]             |        0.02 | [-0.01,  0.05] | 0.158 
+    ## (stable1 * age_years - 3.5) * male [1] |       -0.04 | [-0.07, -0.01] | 0.014
 
 ###### Female, 8 years
 
@@ -6999,6 +7158,7 @@ a3_psy_stab_age8_female <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stab_age8_female_parameters <- 
   model_parameters(
     a3_psy_stab_age8_female,
@@ -7011,19 +7171,19 @@ a3_psy_stab_age8_female_parameters
 
     ## Parameter                            | Coefficient |         95% CI |      p
     ## ----------------------------------------------------------------------------
-    ## (Intercept)                          |       -0.19 | [-0.39,  0.00] | 0.061 
-    ## stable1                              |       -0.12 | [-0.28,  0.06] | 0.212 
-    ## age_years - 8                        |   -2.83e-03 | [-0.02,  0.02] | 0.764 
-    ## male [1]                             |        0.17 | [-0.10,  0.45] | 0.214 
-    ## domainDESDvADHD                      |       -0.48 | [-0.59, -0.36] | < .001
-    ## domainEXTvADHD                       |       -0.65 | [-0.75, -0.56] | < .001
-    ## domainINTvADHD                       |       -0.73 | [-0.83, -0.63] | < .001
-    ## domainRADvADHD                       |       -0.82 | [-0.94, -0.71] | < .001
-    ## informant1                           |       -0.02 | [-0.11,  0.08] | 0.762 
-    ## stable1 * age_years - 8              |   -3.20e-03 | [-0.03,  0.02] | 0.798 
-    ## stable1 * male [1]                   |        0.15 | [-0.08,  0.39] | 0.220 
-    ## age_years - 8 * male [1]             |        0.02 | [-0.01,  0.05] | 0.147 
-    ## (stable1 * age_years - 8) * male [1] |       -0.04 | [-0.07, -0.01] | 0.021
+    ## (Intercept)                          |       -0.20 | [-0.40,  0.00] | 0.059 
+    ## stable1                              |       -0.11 | [-0.30,  0.07] | 0.206 
+    ## age_years - 8                        |   -2.56e-03 | [-0.02,  0.02] | 0.780 
+    ## male [1]                             |        0.19 | [-0.10,  0.46] | 0.186 
+    ## domainDESDvADHD                      |       -0.48 | [-0.60, -0.37] | < .001
+    ## domainEXTvADHD                       |       -0.65 | [-0.75, -0.55] | < .001
+    ## domainINTvADHD                       |       -0.73 | [-0.83, -0.64] | < .001
+    ## domainRADvADHD                       |       -0.83 | [-0.93, -0.71] | < .001
+    ## informant1                           |       -0.02 | [-0.11,  0.08] | 0.760 
+    ## stable1 * age_years - 8              |   -3.50e-03 | [-0.03,  0.02] | 0.791 
+    ## stable1 * male [1]                   |        0.15 | [-0.11,  0.38] | 0.227 
+    ## age_years - 8 * male [1]             |        0.02 | [-0.01,  0.05] | 0.158 
+    ## (stable1 * age_years - 8) * male [1] |       -0.04 | [-0.07, -0.01] | 0.014
 
 ###### Female, 16 years
 
@@ -7037,6 +7197,7 @@ a3_psy_stab_age16_female <- lmer(
   data = d_fcg_psy
 )
 
+set.seed(123456)
 a3_psy_stab_age16_female_parameters <- 
   model_parameters(
     a3_psy_stab_age16_female,
@@ -7049,19 +7210,19 @@ a3_psy_stab_age16_female_parameters
 
     ## Parameter                             | Coefficient |         95% CI |      p
     ## -----------------------------------------------------------------------------
-    ## (Intercept)                           |       -0.22 | [-0.41, -0.03] | 0.021 
-    ## stable1                               |       -0.14 | [-0.35,  0.08] | 0.213 
-    ## age_years - 16                        |   -3.49e-03 | [-0.02,  0.02] | 0.739 
-    ## male [1]                              |        0.34 | [ 0.07,  0.61] | 0.010 
-    ## domainDESDvADHD                       |       -0.48 | [-0.58, -0.37] | < .001
+    ## (Intercept)                           |       -0.22 | [-0.40, -0.03] | 0.026 
+    ## stable1                               |       -0.14 | [-0.35,  0.07] | 0.213 
+    ## age_years - 16                        |   -2.56e-03 | [-0.02,  0.02] | 0.780 
+    ## male [1]                              |        0.35 | [ 0.10,  0.62] | 0.016 
+    ## domainDESDvADHD                       |       -0.48 | [-0.60, -0.37] | < .001
     ## domainEXTvADHD                        |       -0.65 | [-0.75, -0.55] | < .001
     ## domainINTvADHD                        |       -0.73 | [-0.83, -0.64] | < .001
-    ## domainRADvADHD                        |       -0.82 | [-0.94, -0.72] | < .001
-    ## informant1                            |       -0.02 | [-0.11,  0.07] | 0.739 
-    ## stable1 * age_years - 16              |   -2.51e-03 | [-0.03,  0.02] | 0.811 
-    ## stable1 * male [1]                    |       -0.17 | [-0.47,  0.11] | 0.262 
-    ## age_years - 16 * male [1]             |        0.02 | [-0.01,  0.05] | 0.125 
-    ## (stable1 * age_years - 16) * male [1] |       -0.04 | [-0.07, -0.01] | 0.016
+    ## domainRADvADHD                        |       -0.83 | [-0.93, -0.71] | < .001
+    ## informant1                            |       -0.02 | [-0.11,  0.08] | 0.760 
+    ## stable1 * age_years - 16              |   -3.50e-03 | [-0.03,  0.02] | 0.791 
+    ## stable1 * male [1]                    |       -0.18 | [-0.46,  0.11] | 0.243 
+    ## age_years - 16 * male [1]             |        0.02 | [-0.01,  0.05] | 0.158 
+    ## (stable1 * age_years - 16) * male [1] |       -0.04 | [-0.07, -0.01] | 0.014
 
 # Visualizations of effects
 
@@ -7306,6 +7467,7 @@ d_plot_fcg <-
   dplyr::select(
     ID, 
     group, 
+    male,
     wave_ordered, 
     FC_placement_age,
     stable,
@@ -7318,6 +7480,7 @@ d_plot_fcg <-
       dplyr::select(
         ID, 
         group, 
+        male,
         wave_ordered, 
         FC_placement_age,
         stable,
@@ -7518,5 +7681,55 @@ ggsave(
   dpi = 600,
   width = 9, 
   height = 11
+)
+```
+
+#### Stability by sex (geom\_smooth)
+
+``` r
+d_plot_fcg %>% 
+  filter(!is.na(stable)) %>% 
+  mutate(
+    male = recode_factor(
+      male,
+      "0" = "Female",
+      "1" = "Male"
+    )
+  ) %>% 
+  ggplot(
+    aes(
+      age_years, 
+      value_z, 
+      color = stable,
+      fill = stable
+    )
+  ) +
+  geom_smooth(method = "lm", size = 2) +
+  #scale_y_continuous(breaks = seq.int(-1, 1.4, .4)) +
+  scale_x_continuous(breaks = seq.int(0, 30, 5)) +
+  scale_color_viridis_d(begin = .5) +
+  scale_fill_viridis_d(guide = FALSE, begin = .5) +
+  theme_beip +
+  theme(
+    legend.position = "right",
+    plot.caption = element_text(hjust = .5, size = 16),
+    axis.title.y = element_text(vjust = 2)
+  ) +
+  labs(
+    color = "Foster care placement",
+    x = "Age of assessment (years)",
+    y = "Symptoms of psychopathology\n(standardized score)"
+  ) +
+  facet_wrap(.~male, ncol = 2)
+```
+
+![](big_analysis_files/figure-gfm/unnamed-chunk-165-1.png)<!-- -->
+
+``` r
+ggsave(
+  paste0(home, "figures/aim3_all_stability_sex_age.png"),
+  dpi = 600,
+  width = 11, 
+  height = 6
 )
 ```

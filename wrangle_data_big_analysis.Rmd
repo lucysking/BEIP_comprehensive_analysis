@@ -622,7 +622,6 @@ d_pct_time <-
 ```
 
 ### Stability variables and final tidied dataset 
-For info on separating b/w and within-subject components of stability: https://solomonkurz.netlify.app/post/2019-10-31-time-varying-covariates-in-longitudinal-multilevel-models-contain-state-and-trait-level-information-this-includes-binary-variables-too/
 ```{r}
 d <-
   d0_tidy %>% 
@@ -685,7 +684,8 @@ d <-
   distinct(ID, wave, domain, value, informant, .keep_all = TRUE) %>% 
   dplyr::select(
     -stability_18
-  )
+  ) %>% 
+  ungroup()
 ```
 
 # Export data
