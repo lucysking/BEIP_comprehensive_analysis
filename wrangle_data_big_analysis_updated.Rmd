@@ -27,7 +27,7 @@ stability_file <- paste0(home, "data/BEIP_18yrDisruptionsStabilityFCG.xlsx")
 EEG_ages_file <- paste0(home, "data/All EEG ages.sav")
 EEG_16yr_age_file <- paste0(home, "data/ages16eeg_update.sav") # 16 yr wave EEG age incorrect in main file; use age in file below
 EEG_data_file <- paste0(home, "data/EEG_request_082021/DataRequest_King_8.21.21.sav")
-EEG_16yr_data_file <- paste0(home, "data/EEG_request_082021/16yrs_EO_allband_allchan.txt")
+EEG_16yr_data_file <- paste0(home, "data/EEG_request_082021/BEIP_16Years_EyesOpen_Power.txt")
 ```
 
 # Read in data
@@ -123,27 +123,72 @@ eeg_ages <-
 
 ### Reformat EEG data 
 ```{r}
-eeg_data <-
+eeg_data.1 <-
   haven::read_sav(EEG_data_file) %>% 
   dplyr::select(
     ID = Subject,
-    f3_30 = tabAlpha_Bingo_F3_30mo,
-    f4_30 = tabAlpha_Bingo_F4_30mo,
-    f3_42 = tabAlpha_Bingo_F3_42mo,
-    f4_42 = tabAlpha_Bingo_F4_42mo,
-    f3_8 = tabAlpha1_Open_F3_8,
-    f4_8 = tabAlpha1_Open_F4_8,
-    f3_12 = EEG_tabF3Alpha_EO_12,
-    f4_12 = EEG_tabF4Alpha_EO_12,
+    lnTheta_Bingo_F3_30mo:lnAlpha_Bingo_T8_30mo,
+    lnTheta_Bingo_F3_42mo:lnAlpha_Bingo_T8_42mo,
+    lnTheta_Open_F3_8:lnAlpha_Open_T8_8,
+    EEG_lnF3Theta_EO_12:EEG_lnT4Theta_EO_12,
+    EEG_lnF3Alpha_EO_12:EEG_lnT4Alpha_EO_12
+  ) %>%
+  mutate(
+    theta_30 = pmap_dbl(
+      select(., lnTheta_Bingo_F3_30mo:lnTheta_Bingo_T8_30mo),
+      function(...) mean((c(...)))
+    ),
+    alpha_30 = pmap_dbl(
+      select(., lnAlpha_Bingo_F3_30mo:lnAlpha_Bingo_T8_30mo),
+      function(...) mean((c(...)))
+    ),
+    theta_42 = pmap_dbl(
+      select(., lnTheta_Bingo_F3_42mo:lnTheta_Bingo_T8_42mo),
+      function(...) mean((c(...)))
+    ),
+    alpha_42 = pmap_dbl(
+      select(., lnAlpha_Bingo_F3_42mo:lnAlpha_Bingo_T8_42mo),
+      function(...) mean((c(...)))
+    ),
+    theta_8 = pmap_dbl(
+      select(., lnTheta_Open_F3_8:lnTheta_Open_T8_8),
+      function(...) mean((c(...)))
+    ),
+    alpha_8 = pmap_dbl(
+      select(., lnAlpha_Open_F3_8:lnAlpha_Open_T8_8),
+      function(...) mean((c(...)))
+    ),
+    theta_12 = pmap_dbl(
+      select(., EEG_lnF3Theta_EO_12:EEG_lnT4Theta_EO_12),
+      function(...) mean((c(...)))
+    ),
+    alpha_12 = pmap_dbl(
+      select(., EEG_lnF3Alpha_EO_12:EEG_lnT4Alpha_EO_12),
+      function(...) mean((c(...)))
+    )
   ) %>% 
   left_join(
     read_tsv(EEG_16yr_data_file) %>% 
       dplyr::select(
         ID = subnum,
-        f3_16 = F3_EO_16Y_rel_alpha,
-        f4_16 = F4_EO_16Y_rel_alpha
+        F3_EO_16Y_abs_theta:O2_EO_16Y_abs_theta,
+        F3_EO_16Y_abs_alpha:O2_EO_16Y_abs_alpha
       )
   ) %>% 
+  mutate(
+    theta_16 = pmap_dbl(
+      select(., F3_EO_16Y_abs_theta:O2_EO_16Y_abs_theta),
+      function(...) mean((c(...)))
+    ),
+    alpha_16 = pmap_dbl(
+      select(., F3_EO_16Y_abs_alpha:O2_EO_16Y_abs_alpha),
+      function(...) mean((c(...)))
+    )
+  )
+
+eeg_data.2 <- 
+  eeg_data.1 %>% 
+  select(ID, theta_30:alpha_12, theta_16, alpha_16) %>% 
   gather(eeg_key, value, -ID) %>% 
   separate(eeg_key, c("measure", "wave")) %>% 
   mutate(
@@ -151,6 +196,85 @@ eeg_data <-
     informant = "O"
   ) %>% 
   filter(!is.na(value))
+
+
+eeg_data.2 %>% 
+  mutate(
+    wave = factor(
+      wave,
+      levels = c("30", "42", "8", "12", "16")
+    )
+  ) %>% 
+  filter(value < 10) %>% 
+  group_by(wave) %>% 
+  summarise_at(
+    vars(value),
+    funs(mean, sd), na.rm = TRUE
+  )
+  
+eeg_16 <-
+  read_tsv(EEG_16yr_data_file) %>% 
+  dplyr::select(
+    ID = subnum,
+    F3_EO_16Y_abs_theta:O2_EO_16Y_abs_theta,
+    F3_EO_16Y_abs_alpha:O2_EO_16Y_abs_alpha
+  ) %>% 
+  gather(eeg_key, value, -ID)
+
+eeg_16 %>% 
+  filter(str_detect(eeg_key, "theta") == TRUE) %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = 50) +
+  facet_wrap(.~eeg_key)
+
+
+eeg_data.2 %>% 
+  filter(wave == "16") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = 10) +
+  facet_grid(.~measure) +
+  theme_beip +
+  labs(
+    x = "16-year wave absolute power\n(mean across all available electrode sites)"
+  )
+```
+
+
+  
+
+eeg_data.2 %>% 
+  mutate(
+    wave = factor(
+      wave,
+      levels = c("30", "42", "8", "12", "16")
+    )
+  ) %>% 
+  group_by(wave, measure) %>% 
+  summarise_at(
+    vars(value),
+    funs(mean, median, sd, min, max)
+  ) %>%
+  ggplot(aes(measure, mean)) +
+  geom_col() +
+  facet_grid(.~wave)
+
+ggsave("~/Desktop/EEG_absolute_wave.png")
+```
+
+
+```{r}
+eeg_data_wf <-
+  eeg_data.1 %>% 
+  select(
+    ID,
+    lnTheta_Bingo_F3_30mo,
+    lnTheta_Bingo_F3_42mo
+  )
+
+eeg_data_lf <-
+  eeg_data_wf %>% 
+  gather(eeg_key, value, -ID) %>% 
+  arrange(ID)
 ```
 
 ### Join EEG data with ages of assessment

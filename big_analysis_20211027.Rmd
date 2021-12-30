@@ -196,6 +196,8 @@ d_baseline %>%
   )
 ```
 
+
+
 ### Remove baseline data 
 ```{r}
 d <-
@@ -203,7 +205,68 @@ d <-
   filter(wave != "BL")
 ```
 
+### Export included ID list 
+```{r}
+IDs <-
+  d %>% 
+  filter(!is.na(value)) %>% 
+  distinct(ID, group)
+
+#write_csv(IDs, paste0(home, "data/included_IDs_20211103.csv"))
+```
+
 ## CONSORT diagram
+
+```{r}
+ids_by_wave <-
+  d_baseline %>% 
+  select(ID, group) %>% 
+  mutate(wBL = 1) %>% 
+  left_join(
+    d %>% 
+      filter(wave_ordered == "30m") %>% 
+      distinct(ID, group) %>% 
+      mutate(w30 = 1),
+    by = "ID"
+  ) %>% 
+  left_join(
+    d %>% 
+      filter(wave_ordered == "42m") %>% 
+      distinct(ID, group) %>% 
+      mutate(w42 = 1),
+    by = "ID"
+  ) %>% 
+  left_join(
+    d %>% 
+      filter(wave_ordered == "54m") %>% 
+      distinct(ID, group) %>% 
+      mutate(w54 = 1),
+    by = "ID"
+  ) %>% 
+  left_join(
+    d %>% 
+      filter(wave_ordered == "8y") %>% 
+      distinct(ID, group) %>% 
+      mutate(w8y = 1),
+    by = "ID"
+  ) %>% 
+  left_join(
+    d %>% 
+      filter(wave_ordered == "12y") %>% 
+      distinct(ID, group) %>% 
+      mutate(w12y = 1),
+    by = "ID"
+  ) %>% 
+  left_join(
+    d %>% 
+      filter(wave_ordered == "16-18y") %>% 
+      distinct(ID, group) %>% 
+      mutate(w16_18 = 1),
+    by = "ID"
+  )
+
+write_csv(ids_by_wave, paste0(home, "data/ids_by_wave_2021117.csv"))
+```
 
 ### Total number of observations
 ```{r}
@@ -232,6 +295,7 @@ d %>%
   distinct(ID, group, wave_ordered) %>% 
   count(group, wave_ordered)
 ```
+
 
 ### Number of observations per group per wave
 ```{r}
@@ -345,7 +409,7 @@ d %>%
 
 ## Subset IQ, EEG, and physical growth data 
 
-By standardizing within wave, within-person growth effects are no longer detectable. In other words, we cannot say whether X tends to increase as age increases. Instead, we can say that X is relatively higher or lower when age is higher or lower. 
+By standardizing within wave, within-person growth effects are no longer detectable. In other words, we cannot say whether X tends to increase as age increases. Instead, we can say that X is relatively higher or lower when age is higher or lower. Because the same measure is being used for multiple types of psychopathology (e.g., ITSEA measures internalizing and externalizing), for psychopathology, must standardize within wave, measure, and domain. For cognitive and biological outcomes, each "measure" corresponds to a different construct. 
 ```{r}
 d_cog_bio <-
   d %>% 
@@ -375,8 +439,7 @@ d_cog_bio <-
 d_psy <-
   d %>% 
   filter(construct == "psychopathology") %>% 
-    # standardized within wave (eliminates within-person growth effects) and measure (puts all data on same scale)
-  group_by(wave, measure) %>%  
+  group_by(wave, measure, domain) %>%  
   mutate(
     value_z = scale(value)
   ) %>% 
@@ -410,9 +473,13 @@ IDs 82 and 98 reintegrated in bio families prior to FC placement; therefore, not
 d_fcg_cog_bio %>% 
   distinct(ID, stability_group) %>% 
   count(stability_group)
+
+d_fcg_cog_bio %>% 
+  distinct(ID, wave_ordered, stable) %>% 
+  count(wave_ordered, stable)
 ```
 
-# Visualize distributions 
+# Distributions 
 
 ## Age
 ```{r}
@@ -421,6 +488,7 @@ d %>%
   ggplot(aes(mean_age_years_wave, fill = wave_ordered)) +
   geom_histogram(alpha = 1/2) +
   scale_x_continuous(breaks = seq.int(0, 18, 2)) +
+  scale_y_continuous(breaks = seq.int(0, 150, 20)) +
   scale_fill_manual(values=cbbPalette) +
   theme_beip +
   theme(
@@ -431,115 +499,416 @@ d %>%
 
 ggsave(
   paste0(home, "figures/age_years_wave_histogram.png"),
-  width = 9, 
-  height = 7
+  width = 8, 
+  height = 6
 )
 ```
 
-## IQ, physical size, EEG
+## IQ
 
-### By group 
 ```{r}
 d_cog_bio %>% 
-  ggplot(aes(value_z, fill = group)) +
-  geom_density(alpha = 1/2) +
+  filter(construct == "IQ") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = 20) +
+  #scale_y_continuous(breaks = seq.int(0, 25), 10) +
   theme_beip +
   scale_fill_manual(values = cbbPalette) +
   labs(
     fill = NULL,
-    title = "IQ, physical size, EEG",
-    x = "Standardized score"
-  )
-```
-
-### By group by wave
-```{r}
-d_cog_bio %>% 
-  ggplot(aes(value_z, fill = group)) +
-  geom_density(alpha = 1/2) +
-  theme_beip +
-  scale_fill_manual(values = cbbPalette) +
-  labs(
-    fill = NULL,
-    title = "IQ, physical size, EEG",
-    x = "Standardized score"
+    x = "Raw IQ score"
   ) +
-  facet_grid(wave~.)
-```
-### By group by wave by construct
-```{r}
-d_cog_bio %>% 
-  ggplot(aes(value_z, fill = group)) +
-  geom_density(alpha = 1/2) +
-  theme_beip +
-  scale_fill_manual(values = cbbPalette) +
-  labs(
-    fill = NULL,
-    title = "IQ, physical size, EEG",
-    x = "Standardized score"
-  ) +
-  facet_grid(wave~construct, scales = "free")
-```
-
-## Psychopathology
-
-### By group
-```{r}
-d_psy %>% 
-  ggplot(aes(value_z, fill = group)) +
-  geom_density(alpha = 1/2) +
-  theme_beip +
-  scale_fill_manual(values = cbbPalette) +
-  labs(
-    fill = NULL,
-    title = "Psychopathology", 
-    x = "Standardized outcome score"
-  )
+  facet_grid(wave_ordered~group)
 
 ggsave(
-  paste0(home, "figures/psy_raw_group_density.png"),
-  width = 9, 
-  height = 7
+  paste0(home, "figures/IQ_histograms.png"),
+  dpi = 600,
+  width = 7,
+  height = 10
 )
+```
 
-d_psy %>% 
-  ggplot(aes(sqrt(value_z), fill = group)) +
-  geom_density(alpha = 1/2) +
+## EEG 
+
+```{r}
+d_cog_bio %>% 
+  filter(construct == "EEG") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = .1) +
   theme_beip +
   scale_fill_manual(values = cbbPalette) +
   labs(
     fill = NULL,
-    title = "Psychopathology", 
-    x = "Standardized outcome score"
-  )
+    x = "Frontal EEG alpha-power"
+  ) +
+  facet_grid(wave_ordered~group)
 
 ggsave(
-  paste0(home, "figures/psy_sqrt_group_density.png"),
-  width = 9, 
-  height = 7
+  paste0(home, "figures/EEG_histograms.png"),
+  dpi = 600,
+  width = 7,
+  height = 10
 )
-
 ```
 
-### By group by wave by domain
+## Physical size 
+
 ```{r}
-d_psy %>% 
-  ggplot(aes(value_z, fill = group)) +
-  geom_density(alpha = 1/2) +
-  theme_pubr() +
+d_cog_bio %>% 
+  filter(construct == "physical", domain == "height") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = 10) +
   theme_beip +
   scale_fill_manual(values = cbbPalette) +
-  labs(x = "Standardized outcome score", fill = NULL) +
-  facet_grid(wave~domain, scales = "free") 
+  labs(
+    fill = NULL,
+    x = "Height"
+  ) +
+  facet_grid(wave_ordered~group, scales = "free")
+
+ggsave(
+  paste0(home, "figures/height_histograms.png"),
+  dpi = 600,
+  width = 7,
+  height = 10
+)
+```
+```{r}
+d_cog_bio %>% 
+  filter(construct == "physical", domain == "weight") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = 10) +
+  scale_x_continuous(breaks = seq.int(0, 110, 20)) +
+  theme_beip +
+  scale_fill_manual(values = cbbPalette) +
+  labs(
+    fill = NULL,
+    x = "Weight"
+  ) +
+  facet_grid(wave_ordered~group, scales = "free")
+
+ggsave(
+  paste0(home, "figures/weight_histograms.png"),
+  dpi = 600,
+  width = 7,
+  height = 10
+)
 ```
 
+```{r}
+d_cog_bio %>% 
+  filter(construct == "physical", domain == "head") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = 2) +
+  theme_beip +
+  scale_fill_manual(values = cbbPalette) +
+  labs(
+    fill = NULL,
+    x = "Head circumference"
+  ) +
+  facet_grid(wave_ordered~group, scales = "free")
+
+ggsave(
+  paste0(home, "figures/headcir_histograms.png"),
+  dpi = 600,
+  width = 7,
+  height = 10
+)
+```
+## ADHD
+```{r}
+d_psy %>% 
+  filter(domain == "adhd", measure == "itsea") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = .5) +
+  theme_beip +
+  scale_fill_manual(values = cbbPalette) +
+  labs(
+    fill = NULL,
+    x = "ADHD symptoms\n(assessed with ITSEA)"
+  ) +
+  facet_grid(wave_ordered~group)
+
+ggsave(
+  paste0(home, "figures/adhd_histograms_itsea.png"),
+  dpi = 600,
+  width = 7,
+  height = 4.3
+)
+```
+
+```{r}
+d_psy %>% 
+  filter(domain == "adhd", measure == "papa") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = 5) +
+  theme_beip +
+  scale_fill_manual(values = cbbPalette) +
+  labs(
+    fill = NULL,
+    x = "ADHD symptoms\n(assessed with PAPA)"
+  ) +
+  facet_grid(wave_ordered~group)
+
+ggsave(
+  paste0(home, "figures/adhd_histograms_papa.png"),
+  dpi = 600,
+  width = 7,
+  height = 3
+)
+```
+```{r}
+d_psy %>% 
+  filter(domain == "adhd", measure == "hbq") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = .5) +
+  theme_beip +
+  scale_fill_manual(values = cbbPalette) +
+  labs(
+    fill = NULL,
+    x = "ADHD symptoms\n(assessed with HBQ)"
+  ) +
+  facet_grid(wave_ordered~group)
+
+ggsave(
+  paste0(home, "figures/adhd_histograms_hbq.png"),
+  dpi = 600,
+  width = 7,
+  height = 6.3
+)
+```
+```{r}
+d_psy %>% 
+  filter(domain == "adhd", measure == "disc") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = 2) +
+  theme_beip +
+  scale_fill_manual(values = cbbPalette) +
+  labs(
+    fill = NULL,
+    x = "ADHD symptoms\n(assessed with DISC)"
+  ) +
+  facet_grid(wave_ordered~group)
+
+ggsave(
+  paste0(home, "figures/adhd_histograms_disc.png"),
+  dpi = 600,
+  width = 7,
+  height = 4.3
+)
+```
+# Internalizing
+```{r}
+d_psy %>% 
+  filter(domain == "intern", measure == "itsea") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = .5) +
+  theme_beip +
+  scale_fill_manual(values = cbbPalette) +
+  labs(
+    fill = NULL,
+    x = "Internalizing symptoms\n(assessed with ITSEA)"
+  ) +
+  facet_grid(wave_ordered~group)
+
+ggsave(
+  paste0(home, "figures/intern_histograms_itsea.png"),
+  dpi = 600,
+  width = 7,
+  height = 4.3
+)
+```
+```{r}
+d_psy %>% 
+  filter(domain == "intern", measure == "papa") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = 5) +
+  theme_beip +
+  scale_fill_manual(values = cbbPalette) +
+  labs(
+    fill = NULL,
+    x = "Internalizing symptoms\n(assessed with PAPA)"
+  ) +
+  facet_grid(wave_ordered~group)
+
+ggsave(
+  paste0(home, "figures/intern_histograms_papa.png"),
+  dpi = 600,
+  width = 7,
+  height = 3
+)
+```
+
+```{r}
+d_psy %>% 
+  filter(domain == "intern", measure == "hbq") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = .5) +
+  theme_beip +
+  scale_fill_manual(values = cbbPalette) +
+  labs(
+    fill = NULL,
+    x = "Internalizing symptoms\n(assessed with HBQ)"
+  ) +
+  facet_grid(wave_ordered~group)
+
+ggsave(
+  paste0(home, "figures/intern_histograms_hbq.png"),
+  dpi = 600,
+  width = 7,
+  height = 6.3
+)
+```
+
+```{r}
+d_psy %>% 
+  filter(domain == "intern", measure == "disc") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = 2) +
+  theme_beip +
+  scale_fill_manual(values = cbbPalette) +
+  labs(
+    fill = NULL,
+    x = "Internalizing symptoms\n(assessed with DISC)"
+  ) +
+  facet_grid(wave_ordered~group)
+
+ggsave(
+  paste0(home, "figures/intern_histograms_disc.png"),
+  dpi = 600,
+  width = 7,
+  height = 4.3
+)
+```
+## Externalizing
+```{r}
+d_psy %>% 
+  filter(domain == "extern", measure == "itsea") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = .5) +
+  theme_beip +
+  scale_fill_manual(values = cbbPalette) +
+  labs(
+    fill = NULL,
+    x = "Externalizing symptoms\n(assessed with ITSEA)"
+  ) +
+  facet_grid(wave_ordered~group)
+
+ggsave(
+  paste0(home, "figures/extern_histograms_itsea.png"),
+  dpi = 600,
+  width = 7,
+  height = 4.3
+)
+```
+
+```{r}
+d_psy %>% 
+  filter(domain == "extern", measure == "papa") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = 5) +
+  theme_beip +
+  scale_fill_manual(values = cbbPalette) +
+  labs(
+    fill = NULL,
+    x = "Externalizing symptoms\n(assessed with PAPA)"
+  ) +
+  facet_grid(wave_ordered~group)
+
+ggsave(
+  paste0(home, "figures/extern_histograms_papa.png"),
+  dpi = 600,
+  width = 7,
+  height = 3
+)
+```
+
+```{r}
+d_psy %>% 
+  filter(domain == "extern", measure == "hbq") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = .5) +
+  theme_beip +
+  scale_fill_manual(values = cbbPalette) +
+  labs(
+    fill = NULL,
+    x = "Externalizing symptoms\n(assessed with HBQ)"
+  ) +
+  facet_grid(wave_ordered~group)
+
+ggsave(
+  paste0(home, "figures/extern_histograms_hbq.png"),
+  dpi = 600,
+  width = 7,
+  height = 6.3
+)
+```
+
+```{r}
+d_psy %>% 
+  filter(domain == "extern", measure == "disc") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = 2) +
+  theme_beip +
+  scale_fill_manual(values = cbbPalette) +
+  labs(
+    fill = NULL,
+    x = "Externalizing symptoms\n(assessed with DISC)"
+  ) +
+  facet_grid(wave_ordered~group)
+
+ggsave(
+  paste0(home, "figures/extern_histograms_disc.png"),
+  dpi = 600,
+  width = 7,
+  height = 4.3
+)
+```
+## DSED
+```{r}
+d_psy %>% 
+  filter(domain == "dsed") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = 2) +
+  theme_beip +
+  scale_fill_manual(values = cbbPalette) +
+  labs(
+    fill = NULL,
+    x = "DSED symptoms"
+  ) +
+  facet_grid(wave_ordered~group)
+
+ggsave(
+  paste0(home, "figures/DSED_histograms.png"),
+  dpi = 600,
+  width = 7,
+  height = 10
+)
+```
+
+## RAD
+```{r}
+d_psy %>% 
+  filter(domain == "rad") %>% 
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = 2) +
+  theme_beip +
+  scale_fill_manual(values = cbbPalette) +
+  labs(
+    fill = NULL,
+    x = "RAD symptoms"
+  ) +
+  facet_grid(wave_ordered~group)
+
+ggsave(
+  paste0(home, "figures/rad_histograms.png"),
+  dpi = 600,
+  width = 7,
+  height = 10
+)
+```
 ## Age of placement in foster care
 ```{r}
-d %>% 
-  filter(group == "FCG") %>% 
-  distinct(ID, FC_placement_age) %>% 
-  filter(is.na(FC_placement_age))
-
 d %>% 
   filter(group == "FCG") %>% 
   distinct(ID, FC_placement_age) %>% 
@@ -557,13 +926,57 @@ ggsave(
   height = 7
 )
 ```
+## Stability of foster care placement
+```{r}
+d %>% 
+  mutate(
+    stable = recode_factor(
+      stable,
+      "disrupted" = "Disrupted",
+      "stable" = "Stable"
+    )
+  ) %>% 
+  filter(group == "FCG", !is.na(stable)) %>% 
+  distinct(ID, wave_ordered, stable) %>% 
+  count(wave_ordered, stable) %>% 
+  ggplot(aes(wave_ordered, n, fill = stable)) +
+  geom_col(position = "dodge") +
+  scale_fill_viridis_d(begin = .5) +
+  scale_y_continuous(breaks = seq.int(0, 70, 5)) +
+  theme_beip +
+  theme(
+    legend.position = "right"
+  ) +
+  labs(
+    y = "Number of children",
+    x = "Assesment wave",
+    fill = "Foster care placement"
+  )
+
+ggsave(
+  paste0(home, "figures/wave_stability_counts.png"),
+  width = 10, 
+  height = 6
+)
+```
 
 # Descriptives: Raw measurement values
 
 ## Means, SDs
+
 ```{r}
-d_cog_bio_summary_overall <- 
+d_baseline %>% 
+  filter(group == "FCG") %>% 
+  summarise_at(
+    vars(FC_placement_age),
+    funs(mean, sd, min, max), na.rm = TRUE
+  )
+```
+
+```{r}
+d_cog_bio_summary_iq_phys <- 
   d_cog_bio %>% 
+  filter(domain != "eeg") %>% 
   group_by(group, domain) %>% 
   summarise(
     n = n(),
@@ -573,7 +986,23 @@ d_cog_bio_summary_overall <-
     min = min(value, na.rm = TRUE),
     max = max(value, na.rm = TRUE)
   ) 
-d_cog_bio_summary_overall
+d_cog_bio_summary_iq_phys
+```
+
+```{r}
+d_cog_bio_summary_eeg <- 
+  d_cog_bio %>% 
+  filter(domain == "eeg") %>% 
+  group_by(group, measure) %>% 
+  summarise(
+    n = n(),
+    mean = mean(value, na.rm = TRUE),
+    sd = sd(value, na.rm = TRUE),
+    se = sd / sqrt(n),
+    min = min(value, na.rm = TRUE),
+    max = max(value, na.rm = TRUE)
+  ) 
+d_cog_bio_summary_eeg
 ```
 
 ```{r}
@@ -626,373 +1055,14 @@ d_cog_bio %>%
     funs(mean, sd)
   )
 ```
-
-## Means plots and boxplots
-
-### IQ
-```{r}
-d_cog_bio %>% 
-  filter(domain == "iq") %>% 
-  ggplot(aes(group, value, fill = group)) +
-  geom_boxplot(alpha = 1/2) +
-  scale_y_continuous(breaks = seq.int(40, 140, 20)) +
-  scale_fill_manual(values = cbbPalette) +
-  theme_beip +
-  theme(
-    legend.position = "none"
-  ) +
-  facet_wrap(.~wave_ordered) +
-  labs(
-    fill = NULL,
-    x = NULL,
-    y = "IQ score"
-  )
-
-ggsave(
-  paste0(home, "figures/iq_boxplots_raw.png"),
-  dpi = 300,
-  height = 7,
-  width = 9
-)
-```
-
-```{r}
-d_cog_bio_summary %>% 
-  filter(domain == "iq") %>% 
-  ggplot(aes(group, mean, color = group)) +
-  geom_pointrange(aes(ymin = mean - se, ymax = mean + se), size = 1) +
-  scale_y_continuous(breaks = seq.int(65, 85, 5)) +
-  scale_color_manual(values = cbbPalette) +
-  ggrepel::geom_label_repel(aes(label = round(mean, 2)), point.padding = 5) +
-  theme_beip +
-  theme(
-    legend.position = "none"
-  ) +
-  facet_wrap(.~wave_ordered) +
-  labs(
-    fill = NULL,
-    x = NULL,
-    y = "IQ score"
-  )
-
-ggsave(
-  paste0(home, "figures/iq_mean_points_raw.png"),
-  dpi = 300,
-  height = 6,
-  width = 9
-)
-```
-### EEG
-```{r}
-d_cog_bio %>% 
-  filter(domain == "eeg") %>% 
-  ggplot(aes(group, value, fill = group)) +
-  geom_boxplot(alpha = 1/2) +
-  #scale_y_continuous(breaks = seq.int(40, 140, 20)) +
-  scale_fill_manual(values = cbbPalette) +
-  theme_beip +
-  theme(
-    legend.position = "none",
-    axis.text.x = element_text(angle = 320, hjust = .1)
-  ) +
-  facet_grid(.~wave_ordered) +
-  labs(
-    fill = NULL,
-    x = NULL,
-    y = "EEG alpha-power"
-  )
-
-ggsave(
-  paste0(home, "figures/eeg_boxplots_raw.png"),
-  dpi = 300,
-  height = 6,
-  width = 9
-)
-```
-
-```{r}
-d_cog_bio_summary %>% 
-  filter(domain == "eeg") %>% 
-  ggplot(aes(group, mean, color = group)) +
-  geom_pointrange(aes(ymin = mean - se, ymax = mean + se), size = 1) +
-  scale_color_manual(values = cbbPalette) +
-  ggrepel::geom_label_repel(aes(label = round(mean, 2)), point.padding = 5) +
-  theme_beip +
-  theme(
-    legend.position = "none"
-  ) +
-  facet_wrap(.~wave_ordered, scales = "free") +
-  labs(
-    fill = NULL,
-    x = NULL,
-    y = "EEG alpha power"
-  )
-
-ggsave(
-  paste0(home, "figures/eeg_mean_points_raw.png"),
-  dpi = 300,
-  height = 6,
-  width = 9
-)
-```
-
-### Height
-
-```{r}
-d_cog_bio_summary %>% 
-  filter(domain == "height") %>% 
-  ggplot(aes(group, mean, color = group)) +
-  geom_pointrange(aes(ymin = mean - se, ymax = mean + se), size = 1) +
-  #scale_y_continuous(breaks = seq.int(65, 85, 5)) +
-  scale_color_manual(values = cbbPalette) +
-  ggrepel::geom_label_repel(aes(label = round(mean, 2)), point.padding = 10) +
-  theme_beip +
-  theme(
-    legend.position = "none"
-  ) +
-  facet_wrap(.~wave_ordered, scales = "free") +
-  labs(
-    fill = NULL,
-    x = NULL,
-    y = "Height (cm)"
-  )
-
-ggsave(
-  paste0(home, "figures/iq_mean_points_raw.png"),
-  dpi = 300,
-  height = 6,
-  width = 9
-)
-```
-
-
-### Weight
-```{r}
-d_cog_bio %>% 
-  filter(domain == "weight") %>% 
-  ggplot(aes(group, value, fill = group)) +
-  geom_boxplot(alpha = 1/2) +
-  scale_y_continuous(breaks = seq.int(10, 110, 20)) +
-  scale_fill_manual(values = cbbPalette) +
-  theme_beip +
-  theme(
-    legend.position = "none",
-    axis.text.x = element_text(angle = 320, hjust = .1) 
-  ) +
-  facet_grid(.~wave_ordered, scales = "free") +
-  labs(
-    fill = NULL,
-    x = NULL,
-    y = "Weight (kg)"
-  )
-
-ggsave(
-  paste0(home, "figures/weight_boxplots_raw.png"),
-  dpi = 300,
-  height = 6,
-  width = 9
-)
-```
-
-```{r}
-d_cog_bio_summary %>% 
-  filter(domain == "weight") %>% 
-  ggplot(aes(group, mean, color = group)) +
-  geom_pointrange(aes(ymin = mean - se, ymax = mean + se), size = 1) +
-  #scale_y_continuous(breaks = seq.int(65, 85, 5)) +
-  scale_color_manual(values = cbbPalette) +
-  ggrepel::geom_label_repel(aes(label = round(mean, 2)), point.padding = 10) +
-  theme_beip +
-  theme(
-    legend.position = "none"
-  ) +
-  facet_wrap(.~wave_ordered, scales = "free") +
-  labs(
-    fill = NULL,
-    x = NULL,
-    y = "Weight (kg)"
-  )
-
-ggsave(
-  paste0(home, "figures/weight_mean_points_raw.png"),
-  dpi = 300,
-  height = 6,
-  width = 9
-)
-```
-
-### Head circumference
-```{r}
-d_cog_bio %>% 
-  filter(domain == "head") %>% 
-  ggplot(aes(group, value, fill = group)) +
-  geom_boxplot(alpha = 1/2) +
-  scale_y_continuous(breaks = seq.int(40, 60, 2)) +
-  scale_fill_manual(values = cbbPalette) +
-  theme_beip +
-  theme(
-    legend.position = "none",
-    axis.text.x = element_text(angle = 320, hjust = .1) 
-  ) +
-  facet_grid(.~wave_ordered, scales = "free") +
-  labs(
-    fill = NULL,
-    x = NULL,
-    y = "Head circumference (cm)"
-  )
-
-ggsave(
-  paste0(home, "figures/head_boxplots_raw.png"),
-  dpi = 300,
-  height = 6,
-  width = 9
-)
-```
-
-```{r}
-d_cog_bio_summary %>% 
-  filter(domain == "head") %>% 
-  ggplot(aes(group, mean, color = group)) +
-  geom_pointrange(aes(ymin = mean - se, ymax = mean + se), size = 1) +
-  #scale_y_continuous(breaks = seq.int(65, 85, 5)) +
-  scale_color_manual(values = cbbPalette) +
-  ggrepel::geom_label_repel(aes(label = round(mean, 2)), point.padding = 10) +
-  theme_beip +
-  theme(
-    legend.position = "none"
-  ) +
-  facet_wrap(.~wave_ordered, scales = "free") +
-  labs(
-    fill = NULL,
-    x = NULL,
-    y = "Head circumference (cm)"
-  )
-
-ggsave(
-  paste0(home, "figures/head_mean_points_raw.png"),
-  dpi = 300,
-  height = 6,
-  width = 9
-)
-```
-
-### DAI
-```{r}
-d_psy_summary %>% 
-  filter(domain == "dsed") %>% 
-  ggplot(aes(group, mean, color = group)) +
-  geom_pointrange(aes(ymin = mean - se, ymax = mean + se), size = 1) +
-  #scale_y_continuous(breaks = seq.int(65, 85, 5)) +
-  scale_color_manual(values = cbbPalette) +
-  ggrepel::geom_label_repel(aes(label = round(mean, 2)), point.padding = 10) +
-  theme_beip +
-  theme(
-    legend.position = "none"
-  ) +
-  facet_wrap(.~wave_ordered, scales = "free") +
-  labs(
-    fill = NULL,
-    x = NULL,
-    y = "DSED symptoms"
-  )
-
-ggsave(
-  paste0(home, "figures/DSED_mean_points_raw.png"),
-  dpi = 300,
-  height = 6,
-  width = 9
-)
-```
-### ADHD
-```{r}
-d_psy_summary %>% 
-  filter(domain == "adhd") %>% 
-  ggplot(aes(group, mean, color = group)) +
-  geom_pointrange(aes(ymin = mean - se, ymax = mean + se), size = 1) +
-  #scale_y_continuous(breaks = seq.int(65, 85, 5)) +
-  scale_color_manual(values = cbbPalette) +
-  ggrepel::geom_label_repel(aes(label = round(mean, 2)), point.padding = 10) +
-  theme_beip +
-  theme(
-    legend.position = "none"
-  ) +
-  facet_wrap(.~wave_ordered, scales = "free") +
-  labs(
-    fill = NULL,
-    x = NULL,
-    y = "ADHD symptoms"
-  )
-
-ggsave(
-  paste0(home, "figures/ADHD_mean_points_raw.png"),
-  dpi = 300,
-  height = 6,
-  width = 9
-)
-```
-
-### Externalizing
-```{r}
-d_psy_summary %>% 
-  filter(domain == "extern") %>% 
-  ggplot(aes(group, mean, color = group)) +
-  geom_pointrange(aes(ymin = mean - se, ymax = mean + se), size = 1) +
-  #scale_y_continuous(breaks = seq.int(65, 85, 5)) +
-  scale_color_manual(values = cbbPalette) +
-  ggrepel::geom_label_repel(aes(label = round(mean, 2)), point.padding = 10) +
-  theme_beip +
-  theme(
-    legend.position = "none"
-  ) +
-  facet_wrap(.~wave_ordered, scales = "free") +
-  labs(
-    fill = NULL,
-    x = NULL,
-    y = "Externalizing symptoms"
-  )
-
-ggsave(
-  paste0(home, "figures/extern_mean_points_raw.png"),
-  dpi = 300,
-  height = 6,
-  width = 9
-)
-```
-
-### Internalizing
-```{r}
-d_psy_summary %>% 
-  filter(domain == "intern") %>% 
-  ggplot(aes(group, mean, color = group)) +
-  geom_pointrange(aes(ymin = mean - se, ymax = mean + se), size = 1) +
-  #scale_y_continuous(breaks = seq.int(65, 85, 5)) +
-  scale_color_manual(values = cbbPalette) +
-  ggrepel::geom_label_repel(aes(label = round(mean, 2)), point.padding = 10) +
-  theme_beip +
-  theme(
-    legend.position = "none"
-  ) +
-  facet_wrap(.~wave_ordered, scales = "free") +
-  labs(
-    fill = NULL,
-    x = NULL,
-    y = "Internalizing symptoms"
-  )
-
-ggsave(
-  paste0(home, "figures/intern_mean_points_raw.png"),
-  dpi = 300,
-  height = 6,
-  width = 9
-)
-```
 # Correlations
 ```{r}
 out_corr <- 
-  d %>% 
-  group_by(wave, measure) %>% 
-  mutate(
-    value_z = scale(value)
+  d_cog_bio %>% 
+  dplyr::select(ID, domain, value_z) %>% 
+  bind_rows(
+    d_psy %>% 
+      dplyr::select(ID, domain, value_z)
   ) %>% 
   group_by(ID, domain) %>% 
   summarise(value_z = mean(value_z, na.rm = TRUE)) %>% 
@@ -1016,11 +1086,6 @@ out_corr_plot <-
   mutate(
     term = as.character(term),
     value_chr = as.character(value),
-    # value_chr = case_when(
-    #   term == "child_num_wit_types" & variable == "child_num_dir_types" ~ ".38",
-    #   variable == "child_num_wit_types" & term == "child_num_dir_types" ~ NA_character_,
-    #   TRUE ~ value_chr
-    # ),
    value_num = as.numeric(value_chr)
   ) %>% 
   na.omit() %>% 
@@ -1044,7 +1109,7 @@ out_corr_plot <-
         "Head circumference",
         "Height",
         "Weight",
-        "EEG alphalpha-power",
+        "EEG alpha-power",
         "DSED",
         "RAD",
         "ADHD",
@@ -1071,7 +1136,7 @@ out_corr_plot <-
         "Head circumference",
         "Height",
         "Weight",
-        "EEG alphalpha-power",
+        "EEG alpha-power",
         "DSED",
         "RAD",
         "ADHD",
@@ -1098,7 +1163,7 @@ out_corr_plot %>%
     midpoint = 0,
     limit = c(-1, 1),
     space = "Lab",
-    name = "Spearman correlation\ncoefficient"
+    name = "Pearson correlation\ncoefficient"
   ) +
   theme_void() +
   theme(
@@ -1113,6 +1178,13 @@ out_corr_plot %>%
       hjust = .9
     )
   ) 
+
+ggsave(
+  paste0(home, "figures/correlations.png"),
+  dpi = 600,
+  width = 8, 
+  height = 6
+)
 ```
 
 # Results
@@ -1159,6 +1231,17 @@ a1_cogbio_parameters <-
 a1_cogbio_parameters
 ```
 
+```{r}
+forest_df <-
+  tibble(
+    Parameter = "Overall cognitive and biological",
+    Coefficient = a1_cogbio_parameters$Coefficient[[2]],
+    CI_low = a1_cogbio_parameters$CI_low[[2]],
+    CI_high = a1_cogbio_parameters$CI_high[[2]],
+    p = a1_cogbio_parameters$p[[2]],
+  )
+```
+
 ### Psychopathology
 
 #### Main effect of group (with main effect covariates)
@@ -1170,7 +1253,7 @@ contrasts(d_psy$group) = c(0, 1) # CAUG is baseline
 contrasts(d_psy$male) = c(-.5, .5) 
 
 contrasts(d_psy$domain) = cbind(
-  DESDvADHD = c(-1/5, 1 - (1/5), -1/5, -1/5, -1/5),
+  DSEDvADHD = c(-1/5, 1 - (1/5), -1/5, -1/5, -1/5),
   EXTvADHD = c(-1/5, -1/5, 1 - (1/5), -1/5, -1/5),
   INTvADHD = c(-1/5, -1/5, -1/5, 1 - (1/5), -1/5),
   RADvADHD = c(-1/5, -1/5, -1/5, -1/5, 1 - (1/5))
@@ -1201,6 +1284,21 @@ a1_psy_parameters <-
   )
 
 a1_psy_parameters
+```
+
+```{r}
+forest_df <-
+  forest_df %>% 
+  rbind( 
+    c(
+      "Overall psychopathology",
+      a1_psy_parameters$Coefficient[[2]],
+      a1_psy_parameters$CI_low[[2]],
+      a1_psy_parameters$CI_hi[[2]],
+      a1_psy_parameters$p[[2]]
+    )
+  )
+  
 ```
 
 ## Aim 2
@@ -1252,6 +1350,20 @@ a2_cogbio_EEG_parameters <-
 a2_cogbio_EEG_parameters
 ```
 
+```{r}
+forest_df <-
+  forest_df %>% 
+  rbind( 
+    c(
+      "EEG alpha-power",
+      a2_cogbio_EEG_parameters$Coefficient[[2]],
+      a2_cogbio_EEG_parameters$CI_low[[2]],
+      a2_cogbio_EEG_parameters$CI_hi[[2]],
+      a2_cogbio_EEG_parameters$p[[2]]
+    )
+  )
+```
+
 ###### IQ
 ```{r}
 # IQ = baseline
@@ -1281,6 +1393,20 @@ a2_cogbio_IQ_parameters <-
 a2_cogbio_IQ_parameters
 ```
 
+```{r}
+forest_df <-
+  forest_df %>% 
+  rbind( 
+    c(
+      "IQ",
+      a2_cogbio_IQ_parameters$Coefficient[[2]],
+      a2_cogbio_IQ_parameters$CI_low[[2]],
+      a2_cogbio_IQ_parameters$CI_hi[[2]],
+      a2_cogbio_IQ_parameters$p[[2]]
+    )
+  )
+```
+
 ###### Physical size 
 ```{r}
 # PHYS = baseline
@@ -1308,6 +1434,20 @@ a2_cogbio_PHY_parameters <-
   )
 
 a2_cogbio_PHY_parameters
+```
+
+```{r}
+forest_df <-
+  forest_df %>% 
+  rbind( 
+    c(
+      "Physical growth",
+      a2_cogbio_PHY_parameters$Coefficient[[2]],
+      a2_cogbio_PHY_parameters$CI_low[[2]],
+      a2_cogbio_PHY_parameters$CI_hi[[2]],
+      a2_cogbio_PHY_parameters$p[[2]]
+    )
+  )
 ```
 
 #### Three-way moderations
@@ -1549,7 +1689,7 @@ contrasts(d_psy$group) = c(0, 1)
 
 # ADHD = baseline
 contrasts(d_psy$domain) = cbind(
-  DESDvADHD = c(0, 1, 0, 0, 0),
+  DSEDvADHD = c(0, 1, 0, 0, 0),
   EXTvADHD = c(0, 0, 1, 0, 0),
   INTvADHD = c(0, 0, 0, 1, 0),
   RADvADHD = c(0, 0, 0, 0, 1)
@@ -1577,20 +1717,34 @@ a2_psy_ADHD_parameters <-
 a2_psy_ADHD_parameters
 ```
 
-###### DESD
+```{r}
+forest_df <-
+  forest_df %>% 
+  rbind( 
+    c(
+      "ADHD",
+      a2_psy_ADHD_parameters$Coefficient[[2]],
+      a2_psy_ADHD_parameters$CI_low[[2]],
+      a2_psy_ADHD_parameters$CI_hi[[2]],
+      a2_psy_ADHD_parameters$p[[2]]
+    )
+  )
+```
+
+###### DSED
 ```{r}
 # CAUG = baseline
 contrasts(d_psy$group) = c(0, 1)
 
-# DESD = baseline
+# DSED = baseline
 contrasts(d_psy$domain) = cbind(
-  ADHDvDESD = c(1, 0, 0, 0, 0),
-  EXTvDESD = c(0, 0, 1, 0, 0),
-  INTvDESD = c(0, 0, 0, 1, 0),
-  RADvDESD = c(0, 0, 0, 0, 1)
+  ADHDvDSED = c(1, 0, 0, 0, 0),
+  EXTvDSED = c(0, 0, 1, 0, 0),
+  INTvDSED = c(0, 0, 0, 1, 0),
+  RADvDSED = c(0, 0, 0, 0, 1)
 )
 
-a2_psy_DESD <- lmer(
+a2_psy_DSED <- lmer(
   value_z ~ 
     group * domain + 
     male +
@@ -1601,14 +1755,28 @@ a2_psy_DESD <- lmer(
 )
 
 set.seed(123456)
-a2_psy_DESD_parameters <-
+a2_psy_DSED_parameters <-
   model_parameters(
-    a2_psy_DESD,
+    a2_psy_DSED,
     bootstrap = TRUE,
     df_method = "satterthwaite",
     iterations = 1000
   )
-a2_psy_DESD_parameters
+a2_psy_DSED_parameters
+```
+
+```{r}
+forest_df <-
+  forest_df %>% 
+  rbind( 
+    c(
+      "DSED",
+      a2_psy_DSED_parameters$Coefficient[[2]],
+      a2_psy_DSED_parameters$CI_low[[2]],
+      a2_psy_DSED_parameters$CI_hi[[2]],
+      a2_psy_DSED_parameters$p[[2]]
+    )
+  )
 ```
 
 ###### Externalizing
@@ -1619,7 +1787,7 @@ contrasts(d_psy$group) = c(0, 1)
 # EXT = baseline
 contrasts(d_psy$domain) = cbind(
   ADHDvEXT = c(1, 0, 0, 0, 0),
-  DESDvEXT = c(0, 1, 0, 0, 0),
+  DSEDvEXT = c(0, 1, 0, 0, 0),
   INTvEXT = c(0, 0, 0, 1, 0),
   RADvEXT = c(0, 0, 0, 0, 1)
 )
@@ -1646,6 +1814,20 @@ a2_psy_EXT_parameters <-
 a2_psy_EXT_parameters
 ```
 
+```{r}
+forest_df <-
+  forest_df %>% 
+  rbind( 
+    c(
+      "Externalizing",
+      a2_psy_EXT_parameters$Coefficient[[2]],
+      a2_psy_EXT_parameters$CI_low[[2]],
+      a2_psy_EXT_parameters$CI_hi[[2]],
+      a2_psy_EXT_parameters$p[[2]]
+    )
+  )
+```
+
 ###### Internalizing
 ```{r}
 # CAUG = baseline
@@ -1654,8 +1836,8 @@ contrasts(d_psy$group) = c(0, 1)
 # INT = baseline
 contrasts(d_psy$domain) = cbind(
   ADHDvINT = c(1, 0, 0, 0, 0),
-  DESDvINT = c(0, 1, 0, 0, 0),
-  INTvINT = c(0, 0, 1, 0, 0),
+  DSEDvINT = c(0, 1, 0, 0, 0),
+  INTvEXT = c(0, 0, 1, 0, 0),
   RADvINT = c(0, 0, 0, 0, 1)
 )
 
@@ -1681,6 +1863,20 @@ a2_psy_INT_parameters <-
 a2_psy_INT_parameters
 ```
 
+```{r}
+forest_df <-
+  forest_df %>% 
+  rbind( 
+    c(
+      "Internalizing",
+      a2_psy_INT_parameters$Coefficient[[2]],
+      a2_psy_INT_parameters$CI_low[[2]],
+      a2_psy_INT_parameters$CI_hi[[2]],
+      a2_psy_INT_parameters$p[[2]]
+    )
+  )
+```
+
 ###### RAD
 ```{r}
 # CAUG = baseline
@@ -1689,7 +1885,7 @@ contrasts(d_psy$group) = c(0, 1)
 # RAD = baseline
 contrasts(d_psy$domain) = cbind(
   ADHDvRAD = c(1, 0, 0, 0, 0),
-  DESDvRAD = c(0, 1, 0, 0, 0),
+  DSEDvRAD = c(0, 1, 0, 0, 0),
   EXTvRAD = c(0, 0, 1, 0, 0),
   INTvRAD = c(0, 0, 0, 1, 0)
 )
@@ -1716,6 +1912,20 @@ a2_psy_RAD_parameters <-
 a2_psy_RAD_parameters
 ```
 
+
+```{r}
+forest_df <-
+  forest_df %>% 
+  rbind( 
+    c(
+      "RAD",
+      a2_psy_RAD_parameters$Coefficient[[2]],
+      a2_psy_RAD_parameters$CI_low[[2]],
+      a2_psy_RAD_parameters$CI_hi[[2]],
+      a2_psy_RAD_parameters$p[[2]]
+    )
+  )
+```
 #### Three-way moderations
 ```{r}
 a2_psy_type_gender <- lmer(
@@ -1752,7 +1962,7 @@ contrasts(d_psy$group) = c(0, 1)
 
 # ADHD = baseline
 contrasts(d_psy$domain) = cbind(
-  DESDvADHD = c(0, 1, 0, 0, 0),
+  DSEDvADHD = c(0, 1, 0, 0, 0),
   EXTvADHD = c(0, 0, 1, 0, 0),
   INTvADHD = c(0, 0, 0, 1, 0),
   RADvADHD = c(0, 0, 0, 0, 1)
@@ -1786,7 +1996,7 @@ contrasts(d_psy$group) = c(0, 1)
 
 # ADHD = baseline
 contrasts(d_psy$domain) = cbind(
-  DESDvADHD = c(0, 1, 0, 0, 0),
+  DSEDvADHD = c(0, 1, 0, 0, 0),
   EXTvADHD = c(0, 0, 1, 0, 0),
   INTvADHD = c(0, 0, 0, 1, 0),
   RADvADHD = c(0, 0, 0, 0, 1)
@@ -1820,7 +2030,7 @@ contrasts(d_psy$group) = c(0, 1)
 
 # ADHD = baseline
 contrasts(d_psy$domain) = cbind(
-  DESDvADHD = c(0, 1, 0, 0, 0),
+  DSEDvADHD = c(0, 1, 0, 0, 0),
   EXTvADHD = c(0, 0, 1, 0, 0),
   INTvADHD = c(0, 0, 0, 1, 0),
   RADvADHD = c(0, 0, 0, 0, 1)
@@ -1847,20 +2057,20 @@ a2_ADHD_age16_parameters <-
 a2_ADHD_age16_parameters
 ```
 
-###### DESD, 42 months (3.5 years)
+###### DSED, 42 months (3.5 years)
 ```{r}
 # CAUG = baseline
 contrasts(d_psy$group) = c(0, 1)
 
-# DESD = baseline
+# DSED = baseline
 contrasts(d_psy$domain) = cbind(
-  ADHDvDESD = c(1, 0, 0, 0, 0),
-  EXTvDESD = c(0, 0, 1, 0, 0),
-  INTvDESD = c(0, 0, 0, 1, 0),
-  RADvDESD = c(0, 0, 0, 0, 1)
+  ADHDvDSED = c(1, 0, 0, 0, 0),
+  EXTvDSED = c(0, 0, 1, 0, 0),
+  INTvDSED = c(0, 0, 0, 1, 0),
+  RADvDSED = c(0, 0, 0, 0, 1)
 )
 
-a2_DESD_age3 <- lmer(
+a2_DSED_age3 <- lmer(
   value_z ~ 
     group * domain * I(age_years - 3.5) +
     male +
@@ -1870,30 +2080,30 @@ a2_DESD_age3 <- lmer(
 )
 
 set.seed(123456)
-a2_DESD_age3_parameters <-
+a2_DSED_age3_parameters <-
   model_parameters(
-    a2_DESD_age3,
+    a2_DSED_age3,
     bootstrap = TRUE,
     df_method = "satterthwaite",
     iterations = 1000
   )
-a2_DESD_age3_parameters
+a2_DSED_age3_parameters
 ```
 
-###### DESD, 8 years
+###### DSED, 8 years
 ```{r}
 # CAUG = baseline
 contrasts(d_psy$group) = c(0, 1)
 
-# DESD = baseline
+# DSED = baseline
 contrasts(d_psy$domain) = cbind(
-  ADHDvDESD = c(1, 0, 0, 0, 0),
-  EXTvDESD = c(0, 0, 1, 0, 0),
-  INTvDESD = c(0, 0, 0, 1, 0),
-  RADvDESD = c(0, 0, 0, 0, 1)
+  ADHDvDSED = c(1, 0, 0, 0, 0),
+  EXTvDSED = c(0, 0, 1, 0, 0),
+  INTvDSED = c(0, 0, 0, 1, 0),
+  RADvDSED = c(0, 0, 0, 0, 1)
 )
 
-a2_DESD_age8 <- lmer(
+a2_DSED_age8 <- lmer(
   value_z ~ 
     group * domain * I(age_years - 8) +
     male +
@@ -1903,30 +2113,30 @@ a2_DESD_age8 <- lmer(
 )
 
 set.seed(123456)
-a2_DESD_age8_parameters <-
+a2_DSED_age8_parameters <-
   model_parameters(
-    a2_DESD_age8,
+    a2_DSED_age8,
     bootstrap = TRUE,
     df_method = "satterthwaite",
     iterations = 1000
   )
-a2_DESD_age8_parameters
+a2_DSED_age8_parameters
 ```
 
-###### DESD, 16 years
+###### DSED, 16 years
 ```{r}
 # CAUG = baseline
 contrasts(d_psy$group) = c(0, 1)
 
-# DESD = baseline
+# DSED = baseline
 contrasts(d_psy$domain) = cbind(
-  ADHDvDESD = c(1, 0, 0, 0, 0),
-  EXTvDESD = c(0, 0, 1, 0, 0),
-  INTvDESD = c(0, 0, 0, 1, 0),
-  RADvDESD = c(0, 0, 0, 0, 1)
+  ADHDvDSED = c(1, 0, 0, 0, 0),
+  EXTvDSED = c(0, 0, 1, 0, 0),
+  INTvDSED = c(0, 0, 0, 1, 0),
+  RADvDSED = c(0, 0, 0, 0, 1)
 )
 
-a2_DESD_age16 <- lmer(
+a2_DSED_age16 <- lmer(
   value_z ~ 
     group * domain * I(age_years - 16) +
     male +
@@ -1936,14 +2146,14 @@ a2_DESD_age16 <- lmer(
 )
 
 set.seed(123456)
-a2_DESD_age16_parameters <-
+a2_DSED_age16_parameters <-
   model_parameters(
-    a2_DESD_age16,
+    a2_DSED_age16,
     bootstrap = TRUE,
     df_method = "satterthwaite",
     iterations = 1000
   )
-a2_DESD_age16_parameters
+a2_DSED_age16_parameters
 ```
 
 ###### Externalizing, 42 months (3.5 years)
@@ -1954,7 +2164,7 @@ contrasts(d_psy$group) = c(0, 1)
 # EXT = baseline
 contrasts(d_psy$domain) = cbind(
   ADHDvEXT = c(1, 0, 0, 0, 0),
-  DESDvEXT = c(0, 1, 0, 0, 0),
+  DSEDvEXT = c(0, 1, 0, 0, 0),
   INTvEXT = c(0, 0, 0, 1, 0),
   RADvEXT = c(0, 0, 0, 0, 1)
 )
@@ -1988,7 +2198,7 @@ contrasts(d_psy$group) = c(0, 1)
 # EXT = baseline
 contrasts(d_psy$domain) = cbind(
   ADHDvEXT = c(1, 0, 0, 0, 0),
-  DESDvEXT = c(0, 1, 0, 0, 0),
+  DSEDvEXT = c(0, 1, 0, 0, 0),
   INTvEXT = c(0, 0, 0, 1, 0),
   RADvEXT = c(0, 0, 0, 0, 1)
 )
@@ -2022,7 +2232,7 @@ contrasts(d_psy$group) = c(0, 1)
 # EXT = baseline
 contrasts(d_psy$domain) = cbind(
   ADHDvEXT = c(1, 0, 0, 0, 0),
-  DESDvEXT = c(0, 1, 0, 0, 0),
+  DSEDvEXT = c(0, 1, 0, 0, 0),
   INTvEXT = c(0, 0, 0, 1, 0),
   RADvEXT = c(0, 0, 0, 0, 1)
 )
@@ -2056,7 +2266,7 @@ contrasts(d_psy$group) = c(0, 1)
 # INT = baseline
 contrasts(d_psy$domain) = cbind(
   ADHDvINT = c(1, 0, 0, 0, 0),
-  DESDvINT = c(0, 1, 0, 0, 0),
+  DSEDvINT = c(0, 1, 0, 0, 0),
   INTvINT = c(0, 0, 1, 0, 0),
   RADvINT = c(0, 0, 0, 0, 1)
 )
@@ -2090,7 +2300,7 @@ contrasts(d_psy$group) = c(0, 1)
 # INT = baseline
 contrasts(d_psy$domain) = cbind(
   ADHDvINT = c(1, 0, 0, 0, 0),
-  DESDvINT = c(0, 1, 0, 0, 0),
+  DSEDvINT = c(0, 1, 0, 0, 0),
   INTvINT = c(0, 0, 1, 0, 0),
   RADvINT = c(0, 0, 0, 0, 1)
 )
@@ -2124,7 +2334,7 @@ contrasts(d_psy$group) = c(0, 1)
 # INT = baseline
 contrasts(d_psy$domain) = cbind(
   ADHDvINT = c(1, 0, 0, 0, 0),
-  DESDvINT = c(0, 1, 0, 0, 0),
+  DSEDvINT = c(0, 1, 0, 0, 0),
   INTvINT = c(0, 0, 1, 0, 0),
   RADvINT = c(0, 0, 0, 0, 1)
 )
@@ -2158,7 +2368,7 @@ contrasts(d_psy$group) = c(0, 1)
 # RAD = baseline
 contrasts(d_psy$domain) = cbind(
   ADHDvRAD = c(1, 0, 0, 0, 0),
-  DESDvRAD = c(0, 1, 0, 0, 0),
+  DSEDvRAD = c(0, 1, 0, 0, 0),
   EXTvRAD = c(0, 0, 1, 0, 0),
   INTvRAD = c(0, 0, 0, 1, 0)
 )
@@ -2192,7 +2402,7 @@ contrasts(d_psy$group) = c(0, 1)
 # RAD = baseline
 contrasts(d_psy$domain) = cbind(
   ADHDvRAD = c(1, 0, 0, 0, 0),
-  DESDvRAD = c(0, 1, 0, 0, 0),
+  DSEDvRAD = c(0, 1, 0, 0, 0),
   EXTvRAD = c(0, 0, 1, 0, 0),
   INTvRAD = c(0, 0, 0, 1, 0)
 )
@@ -2226,7 +2436,7 @@ contrasts(d_psy$group) = c(0, 1)
 # RAD = baseline
 contrasts(d_psy$domain) = cbind(
   ADHDvRAD = c(1, 0, 0, 0, 0),
-  DESDvRAD = c(0, 1, 0, 0, 0),
+  DSEDvRAD = c(0, 1, 0, 0, 0),
   EXTvRAD = c(0, 0, 1, 0, 0),
   INTvRAD = c(0, 0, 0, 1, 0)
 )
@@ -2314,7 +2524,7 @@ a3_age_placement_parameters_raw <-
 a3_age_placement_parameters_raw
 ```
 
-###### Two-way interactions
+###### Two-way moderations
 ```{r}
 a3_age_placement_std_X <- lmer(
   value_z ~ 
@@ -2609,7 +2819,7 @@ a3_age_placement_age16_parameters_raw
 contrasts(d_fcg_psy$male) = c(-.5, .5) 
 
 contrasts(d_fcg_psy$domain) = cbind(
-  DESDvADHD = c(-1/5, 1 - (1/5), -1/5, -1/5, -1/5),
+  DSEDvADHD = c(-1/5, 1 - (1/5), -1/5, -1/5, -1/5),
   EXTvADHD = c(-1/5, -1/5, 1 - (1/5), -1/5, -1/5),
   INTvADHD = c(-1/5, -1/5, -1/5, 1 - (1/5), -1/5),
   RADvADHD = c(-1/5, -1/5, -1/5, -1/5, 1 - (1/5))
@@ -2664,7 +2874,7 @@ a3_psy_age_placement_parameters_raw <-
 a3_psy_age_placement_parameters_raw
 ```
 
-##### Two-way interactions
+##### Two-way moderations
 ```{r}
 a3_psy_age_placement_int <- lmer(
   value_z ~ 
@@ -2684,7 +2894,7 @@ anova(a3_psy_age_placement_int)
 ###### 42 months (3.5 years)
 ```{r}
 contrasts(d_fcg_psy$domain) = cbind(
-  DESDvADHD = c(-1/5, 1 - (1/5), -1/5, -1/5, -1/5),
+  DSEDvADHD = c(-1/5, 1 - (1/5), -1/5, -1/5, -1/5),
   EXTvADHD = c(-1/5, -1/5, 1 - (1/5), -1/5, -1/5),
   INTvADHD = c(-1/5, -1/5, -1/5, 1 - (1/5), -1/5),
   RADvADHD = c(-1/5, -1/5, -1/5, -1/5, 1 - (1/5))
@@ -2934,19 +3144,6 @@ a3_stab_age16_parameters
 
 ```
 
-##### Three-way moderations
-```{r}
-a3_stability_X <- lmer(
-  value_z ~ 
-    stable * scale(age_years, scale = TRUE) * construct +
-    stable * scale(age_years, scale = TRUE) * male + 
-    (1|ID), 
-  data = d_fcg_cog_bio
-)
-
-anova(a3_stability_X)
-```
-
 #### Psychopathology
 
 ##### Main effect of stability
@@ -2955,7 +3152,7 @@ anova(a3_stability_X)
 contrasts(d_fcg_psy$male) = c(-.5, .5) 
 
 contrasts(d_fcg_psy$domain) = cbind(
-  DESDvADHD = c(-1/5, 1 - (1/5), -1/5, -1/5, -1/5),
+  DSEDvADHD = c(-1/5, 1 - (1/5), -1/5, -1/5, -1/5),
   EXTvADHD = c(-1/5, -1/5, 1 - (1/5), -1/5, -1/5),
   INTvADHD = c(-1/5, -1/5, -1/5, 1 - (1/5), -1/5),
   RADvADHD = c(-1/5, -1/5, -1/5, -1/5, 1 - (1/5))
@@ -2994,7 +3191,7 @@ a3_psy_stability_parameters
 ###### 42 months (3.5 years)
 ```{r}
 contrasts(d_fcg_psy$domain) = cbind(
-  DESDvADHD = c(-1/5, 1 - (1/5), -1/5, -1/5, -1/5),
+  DSEDvADHD = c(-1/5, 1 - (1/5), -1/5, -1/5, -1/5),
   EXTvADHD = c(-1/5, -1/5, 1 - (1/5), -1/5, -1/5),
   INTvADHD = c(-1/5, -1/5, -1/5, 1 - (1/5), -1/5),
   RADvADHD = c(-1/5, -1/5, -1/5, -1/5, 1 - (1/5))
@@ -3066,552 +3263,6 @@ a3_psy_stab_age16_parameters <-
     iterations = 1000
   )
 a3_psy_stab_age16_parameters
-
-```
-
-
-##### Three-way moderations
-
-```{r}
-a3_psy_stability_X <- lmer(
-  value_z ~ 
-    stable * scale(age_years, scale = TRUE) * domain +
-    stable * scale(age_years, scale = TRUE) * male +
-    informant +
-    (1|ID), 
-  data = d_fcg_psy
-)
-
-anova(a3_psy_stability_X)
-```
-
-##### Simple effects of type of psychopathology and age of assessment
-
-###### ADHD, 42 months (3.5 years)
-```{r}
-# ADHD = baseline
-contrasts(d_fcg_psy$domain) = cbind(
-  DESDvADHD = c(0, 1, 0, 0, 0),
-  EXTvADHD = c(0, 0, 1, 0, 0),
-  INTvADHD = c(0, 0, 0, 1, 0),
-  RADvADHD = c(0, 0, 0, 0, 1)
-)
-
-a3_ADHD_age3 <- lmer(
-  value_z ~ 
-    stable * domain * I(age_years - 3.5) +
-    male +
-    informant +
-    (1 |ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_ADHD_age3_parameters <- 
-  model_parameters(
-    a3_ADHD_age3,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-
-a3_ADHD_age3_parameters
-```
-
-###### ADHD, 8 years 
-```{r}
-a3_ADHD_age8 <- lmer(
-  value_z ~ 
-    stable * domain * I(age_years - 8) +
-    male +
-    informant +
-    (1 |ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_ADHD_age8_parameters <- 
-  model_parameters(
-    a3_ADHD_age8,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-
-a3_ADHD_age8_parameters
-```
-
-###### ADHD, 16 years 
-```{r}
-a3_ADHD_age16 <- lmer(
-  value_z ~ 
-    stable * domain * I(age_years - 16) +
-    male +
-    informant +
-    (1 |ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_ADHD_age16_parameters <- 
-  model_parameters(
-    a3_ADHD_age16,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-
-a3_ADHD_age16_parameters
-```
-
-###### DESD, 42 months (3.5 years)
-```{r}
-# DESD = baseline
-contrasts(d_fcg_psy$domain) = cbind(
-  ADHDvDESD = c(1, 0, 0, 0, 0),
-  EXTvDESD = c(0, 0, 1, 0, 0),
-  INTvDESD = c(0, 0, 0, 1, 0),
-  RADvDESD = c(0, 0, 0, 0, 1)
-)
-
-a3_DESD_age3 <- lmer(
-  value_z ~ 
-    stable * domain * I(age_years - 3.5) +
-    male +
-    informant +
-    (1 |ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_DESD_age3_parameters <-
-  model_parameters(
-    a3_DESD_age3,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-a3_DESD_age3_parameters
-```
-
-###### DESD, 8 years
-```{r}
-a3_DESD_age8 <- lmer(
-  value_z ~ 
-    stable * domain * I(age_years - 8) +
-    male +
-    informant +
-    (1 |ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_DESD_age8_parameters <-
-  model_parameters(
-    a3_DESD_age8,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-a3_DESD_age8_parameters
-```
-
-###### DESD, 16 years
-```{r}
-a3_DESD_age16 <- lmer(
-  value_z ~ 
-    stable * domain * I(age_years - 16) +
-    male +
-    informant +
-    (1 |ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_DESD_age16_parameters <-
-  model_parameters(
-    a3_DESD_age16,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-a3_DESD_age16_parameters
-```
-
-###### Externalizing, 42 months (3.5 years)
-```{r}
-# EXT = baseline
-contrasts(d_fcg_psy$domain) = cbind(
-  ADHDvEXT = c(1, 0, 0, 0, 0),
-  DESDvEXT = c(0, 1, 0, 0, 0),
-  INTvEXT = c(0, 0, 0, 1, 0),
-  RADvEXT = c(0, 0, 0, 0, 1)
-)
-
-a3_EXT_age3 <- lmer(
-  value_z ~ 
-    stable * domain * I(age_years - 3.5) +
-    male +
-    informant +
-    (1 |ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_EXT_age3_parameters <-
-  model_parameters(
-    a3_EXT_age3,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-
-a3_EXT_age3_parameters
-```
-
-###### Externalizing, 8 years
-```{r}
-a3_EXT_age8 <- lmer(
-  value_z ~ 
-    stable * domain * I(age_years - 8) +
-    male +
-    informant +
-    (1 |ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_EXT_age8_parameters <-
-  model_parameters(
-    a3_EXT_age8,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-
-a3_EXT_age8_parameters
-```
-
-###### Externalizing, 16 years
-```{r}
-a3_EXT_age16 <- lmer(
-  value_z ~ 
-    stable * domain * I(age_years - 16) +
-    male +
-    informant +
-    (1 |ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_EXT_age16_parameters <-
-  model_parameters(
-    a3_EXT_age16,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-
-a3_EXT_age16_parameters
-```
-
-###### Internalizing, 42 months (3.5 years)
-```{r}
-# INT = baseline
-contrasts(d_fcg_psy$domain) = cbind(
-  ADHDvINT = c(1, 0, 0, 0, 0),
-  DESDvINT = c(0, 1, 0, 0, 0),
-  INTvINT = c(0, 0, 1, 0, 0),
-  RADvINT = c(0, 0, 0, 0, 1)
-)
-
-a3_INT_age3 <- lmer(
-  value_z ~ 
-    stable * domain * I(age_years - 3.5) +
-    male +
-    informant +
-    (1 |ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a2_INT_age3_parameters <-
-  model_parameters(
-    a3_INT_age3,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-
-a2_INT_age3_parameters
-```
-
-###### Internalizing, 8 years
-```{r}
-a3_INT_age8 <- lmer(
-  value_z ~ 
-    stable * domain * I(age_years - 8) +
-    male +
-    informant +
-    (1 |ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_INT_age8_parameters <-
-  model_parameters(
-    a3_INT_age8,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-
-a3_INT_age8_parameters
-```
-
-###### Internalizing, 16 years
-```{r}
-a3_INT_age16 <- lmer(
-  value_z ~ 
-    stable * domain * I(age_years - 16) +
-    male +
-    informant +
-    (1 |ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_INT_age16_parameters <-
-  model_parameters(
-    a3_INT_age16,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-
-a3_INT_age16_parameters
-```
-
-###### RAD, 42 months (3.5 years)
-```{r}
-# RAD = baseline
-contrasts(d_fcg_psy$domain) = cbind(
-  ADHDvRAD = c(1, 0, 0, 0, 0),
-  DESDvRAD = c(0, 1, 0, 0, 0),
-  EXTvRAD = c(0, 0, 1, 0, 0),
-  INTvRAD = c(0, 0, 0, 1, 0)
-)
-
-a3_RAD_age3 <- lmer(
-  value_z ~ 
-    stable * domain * I(age_years - 3.5) +
-    male +
-    informant +
-    (1 |ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_RAD_age3_parameters <- 
-  model_parameters(
-    a3_RAD_age3,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-
-a3_RAD_age3_parameters
-```
-
-###### RAD, 8 years
-```{r}
-a3_RAD_age8 <- lmer(
-  value_z ~ 
-    stable * domain * I(age_years - 8) +
-    male +
-    informant +
-    (1 |ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_RAD_age8_parameters <- 
-  model_parameters(
-    a3_RAD_age8,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-
-a3_RAD_age8_parameters
-```
-
-###### RAD, 16 years
-```{r}
-a3_RAD_age16 <- lmer(
-  value_z ~ 
-    stable * domain * I(age_years - 16) +
-    male +
-    informant +
-    (1 |ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_RAD_age16_parameters <- 
-  model_parameters(
-    a3_RAD_age16,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-
-a3_RAD_age16_parameters
-```
-
-###### Simple effects of age of asssesment
-
-###### Male, 42 months (3.5 years)
-```{r}
-contrasts(d_fcg_psy$domain) = cbind(
-  DESDvADHD = c(-1/5, 1 - (1/5), -1/5, -1/5, -1/5),
-  EXTvADHD = c(-1/5, -1/5, 1 - (1/5), -1/5, -1/5),
-  INTvADHD = c(-1/5, -1/5, -1/5, 1 - (1/5), -1/5),
-  RADvADHD = c(-1/5, -1/5, -1/5, -1/5, 1 - (1/5))
-)
-
-contrasts(d_fcg_psy$male) = c (1, 0) # male is baseline
-
-a3_psy_stab_age3_male <- lmer(
-  value_z ~ 
-    stable * I(age_years - 3.5) * male +
-    domain +
-    informant +
-    (1|ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_psy_stab_age3_male_parameters <- 
-  model_parameters(
-    a3_psy_stab_age3_male,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-a3_psy_stab_age3_male_parameters
-```
-
-###### Male, 8 years
-```{r}
-a3_psy_stab_age8_male <- lmer(
-  value_z ~ 
-    stable * I(age_years - 8) * male +
-    domain +
-    informant +
-    (1|ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_psy_stab_age8_male_parameters <- 
-  model_parameters(
-    a3_psy_stab_age8_male,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-a3_psy_stab_age8_male_parameters
-```
-
-###### Male, 16 years
-```{r}
-a3_psy_stab_age16_male <- lmer(
-  value_z ~ 
-    stable * I(age_years - 16) * male +
-    domain +
-    informant +
-    (1|ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_psy_stab_age16_male_parameters <- 
-  model_parameters(
-    a3_psy_stab_age16_male,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-a3_psy_stab_age16_male_parameters
-```
-
-###### Female, 42 months (3.5 years)
-```{r}
-contrasts(d_fcg_psy$male) = c (0, 1) # female is baseline
-
-a3_psy_stab_age3_female <- lmer(
-  value_z ~ 
-    stable * I(age_years - 3.5) * male +
-    domain +
-    informant +
-    (1|ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_psy_stab_age3_female_parameters <- 
-  model_parameters(
-    a3_psy_stab_age3_female,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-a3_psy_stab_age3_female_parameters
-```
-
-###### Female, 8 years
-```{r}
-a3_psy_stab_age8_female <- lmer(
-  value_z ~ 
-    stable * I(age_years - 8) * male +
-    domain +
-    informant +
-    (1|ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_psy_stab_age8_female_parameters <- 
-  model_parameters(
-    a3_psy_stab_age8_female,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-a3_psy_stab_age8_female_parameters
-```
-
-###### Female, 16 years
-```{r}
-a3_psy_stab_age16_female <- lmer(
-  value_z ~ 
-    stable * I(age_years - 16) * male +
-    domain +
-    informant +
-    (1|ID), 
-  data = d_fcg_psy
-)
-
-set.seed(123456)
-a3_psy_stab_age16_female_parameters <- 
-  model_parameters(
-    a3_psy_stab_age16_female,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-a3_psy_stab_age16_female_parameters
 
 ```
 
@@ -3766,74 +3417,6 @@ d_plot <-
 
 ```
 
-### Cognitive and biological by gender 
-```{r}
-d_plot %>% 
-  filter(
-    domain_construct_pretty == "IQ" | 
-      domain_construct_pretty == "Physical growth" | 
-      domain_construct_pretty == "EEG alpha-power"
-  ) %>%
-  ggplot(aes(group, value_z, fill = male, color = male)) +
-  geom_boxplot(
-    alpha = 1/2,
-    outlier.shape = NA
-  ) +
-  scale_y_continuous(breaks = seq.int(-3, 3, 1)) +
-  scale_color_viridis_d() +
-  scale_fill_viridis_d() +
-  theme_beip +
-  theme(
-    legend.position = "right",
-    plot.caption = element_text(hjust = .5, size = 14)
-  ) +
-  labs(
-    color = NULL,
-    fill = NULL,
-    x = NULL,
-    y = "Cognitive and biological functioning\n(standardized score)"
-  ) +
-  facet_grid(~domain_construct_pretty)
-
-ggsave(
-  paste0(home, "figures/aim2_cogbio_sex.png"),
-  dpi = 600,
-  width = 9, 
-  height = 5
-)
-```
-
-#### EEG by gender 
-```{r}
-d_cog_bio %>% 
-  filter(construct == "EEG") %>% 
-  ggplot(aes(group, value_z, fill = group, color = group)) +
-  geom_boxplot(
-    alpha = 1/2,
-    outlier.shape = NA
-  ) +
-  scale_y_continuous(breaks = seq.int(-3, 3, 1)) +
-  scale_fill_manual(values = cbbPalette) +
-  scale_color_manual(values = cbbPalette) +
-  theme_beip +
-  theme(
-    legend.position = "none",
-    plot.caption = element_text(hjust = .5, size = 14)
-  ) +
-  labs(
-    x = NULL,
-    y = "Standardized EEG alphalpha-power"
-  ) +
-  facet_grid(.~male)
-
-ggsave(
-  paste0(home, "figures/aim2_EEG_sex.png"),
-  dpi = 600,
-  width = 9, 
-  height = 7
-)
-```
-
 ### By domain by age of assessment
 ```{r}
 d_plot %>% 
@@ -3866,9 +3449,111 @@ ggsave(
 )
 ```
 
+### Forest plot
+```{r}
+library(weights)
+
+forest_df_viz <-
+  forest_df %>% 
+  mutate_at(
+    vars(Coefficient:p),
+    as.numeric
+  ) %>% 
+  mutate(
+    Parameter = fct_relevel(
+      Parameter,
+        "Overall cognitive and biological",
+        "Overall psychopathology",
+        "IQ",
+        "Physical growth",
+        "EEG alpha-power",
+        "DSED",
+        "RAD",
+        "ADHD",
+        "Externalizing",
+        "Internalizing"
+    ),
+    p = rd(p, digits = 3),
+    p = paste0("p=", p)
+  )
+
+forest_cogbio_p <-
+  forest_df_viz %>% 
+  filter(
+    Parameter == "Overall cognitive and biological" |
+    Parameter == "IQ" |
+    Parameter == "Physical growth" |
+    Parameter == "EEG alpha-power"
+  ) %>% 
+  ggplot(aes(fct_rev(Parameter), Coefficient)) +
+  geom_pointrange(
+    aes(
+      ymin = CI_low,
+      ymax = CI_high
+    ),
+    size = .5
+  ) + 
+  geom_hline(yintercept = 0, linetype = "dotted") +
+  geom_text(aes(label = p), nudge_y = .4) +
+  scale_y_continuous(breaks = seq.int(-1, 1, .2), limits = c(-1, 1)) +
+  coord_flip() +
+  theme_beip +
+  labs(
+    x = NULL,
+    y = "Standardized regression coefficient"
+  )
+
+ggsave(
+  paste0(home, "figures/forest_plot_cogbio.png"),
+  dpi = 600,
+  width = 9.8, 
+  height = 3
+)
+
+forest_psy_p <-
+  forest_df_viz %>% 
+  filter(
+    Parameter != "Overall cognitive and biological",
+    Parameter != "IQ",
+    Parameter != "Physical growth",
+    Parameter != "EEG alpha-power",
+  ) %>% 
+  ggplot(aes(fct_rev(Parameter), Coefficient)) +
+  geom_pointrange(
+    aes(
+      ymin = CI_low,
+      ymax = CI_high
+    ),
+    size = .5
+  ) + 
+  geom_hline(yintercept = 0, linetype = "dotted") +
+  geom_text(aes(label = p), nudge_y = .4) +
+  scale_y_continuous(breaks = seq.int(-1, 1, .2), limits = c(-1, 1)) +
+  coord_flip() +
+  theme_beip +
+  labs(
+    x = NULL,
+    y = "Standardized regression coefficient"
+  )
+
+ggarrange(
+  forest_cogbio_p, 
+  forest_psy_p, 
+  nrow = 2, 
+  align = "hv"
+)
+
+ggsave(
+  paste0(home, "figures/forest_plot.png"),
+  dpi = 600,
+  width = 9, 
+  height = 9
+)
+```
+
 ## Aim 3
 
-#### Age of placement by wave
+#### Age of placement by domain
 ```{r}
 d_plot_fcg <-
   d_fcg_cog_bio %>% 
@@ -3876,10 +3561,10 @@ d_plot_fcg <-
     ID, 
     group, 
     male,
+    age_years,
     wave_ordered, 
     FC_placement_age,
     stable,
-    age_years, 
     construct, 
     value_z
   ) %>% 
@@ -3889,10 +3574,10 @@ d_plot_fcg <-
         ID, 
         group, 
         male,
+        age_years,
         wave_ordered, 
         FC_placement_age,
         stable,
-        age_years, 
         domain, 
         value_z
       )
@@ -3918,11 +3603,6 @@ d_plot_fcg <-
       "ADHD", 
       "Externalizing", 
       "Internalizing"
-    ),
-    age_years_group = case_when(
-      age_years <= 3.5 ~ "< 3.5 years",
-      age_years > 3.5 & age_years <= 8 ~ "3.5–8 years",
-      age_years > 8 ~ "8–18 years"
     ),
     stable = recode_factor(
       stable,
@@ -3964,42 +3644,8 @@ ggsave(
 )
 ```
 
-#### Age of placement by age of assessment
-```{r}
-d_plot_fcg %>% 
-  ggplot(
-    aes(
-      FC_placement_age, 
-      value_z, 
-      color = age_years_group
-    )
-  ) +
-  geom_smooth(method = "lm", size = 3, se = FALSE) +
-  scale_y_continuous(breaks = seq.int(-1, 1.4, .4)) +
-  scale_x_continuous(breaks = seq.int(0, 30, 5)) +
-  scale_color_viridis_d() +
-  theme_beip +
-  theme(
-    legend.position = "right",
-    plot.caption = element_text(hjust = .5, size = 16),
-    axis.title.y = element_text(vjust = 2)
-  ) +
-  labs(
-    color = "Age of assessment",
-    x = "Age of placement in foster care (months)",
-    y = "Standardized score"
-  ) +
-  facet_wrap(.~domain_construct_pretty, ncol = 2)
 
-ggsave(
-  paste0(home, "figures/aim3_all_ageplacement_domain_age.png"),
-  dpi = 600,
-  width = 9, 
-  height = 11
-)
-```
-
-#### Stability by age of assessment (geom_smooth)
+#### Stability by age of assessment 
 ```{r}
 d_plot_fcg %>% 
   filter(!is.na(stable)) %>% 
@@ -4070,50 +3716,5 @@ ggsave(
   dpi = 600,
   width = 9, 
   height = 11
-)
-```
-
-#### Stability by sex (geom_smooth)
-```{r}
-d_plot_fcg %>% 
-  filter(!is.na(stable)) %>% 
-  mutate(
-    male = recode_factor(
-      male,
-      "0" = "Female",
-      "1" = "Male"
-    )
-  ) %>% 
-  ggplot(
-    aes(
-      age_years, 
-      value_z, 
-      color = stable,
-      fill = stable
-    )
-  ) +
-  geom_smooth(method = "lm", size = 2) +
-  #scale_y_continuous(breaks = seq.int(-1, 1.4, .4)) +
-  scale_x_continuous(breaks = seq.int(0, 30, 5)) +
-  scale_color_viridis_d(begin = .5) +
-  scale_fill_viridis_d(guide = FALSE, begin = .5) +
-  theme_beip +
-  theme(
-    legend.position = "right",
-    plot.caption = element_text(hjust = .5, size = 16),
-    axis.title.y = element_text(vjust = 2)
-  ) +
-  labs(
-    color = "Foster care placement",
-    x = "Age of assessment (years)",
-    y = "Symptoms of psychopathology\n(standardized score)"
-  ) +
-  facet_wrap(.~male, ncol = 2)
-
-ggsave(
-  paste0(home, "figures/aim3_all_stability_sex_age.png"),
-  dpi = 600,
-  width = 11, 
-  height = 6
 )
 ```

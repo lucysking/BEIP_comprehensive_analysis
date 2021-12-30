@@ -1,16 +1,34 @@
----
-title: "Data wrangling for Multi-Level Analysis of Foster Care as an Alternative to Institutionalization on Biobehavioral Outcomes Across Childhood"
-date: "2021"
-output: 
-  github_document:
-    toc: true
-    toc_depth: 2
----
+Data wrangling for Multi-Level Analysis of Foster Care as an Alternative
+to Institutionalization on Biobehavioral Outcomes Across Childhood
+================
+2021
 
-https://docs.google.com/spreadsheets/d/1TubH73N8ZpJwILDFGZ6qtvvQM0gqGrzcYEVapVomFaQ/edit?ts=5e0e38bf#gid=0
+-   [Read in data](#read-in-data)
+    -   [EEG data](#eeg-data)
+    -   [ITSEA data](#itsea-data)
+    -   [All other psychopathology, IQ, physical
+        size](#all-other-psychopathology-iq-physical-size)
+    -   [Create combined dataset](#create-combined-dataset)
+-   [Export data](#export-data)
 
-```{r}
+<https://docs.google.com/spreadsheets/d/1TubH73N8ZpJwILDFGZ6qtvvQM0gqGrzcYEVapVomFaQ/edit?ts=5e0e38bf#gid=0>
+
+``` r
 library(tidyverse)
+```
+
+    ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
+
+    ## ✓ ggplot2 3.3.5     ✓ purrr   0.3.4
+    ## ✓ tibble  3.1.4     ✓ dplyr   1.0.7
+    ## ✓ tidyr   1.1.3     ✓ stringr 1.4.0
+    ## ✓ readr   2.0.2     ✓ forcats 0.5.1
+
+    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+    ## x dplyr::filter() masks stats::filter()
+    ## x dplyr::lag()    masks stats::lag()
+
+``` r
 library(labelled)
 
 #Files__________________________________________________________________________
@@ -27,12 +45,11 @@ stability_file <- paste0(home, "data/BEIP_18yrDisruptionsStabilityFCG.xlsx")
 EEG_ages_file <- paste0(home, "data/All EEG ages.sav")
 EEG_16yr_age_file <- paste0(home, "data/ages16eeg_update.sav") # 16 yr wave EEG age incorrect in main file; use age in file below
 EEG_data_file <- paste0(home, "data/EEG_request_082021/DataRequest_King_8.21.21.sav")
-EEG_16yr_data_file <- paste0(home, "data/EEG_request_082021/16yrs_EO_allband_allchan.txt")
 ```
 
 # Read in data
 
-```{r}
+``` r
 d0 <- 
   haven::read_sav(BEIP_MA_file) %>% 
   rename(
@@ -51,13 +68,13 @@ d0 <-
       ),
     by = "ID"
   )
-
 ```
 
 ## EEG data
 
 ### Clean ages of EEG assessments
-```{r}
+
+``` r
 eeg_ages <-
   haven::read_sav(EEG_ages_file) %>% 
   rename(
@@ -119,10 +136,14 @@ eeg_ages <-
   ) %>% 
   arrange(ID) %>% 
   dplyr::select(ID, age, wave)
-```   
+```
 
-### Reformat EEG data 
-```{r}
+    ## Warning: attributes are not identical across measure variables;
+    ## they will be dropped
+
+### Reformat EEG data
+
+``` r
 eeg_data <-
   haven::read_sav(EEG_data_file) %>% 
   dplyr::select(
@@ -131,18 +152,12 @@ eeg_data <-
     f4_30 = tabAlpha_Bingo_F4_30mo,
     f3_42 = tabAlpha_Bingo_F3_42mo,
     f4_42 = tabAlpha_Bingo_F4_42mo,
-    f3_8 = tabAlpha1_Open_F3_8,
-    f4_8 = tabAlpha1_Open_F4_8,
-    f3_12 = EEG_tabF3Alpha_EO_12,
-    f4_12 = EEG_tabF4Alpha_EO_12,
-  ) %>% 
-  left_join(
-    read_tsv(EEG_16yr_data_file) %>% 
-      dplyr::select(
-        ID = subnum,
-        f3_16 = F3_EO_16Y_rel_alpha,
-        f4_16 = F4_EO_16Y_rel_alpha
-      )
+    f3_8 = tabAlpha1_Close_F3_8,
+    f4_8 = tabAlpha1_Close_F4_8,
+    f3_12 = EEG_tabF3Alpha_EC_12,
+    f4_12 = EEG_tabF4Alpha_EC_12,
+    f3_16 = eyes_closed_F3_rel_alpha_16,
+    f4_16 = eyes_closed_F4_rel_alpha_16,
   ) %>% 
   gather(eeg_key, value, -ID) %>% 
   separate(eeg_key, c("measure", "wave")) %>% 
@@ -153,8 +168,12 @@ eeg_data <-
   filter(!is.na(value))
 ```
 
+    ## Warning: attributes are not identical across measure variables;
+    ## they will be dropped
+
 ### Join EEG data with ages of assessment
-```{r}
+
+``` r
 eeg <-
   eeg_data %>% 
   left_join(eeg_ages, by = c("ID", "wave")) %>% 
@@ -164,7 +183,8 @@ eeg <-
 ## ITSEA data
 
 ### Clean ITSEA ages of assessment
-```{r}
+
+``` r
 # Use earliest observation as baseline. For subsequent, take closes to the intended wave.
 itsea_ages <-
   d0 %>% 
@@ -232,10 +252,14 @@ itsea_ages <-
   ungroup() %>% 
   filter(wave != "drop", !is.na(wave)) %>% 
   dplyr::select(-c(age_diff_BL:min_age_diff))
-```  
+```
 
-### Reformat ITSEA data 
-```{r}
+    ## Warning: attributes are not identical across measure variables;
+    ## they will be dropped
+
+### Reformat ITSEA data
+
+``` r
 itsea_domains <- 
   d0 %>% 
   dplyr::select(
@@ -266,8 +290,12 @@ itsea_domains <-
   ) 
 ```
 
+    ## Warning: attributes are not identical across measure variables;
+    ## they will be dropped
+
 ### Join ITSEA data with ages of assesment
-```{r}
+
+``` r
 itsea <-
   itsea_domains %>% 
   left_join(itsea_ages, by = c("ID", "itsea_key")) %>% 
@@ -279,14 +307,13 @@ itsea <-
   filter(!is.na(value), !is.na(wave))
 ```
 
-    
 ## All other psychopathology, IQ, physical size
 
 ### Reformat data
-```{r}
+
+``` r
 d0_domains <- 
   d0 %>% 
-  group_by(ID) %>% 
   mutate(
     adhd_hbq_8_T = mean(c(HBQT8_Inatt, HBQT8_Impuls), na.rm = TRUE)
   ) %>% 
@@ -356,7 +383,7 @@ d0_domains <-
     weight_kg_42_O = weight_42mo,
     weight_kg_BL_O = weight_BL
   ) %>% 
-  # incorrect RAD data at 12y; replace with data from KGH
+  # incorrect RAD data at 12y; replace with data from KH
   dplyr::select(-rad_dai_12_P) %>% 
   left_join(
     haven::read_sav(RAD_12yr_file) %>% 
@@ -370,12 +397,15 @@ d0_domains <-
     by = "ID"
   ) %>% 
   gather(domain_key, value, adhd_hbq_8_T:last_col()) %>% 
-  filter(!is.na(value)) %>% 
-  ungroup()
+  filter(!is.na(value)) 
 ```
 
+    ## Warning: attributes are not identical across measure variables;
+    ## they will be dropped
+
 ### Ages of assessment
-```{r}
+
+``` r
 d0_ages <-
   d0 %>% 
   mutate(
@@ -446,15 +476,12 @@ d0_ages <-
   dplyr::select(ID, adhd_hbq_8_T:weight_kg_BL_O) %>% 
   mutate_all(as.numeric) %>% 
   gather(domain_key, age, -ID) %>% 
-  filter(!is.na(age)) %>% 
-  ungroup()
-
-
+  filter(!is.na(age)) 
 ```
 
 ## Create combined dataset
 
-```{r}
+``` r
 d0_tidy <-
   d0_domains %>% 
   ungroup() %>% 
@@ -510,11 +537,11 @@ d0_tidy <-
   # IDs not part of the sample
   filter(ID != 0 & ID < 800) %>% 
   arrange(ID, wave)
-
 ```
 
 ### Tidy age variables
-```{r}
+
+``` r
 d0_tidy <- 
   d0_tidy %>% 
   rename(age_months = age) %>% 
@@ -524,17 +551,52 @@ d0_tidy <-
 ```
 
 #### Missing age data; impute
-```{r}
+
+``` r
 d0_tidy %>% 
   filter(is.na(age_months)) %>% 
   arrange(ID, wave, domain, measure)
+```
 
+    ## # A tibble: 121 × 9
+    ##       ID wave  age_months domain measure informant value construct     age_years
+    ##    <dbl> <fct>      <dbl> <fct>  <chr>   <fct>     <dbl> <chr>             <dbl>
+    ##  1     1 8             NA adhd   hbq     T         0.632 psychopathol…        NA
+    ##  2     3 8             NA adhd   hbq     T         0.632 psychopathol…        NA
+    ##  3     4 8             NA adhd   hbq     T         0.632 psychopathol…        NA
+    ##  4     6 8             NA adhd   hbq     T         0.632 psychopathol…        NA
+    ##  5     7 8             NA adhd   hbq     T         0.632 psychopathol…        NA
+    ##  6    10 8             NA adhd   hbq     T         0.632 psychopathol…        NA
+    ##  7    12 8             NA adhd   hbq     T         0.632 psychopathol…        NA
+    ##  8    18 8             NA adhd   hbq     T         0.632 psychopathol…        NA
+    ##  9    19 8             NA adhd   hbq     T         0.632 psychopathol…        NA
+    ## 10    20 8             NA adhd   hbq     T         0.632 psychopathol…        NA
+    ## # … with 111 more rows
+
+``` r
 d0_tidy %>% 
   filter(is.na(age_months)) %>% 
   arrange(ID, wave, domain, measure) %>% 
   distinct(ID) %>% 
   arrange(ID) 
+```
 
+    ## # A tibble: 92 × 1
+    ##       ID
+    ##    <dbl>
+    ##  1     1
+    ##  2     3
+    ##  3     4
+    ##  4     6
+    ##  5     7
+    ##  6    10
+    ##  7    12
+    ##  8    18
+    ##  9    19
+    ## 10    20
+    ## # … with 82 more rows
+
+``` r
 d0_tidy <-
   d0_tidy %>% 
   group_by(ID, wave) %>% 
@@ -568,9 +630,339 @@ d0_tidy <-
   ungroup()
 ```
 
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in max(age_months, na.rm = TRUE): no non-missing arguments to max;
+    ## returning -Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
+    ## Warning in min(age_months, na.rm = TRUE): no non-missing arguments to min;
+    ## returning Inf
+
 ### Add additional predictors
 
-```{r}
+``` r
 # remove SPSS labels from  variables
 var_label(d0$group) <- NULL
 var_label(d0$sex) <- NULL
@@ -606,8 +998,12 @@ d_pred <-
   )
 ```
 
-### Tidy percent in institutionalized variables 
-```{r}
+    ## Warning in recode.haven_labelled(group, `0` = "CAUG", `1` = "FCG", `2` = "NIG"):
+    ## The type of .x has been changed and value labels attributes have been lost.
+
+### Tidy percent in institutionalized variables
+
+``` r
 d_pct_time <-
   d0 %>% 
   dplyr::select(
@@ -630,8 +1026,12 @@ d_pct_time <-
   arrange(ID, wave)
 ```
 
-### Stability variables and final tidied dataset 
-```{r}
+    ## Warning: attributes are not identical across measure variables;
+    ## they will be dropped
+
+### Stability variables and final tidied dataset
+
+``` r
 d <-
   d0_tidy %>% 
   left_join(d_pred, by = "ID") %>% 
@@ -698,7 +1098,7 @@ d <-
 ```
 
 # Export data
-```{r}
-write_csv(d, paste0(home, "/data/BEIP_big_analysis_tidied_data_20211022.csv"))
-```
 
+``` r
+write_csv(d, paste0(home, "/data/BEIP_big_analysis_tidied_data_20210929.csv"))
+```
