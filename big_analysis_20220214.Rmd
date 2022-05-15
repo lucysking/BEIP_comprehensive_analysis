@@ -37,9 +37,9 @@ library(corrr)
 source("R_rainclouds.R")
 
 #Files__________________________________________________________________________
-home <- "~/Box/lucy_king_files/Tulane/BEIP/comprehensive_analysis/"
+home <- "/Users/lking/Library/CloudStorage/Box-Box/lucy_king_files/Tulane/BEIP/comprehensive_analysis/"
 
-cleaned_data_file <- "~/Box/lucy_king_files/Tulane/BEIP/comprehensive_analysis/data/BEIP_big_analysis_tidied_data_20220105.csv"
+cleaned_data_file <- paste0(home, "data/BEIP_big_analysis_tidied_data_20220214.csv")
 
 #Aesthetics_____________________________________________________________________
 theme_beip <-
@@ -72,7 +72,7 @@ cbbPalette <- c(
 
 # Read in data
 ```{r}
-d_all  <-
+d  <-
   read_csv(cleaned_data_file) %>% 
   filter(group != "NIG") %>% 
   mutate(
@@ -100,15 +100,6 @@ d_all  <-
     )
   ) %>% 
   ungroup()
-```
-```{r}
-# remove absolute EEG alpha power data (for supplementary analyses only)
-d <-
-  d_all %>% 
-  filter(
-    str_detect(measure, "thetaabs") == FALSE, 
-    str_detect(measure, "alphaabs") == FALSE
-  )
 ```
 
 # Descriptives
@@ -194,7 +185,7 @@ d_baseline <-
   d_baseline %>% 
   mutate(
     length_inst = age_months - inst_entry_age
-  )
+  ) 
 
 d_baseline %>% 
   group_by(group) %>% 
@@ -209,7 +200,8 @@ d_baseline %>%
 ```{r}
 d <-
   d %>% 
-  filter(wave != "BL") 
+  filter(wave != "BL") %>% 
+  ungroup()
 ```
 
 ### Export included ID list 
@@ -219,7 +211,7 @@ IDs <-
   filter(!is.na(value)) %>% 
   distinct(ID, group)
 
-#write_csv(IDs, paste0(home, "data/included_IDs_20220104.csv"))
+#write_csv(IDs, paste0(home, "data/included_IDs_20220215.csv"))
 ```
 
 ## CONSORT diagram
@@ -232,47 +224,47 @@ ids_by_wave <-
   left_join(
     d %>% 
       filter(!is.na(value), wave_ordered == "30m") %>% 
-      distinct(ID, group) %>% 
+      distinct(ID) %>% 
       mutate(w30 = 1),
     by = "ID"
   ) %>% 
   left_join(
     d %>% 
       filter(!is.na(value), wave_ordered == "42m") %>% 
-      distinct(ID, group) %>% 
+      distinct(ID) %>% 
       mutate(w42 = 1),
     by = "ID"
   ) %>% 
   left_join(
     d %>% 
       filter(!is.na(value), wave_ordered == "54m") %>% 
-      distinct(ID, group) %>% 
+      distinct(ID) %>% 
       mutate(w54 = 1),
     by = "ID"
   ) %>% 
   left_join(
     d %>% 
       filter(!is.na(value), wave_ordered == "8y") %>% 
-      distinct(ID, group) %>% 
+      distinct(ID) %>% 
       mutate(w8y = 1),
     by = "ID"
   ) %>% 
   left_join(
     d %>% 
       filter(!is.na(value), wave_ordered == "12y") %>% 
-      distinct(ID, group) %>% 
+      distinct(ID) %>% 
       mutate(w12y = 1),
     by = "ID"
   ) %>% 
   left_join(
     d %>% 
       filter(!is.na(value), wave_ordered == "16-18y") %>% 
-      distinct(ID, group) %>% 
+      distinct(ID) %>% 
       mutate(w16_18 = 1),
     by = "ID"
   )
 
-#write_csv(ids_by_wave, paste0(home, "data/ids_by_wave_20220105.csv"))
+write_csv(ids_by_wave, paste0(home, "data/ids_by_wave_20220217.csv"))
 ```
 
 ### Number of individuals who completed at least one follow-up assessment
@@ -360,11 +352,7 @@ d_cog_bio <-
   # standardized within wave (eliminates within-person growth effects) and measure (puts all data on same scale)
   group_by(wave, measure, domain) %>% 
   mutate(
-    value_z = scale(value),
-  # because higher levels of theta indicate poorer development, reversing so that for all measures in analysis higher levels indicate more optimal development
-    value_z = if_else(
-      str_detect(measure, "theta") == TRUE, value_z * -1, value_z
-    )
+    value_z = scale(value)
   ) %>% 
   ungroup() %>% 
   filter() %>% 
@@ -485,7 +473,7 @@ ggsave(
 
 ```{r}
 d_cog_bio %>% 
-  filter(construct == "EEG", str_detect(measure, "alpharel") == TRUE) %>% 
+  filter(construct == "EEG", str_detect(measure, "relalpha") == TRUE) %>% 
   ggplot(aes(value)) +
   geom_histogram(binwidth = .05) +
   theme_beip +
@@ -498,27 +486,6 @@ d_cog_bio %>%
 
 ggsave(
   paste0(home, "figures/EEG_rel_alpha_histograms.png"),
-  dpi = 600,
-  width = 7,
-  height = 10
-)
-```
-
-```{r}
-d_cog_bio %>% 
-  filter(construct == "EEG", str_detect(measure, "thetarel") == TRUE) %>% 
-  ggplot(aes(value)) +
-  geom_histogram(binwidth = .05) +
-  theme_beip +
-  scale_fill_manual(values = cbbPalette) +
-  labs(
-    fill = NULL,
-    x = "EEG relative theta power"
-  ) +
-  facet_grid(wave_ordered~group)
-
-ggsave(
-  paste0(home, "figures/EEG_rel_theta_histograms.png"),
   dpi = 600,
   width = 7,
   height = 10
@@ -889,6 +856,7 @@ d %>%
   distinct(ID, FC_placement_age) %>% 
   ggplot(aes(FC_placement_age)) +
   geom_histogram() +
+  scale_y_continuous(breaks = seq.int(0, 10, 1)) +
   theme_beip +
   labs(
     fill = NULL,
@@ -1079,8 +1047,7 @@ out_corr_plot <-
         "head", 
         "height", 
         "weight",
-        "alpharel",
-        "thetarel",
+        "relalpha",
         "dsed",
         "rad",
         "adhd",
@@ -1093,7 +1060,6 @@ out_corr_plot <-
         "Height",
         "Weight",
         "EEG alpha power",
-        "EEG theta power",
         "DSED",
         "RAD",
         "ADHD",
@@ -1108,8 +1074,7 @@ out_corr_plot <-
         "head", 
         "height", 
         "weight",
-        "alpharel",
-        "thetarel",
+        "relalpha",
         "dsed",
         "rad",
         "adhd",
@@ -1122,7 +1087,6 @@ out_corr_plot <-
         "Height",
         "Weight",
         "EEG alpha power",
-        "EEG theta power",
         "DSED",
         "RAD",
         "ADHD",
@@ -1336,61 +1300,11 @@ a2_cogbio_EEG_parameters
 ```
 
 ```{r}
-# EEG = baseline
-contrasts(d_cog_bio_rel$construct) <- cbind(
-  "IQvEEG" = c(0, 1, 0),
-  "PHYSvEEG" = c(0, 0, 1)
-)
-
-# CAUG = baseline
-a2_cogbio_EEGr <- lmer(
-  value_z ~ 
-    group * construct +
-    male +
-    scale(age_years, scale = TRUE) +
-    (1 |ID), 
-  data = d_cog_bio_rel
-)
-
-set.seed(123456)
-a2_cogbio_EEG_parametersr <-
-  model_parameters(
-    a2_cogbio_EEGr,
-    bootstrap = TRUE,
-    df_method = "satterthwaite",
-    iterations = 1000
-  )
-a2_cogbio_EEG_parametersr
-```
-```{r}
-d_eeg <-
-  d_cog_bio %>% 
-  filter(domain == "eeg") %>% 
-  mutate(d_eeg = as.factor(eeg))
-
-contrasts(d_eeg$measure) <- cbind(
-  "IQvEEG" = c(0, 1, 0),
-  "PHYSvEEG" = c(0, 0, 1)
-)
-
-
-a2_cogbio_EEGr <- lmer(
-  value_z ~ 
-    group * construct +
-    male +
-    scale(age_years, scale = TRUE) +
-    (1 |ID), 
-  data = d_cog_bio_rel
-)
-```
-
-
-```{r}
 forest_df <-
   forest_df %>% 
   rbind( 
     c(
-      "EEG alpha-power",
+      "EEG alpha power",
       a2_cogbio_EEG_parameters$Coefficient[[2]],
       a2_cogbio_EEG_parameters$CI_low[[2]],
       a2_cogbio_EEG_parameters$CI_hi[[2]],
@@ -1947,7 +1861,6 @@ a2_psy_RAD_parameters <-
 a2_psy_RAD_parameters
 ```
 
-
 ```{r}
 forest_df <-
   forest_df %>% 
@@ -1961,6 +1874,7 @@ forest_df <-
     )
   )
 ```
+
 #### Three-way moderations
 ```{r}
 a2_psy_type_gender <- lmer(
@@ -2602,24 +2516,24 @@ a3_age_placement_EEG_raw <- lmer(
 )
 
 set.seed(123456)
-a3_construct_EEG_parameters_std <- 
+a3_age_placement_EEG_parameters_std <- 
   model_parameters(
     a3_age_placement_EEG_std,
     bootstrap = TRUE,
     df_method = "satterthwaite",
     iterations = 1000
   )
-a3_construct_EEG_parameters_std
+a3_age_placement_EEG_parameters_std
 
 set.seed(123456)
-a3_construct_EEG_parameters_raw <- 
+a3_age_placement_EEG_parameters_raw <- 
   model_parameters(
     a3_age_placement_EEG_raw,
     bootstrap = TRUE,
     df_method = "satterthwaite",
     iterations = 1000
   )
-a3_construct_EEG_parameters_raw
+a3_age_placement_EEG_parameters_raw
 ```
 
 ###### IQ
@@ -2649,24 +2563,24 @@ a3_age_placement_IQ_raw <- lmer(
 )
 
 set.seed(123456)
-a3_construct_IQ_parameters_std <- 
+a3_age_placement_IQ_parameters_std <- 
   model_parameters(
     a3_age_placement_IQ_std,
     bootstrap = TRUE,
     df_method = "satterthwaite",
     iterations = 1000
   )
-a3_construct_IQ_parameters_std
+a3_age_placement_IQ_parameters_std
 
 set.seed(123456)
-a3_construct_IQ_parameters_raw <- 
+a3_age_placement_IQ_parameters_raw <- 
   model_parameters(
     a3_age_placement_IQ_raw,
     bootstrap = TRUE,
     df_method = "satterthwaite",
     iterations = 1000
   )
-a3_construct_IQ_parameters_raw
+a3_age_placement_IQ_parameters_raw
 ```
 
 ###### Physical size 
@@ -2696,24 +2610,24 @@ a3_age_placement_PHY_raw <- lmer(
 )
 
 set.seed(123456)
-a3_construct_PHY_parameters_std <- 
+a3_age_placement_PHY_parameters_std <- 
   model_parameters(
     a3_age_placement_PHY_std,
     bootstrap = TRUE,
     df_method = "satterthwaite",
     iterations = 1000
   )
-a3_construct_PHY_parameters_std
+a3_age_placement_PHY_parameters_std
 
 set.seed(123456)
-a3_construct_PHY_parameters_raw <- 
+a3_age_placement_PHY_parameters_raw <- 
   model_parameters(
     a3_age_placement_PHY_raw,
     bootstrap = TRUE,
     df_method = "satterthwaite",
     iterations = 1000
   )
-a3_construct_PHY_parameters_raw
+a3_age_placement_PHY_parameters_raw
 ```
 
 ###### Simple effects of age of asssesment
@@ -3427,7 +3341,7 @@ d_plot <-
     domain_construct_pretty = case_when(
       construct == "IQ" ~ "IQ",
       construct == "physical" ~ "Physical growth",
-      construct == "EEG" ~ paste0("EEG alpha-power"),
+      construct == "EEG" ~ paste0("EEG alpha power"),
       domain == "rad"~ "RAD",
       domain == "dsed" ~ "DSED",
       domain == "adhd" ~ "ADHD",
@@ -3438,7 +3352,7 @@ d_plot <-
       domain_construct_pretty,
       "IQ",
       "Physical growth", 
-      "EEG alpha-power", 
+      "EEG alpha power", 
       "DSED", 
       "RAD", 
       "ADHD", 
@@ -3501,7 +3415,7 @@ forest_df_viz <-
         "Overall psychopathology",
         "IQ",
         "Physical growth",
-        "EEG alpha-power",
+        "EEG alpha power",
         "DSED",
         "RAD",
         "ADHD",
@@ -3512,13 +3426,16 @@ forest_df_viz <-
     p = paste0("p=", p)
   )
 
+forest_df_viz
+```
+```{r}
 forest_cogbio_p <-
   forest_df_viz %>% 
   filter(
     Parameter == "Overall cognitive and biological" |
     Parameter == "IQ" |
     Parameter == "Physical growth" |
-    Parameter == "EEG alpha-power"
+    Parameter == "EEG alpha power"
   ) %>% 
   ggplot(aes(fct_rev(Parameter), Coefficient)) +
   geom_pointrange(
@@ -3533,10 +3450,15 @@ forest_cogbio_p <-
   scale_y_continuous(breaks = seq.int(-1, 1, .2), limits = c(-1, 1)) +
   coord_flip() +
   theme_beip +
+  theme(
+    axis.text.x = element_text(face = c('bold', 'plain', 'plain', 'plain', 'plain'))
+  ) +
   labs(
     x = NULL,
     y = "Standardized regression coefficient"
   )
+
+forest_cogbio_p
 
 ggsave(
   paste0(home, "figures/forest_plot_cogbio.png"),
@@ -3544,14 +3466,16 @@ ggsave(
   width = 9.8, 
   height = 3
 )
+```
 
+```{r}
 forest_psy_p <-
   forest_df_viz %>% 
   filter(
     Parameter != "Overall cognitive and biological",
     Parameter != "IQ",
     Parameter != "Physical growth",
-    Parameter != "EEG alpha-power",
+    Parameter != "EEG alpha power",
   ) %>% 
   ggplot(aes(fct_rev(Parameter), Coefficient)) +
   geom_pointrange(
@@ -3570,6 +3494,8 @@ forest_psy_p <-
     x = NULL,
     y = "Standardized regression coefficient"
   )
+
+forest_psy_p
 
 ggarrange(
   forest_cogbio_p, 

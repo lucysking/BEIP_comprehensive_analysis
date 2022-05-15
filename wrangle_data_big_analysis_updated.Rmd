@@ -122,48 +122,91 @@ eeg_ages <-
 ```   
 
 ### Reformat EEG data 
+Using data from only the electrode sites that are common across all waves.
+F3, F3, C3, C4, P3, P4, O1, O2, T7, T8
 ```{r}
-eeg_data.1 <-
+eeg_data <-
   haven::read_sav(EEG_data_file) %>% 
   dplyr::select(
     ID = Subject,
-    lnTheta_Bingo_F3_30mo:lnAlpha_Bingo_T8_30mo,
-    lnTheta_Bingo_F3_42mo:lnAlpha_Bingo_T8_42mo,
-    lnTheta_Open_F3_8:lnAlpha_Open_T8_8,
-    EEG_lnF3Theta_EO_12:EEG_lnT4Theta_EO_12,
-    EEG_lnF3Alpha_EO_12:EEG_lnT4Alpha_EO_12
+    lnTheta_Bingo_F3_30mo:lnBeta_Bingo_T8_30mo,
+    lnTheta_Bingo_F3_42mo:lnBeta_Bingo_T8_42mo,
+    lnTheta_Open_F3_8:lnTheta_Open_F4_8,
+    lnTheta_Open_C3_8:lnTheta_Open_C4_8,
+    lnTheta_Open_P3_8:lnTheta_Open_P4_8,
+    lnTheta_Open_O1_8:lnTheta_Open_T8_8,
+    lnAlpha_Open_F3_8:lnAlpha_Open_F4_8,
+    lnAlpha_Open_C3_8:lnAlpha_Open_C4_8,
+    lnAlpha_Open_P3_8:lnAlpha_Open_P4_8,
+    lnAlpha_Open_O1_8:lnAlpha_Open_T8_8,
+    lnBeta_Open_F3_8:lnBeta_Open_F4_8,
+    lnBeta_Open_C3_8:lnBeta_Open_C4_8,
+    lnBeta_Open_P3_8:lnBeta_Open_P4_8,
+    lnBeta_Open_O1_8:lnBeta_Open_T8_8,
+    EEG_lnF3Theta_EO_12:EEG_lnF4Theta_EO_12,
+    EEG_lnC3Theta_EO_12:EEG_lnC4Theta_EO_12,
+    EEG_lnP3Theta_EO_12:EEG_lnP4Theta_EO_12,
+    EEG_lnO1Theta_EO_12:EEG_lnO2Theta_EO_12,
+    # note that "t3" and "t4" at 12 are same as "t7" and "t8" at other ages per NAF
+    EEG_lnT3Theta_EO_12:EEG_lnT4Theta_EO_12,
+    EEG_lnF3Alpha_EO_12:EEG_lnF4Alpha_EO_12,
+    EEG_lnC3Alpha_EO_12:EEG_lnC4Alpha_EO_12,
+    EEG_lnP3Alpha_EO_12:EEG_lnP4Alpha_EO_12,
+    EEG_lnO1Alpha_EO_12:EEG_lnO2Alpha_EO_12,
+    EEG_lnT3Alpha_EO_12:EEG_lnT4Alpha_EO_12,
+    EEG_lnF3Beta_EO_12:EEG_lnF4Beta_EO_12,
+    EEG_lnC3Beta_EO_12:EEG_lnC4Beta_EO_12,
+    EEG_lnP3Beta_EO_12:EEG_lnP4Beta_EO_12,
+    EEG_lnO1Beta_EO_12:EEG_lnO2Beta_EO_12,
+    EEG_lnT3Beta_EO_12:EEG_lnT4Beta_EO_12
   ) %>%
   mutate(
-    theta_30 = pmap_dbl(
+    thetaabs_30 = pmap_dbl(
       select(., lnTheta_Bingo_F3_30mo:lnTheta_Bingo_T8_30mo),
       function(...) mean((c(...)))
     ),
-    alpha_30 = pmap_dbl(
+    alphaabs_30 = pmap_dbl(
       select(., lnAlpha_Bingo_F3_30mo:lnAlpha_Bingo_T8_30mo),
       function(...) mean((c(...)))
     ),
-    theta_42 = pmap_dbl(
+    betaabs_30 = pmap_dbl(
+      select(., lnBeta_Bingo_F3_30mo:lnBeta_Bingo_T8_30mo),
+      function(...) mean((c(...)))
+    ),
+    thetaabs_42 = pmap_dbl(
       select(., lnTheta_Bingo_F3_42mo:lnTheta_Bingo_T8_42mo),
       function(...) mean((c(...)))
     ),
-    alpha_42 = pmap_dbl(
+    alphaabs_42 = pmap_dbl(
       select(., lnAlpha_Bingo_F3_42mo:lnAlpha_Bingo_T8_42mo),
       function(...) mean((c(...)))
     ),
-    theta_8 = pmap_dbl(
+    betaabs_42 = pmap_dbl(
+      select(., lnBeta_Bingo_F3_42mo:lnBeta_Bingo_T8_42mo),
+      function(...) mean((c(...)))
+    ),
+    thetaabs_8 = pmap_dbl(
       select(., lnTheta_Open_F3_8:lnTheta_Open_T8_8),
       function(...) mean((c(...)))
     ),
-    alpha_8 = pmap_dbl(
+    alphaabs_8 = pmap_dbl(
       select(., lnAlpha_Open_F3_8:lnAlpha_Open_T8_8),
       function(...) mean((c(...)))
     ),
-    theta_12 = pmap_dbl(
+    betaabs_8 = pmap_dbl(
+      select(., lnBeta_Open_F3_8:lnBeta_Open_T8_8),
+      function(...) mean((c(...)))
+    ),
+    thetaabs_12 = pmap_dbl(
       select(., EEG_lnF3Theta_EO_12:EEG_lnT4Theta_EO_12),
       function(...) mean((c(...)))
     ),
-    alpha_12 = pmap_dbl(
+    alphaabs_12 = pmap_dbl(
       select(., EEG_lnF3Alpha_EO_12:EEG_lnT4Alpha_EO_12),
+      function(...) mean((c(...)))
+    ),
+    betaabs_12 = pmap_dbl(
+      select(., EEG_lnF3Beta_EO_12:EEG_lnT4Beta_EO_12),
       function(...) mean((c(...)))
     )
   ) %>% 
@@ -171,24 +214,76 @@ eeg_data.1 <-
     read_tsv(EEG_16yr_data_file) %>% 
       dplyr::select(
         ID = subnum,
-        F3_EO_16Y_abs_theta:O2_EO_16Y_abs_theta,
-        F3_EO_16Y_abs_alpha:O2_EO_16Y_abs_alpha
+        eyesOpen_F3_absoluteTheta:eyesOpen_F4_absoluteTheta,
+        eyesOpen_C3_absoluteTheta:eyesOpen_P4_absoluteTheta,
+        eyesOpen_O1_absoluteTheta:eyesOpen_O2_absoluteTheta,
+        eyesOpen_T7_absoluteTheta:eyesOpen_T8_absoluteTheta,
+        eyesOpen_F3_absoluteAlpha:eyesOpen_F4_absoluteAlpha,
+        eyesOpen_C3_absoluteAlpha:eyesOpen_P4_absoluteAlpha,
+        eyesOpen_O1_absoluteAlpha:eyesOpen_O2_absoluteAlpha,
+        eyesOpen_T7_absoluteAlpha:eyesOpen_T8_absoluteAlpha,
+        eyesOpen_F3_absoluteBeta:eyesOpen_F4_absoluteBeta,
+        eyesOpen_C3_absoluteBeta:eyesOpen_P4_absoluteBeta,
+        eyesOpen_O1_absoluteBeta:eyesOpen_O2_absoluteBeta,
+        eyesOpen_T7_absoluteBeta:eyesOpen_T8_absoluteBeta
       )
   ) %>% 
   mutate(
-    theta_16 = pmap_dbl(
-      select(., F3_EO_16Y_abs_theta:O2_EO_16Y_abs_theta),
+    thetaabs_16 = pmap_dbl(
+      select(., eyesOpen_F3_absoluteTheta:eyesOpen_T8_absoluteTheta),
       function(...) mean((c(...)))
     ),
-    alpha_16 = pmap_dbl(
-      select(., F3_EO_16Y_abs_alpha:O2_EO_16Y_abs_alpha),
+    alphaabs_16 = pmap_dbl(
+      select(., eyesOpen_F3_absoluteAlpha:eyesOpen_T8_absoluteAlpha),
+      function(...) mean((c(...)))
+    ),
+    betaabs_16 = pmap_dbl(
+      select(., eyesOpen_F3_absoluteBeta:eyesOpen_T8_absoluteBeta),
       function(...) mean((c(...)))
     )
-  )
-
-eeg_data.2 <- 
-  eeg_data.1 %>% 
-  select(ID, theta_30:alpha_12, theta_16, alpha_16) %>% 
+  ) %>% 
+  group_by(ID) %>% 
+  mutate(
+    thetarel_30 = thetaabs_30 / (thetaabs_30 + alphaabs_30 + betaabs_30),
+    alpharel_30 = alphaabs_30 / (thetaabs_30 + alphaabs_30 + betaabs_30),
+    betarel_30 = betaabs_30 / (thetaabs_30 + alphaabs_30 + betaabs_30),
+    thetarel_42 = thetaabs_42 / (thetaabs_42 + alphaabs_42 + betaabs_42),
+    alpharel_42 = alphaabs_42 / (thetaabs_42 + alphaabs_42 + betaabs_42),
+    betarel_42 = betaabs_42 / (thetaabs_42 + alphaabs_42 + betaabs_42),
+    thetarel_8 = thetaabs_8 / (thetaabs_8 + alphaabs_8 + betaabs_8),
+    alpharel_8 = alphaabs_8 / (thetaabs_8 + alphaabs_8 + betaabs_8),
+    betarel_8 = betaabs_8 / (thetaabs_8 + alphaabs_8 + betaabs_8),
+    thetarel_12 = thetaabs_12 / (thetaabs_12 + alphaabs_12 + betaabs_12),
+    alpharel_12 = alphaabs_12 / (thetaabs_12 + alphaabs_12 + betaabs_12),
+    betarel_12 = betaabs_12 / (thetaabs_12 + alphaabs_12 + betaabs_12),
+    thetarel_16 = thetaabs_16 / (thetaabs_16 + alphaabs_16 + betaabs_16),
+    alpharel_16 = alphaabs_16 / (thetaabs_16 + alphaabs_16 + betaabs_16),
+    betarel_16 = betaabs_16 / (thetaabs_16 + alphaabs_16 + betaabs_16),
+  ) %>% 
+  ungroup() %>% 
+  select(
+    ID,
+    thetaabs_30,
+    thetarel_30,
+    alphaabs_30,
+    alpharel_30,
+    thetaabs_42,
+    thetarel_42,
+    alphaabs_42,
+    alpharel_42,
+    thetaabs_8,
+    thetarel_8,
+    alphaabs_8,
+    alpharel_8,
+    thetaabs_12,
+    thetarel_12,
+    alphaabs_12,
+    alpharel_12,
+    thetaabs_16,
+    thetarel_16,
+    alphaabs_16,
+    alpharel_16
+  ) %>% 
   gather(eeg_key, value, -ID) %>% 
   separate(eeg_key, c("measure", "wave")) %>% 
   mutate(
@@ -196,87 +291,7 @@ eeg_data.2 <-
     informant = "O"
   ) %>% 
   filter(!is.na(value))
-
-
-eeg_data.2 %>% 
-  mutate(
-    wave = factor(
-      wave,
-      levels = c("30", "42", "8", "12", "16")
-    )
-  ) %>% 
-  filter(value < 10) %>% 
-  group_by(wave) %>% 
-  summarise_at(
-    vars(value),
-    funs(mean, sd), na.rm = TRUE
-  )
-  
-eeg_16 <-
-  read_tsv(EEG_16yr_data_file) %>% 
-  dplyr::select(
-    ID = subnum,
-    F3_EO_16Y_abs_theta:O2_EO_16Y_abs_theta,
-    F3_EO_16Y_abs_alpha:O2_EO_16Y_abs_alpha
-  ) %>% 
-  gather(eeg_key, value, -ID)
-
-eeg_16 %>% 
-  filter(str_detect(eeg_key, "theta") == TRUE) %>% 
-  ggplot(aes(value)) +
-  geom_histogram(binwidth = 50) +
-  facet_wrap(.~eeg_key)
-
-
-eeg_data.2 %>% 
-  filter(wave == "16") %>% 
-  ggplot(aes(value)) +
-  geom_histogram(binwidth = 10) +
-  facet_grid(.~measure) +
-  theme_beip +
-  labs(
-    x = "16-year wave absolute power\n(mean across all available electrode sites)"
-  )
 ```
-
-
-  
-
-eeg_data.2 %>% 
-  mutate(
-    wave = factor(
-      wave,
-      levels = c("30", "42", "8", "12", "16")
-    )
-  ) %>% 
-  group_by(wave, measure) %>% 
-  summarise_at(
-    vars(value),
-    funs(mean, median, sd, min, max)
-  ) %>%
-  ggplot(aes(measure, mean)) +
-  geom_col() +
-  facet_grid(.~wave)
-
-ggsave("~/Desktop/EEG_absolute_wave.png")
-```
-
-
-```{r}
-eeg_data_wf <-
-  eeg_data.1 %>% 
-  select(
-    ID,
-    lnTheta_Bingo_F3_30mo,
-    lnTheta_Bingo_F3_42mo
-  )
-
-eeg_data_lf <-
-  eeg_data_wf %>% 
-  gather(eeg_key, value, -ID) %>% 
-  arrange(ID)
-```
-
 ### Join EEG data with ages of assessment
 ```{r}
 eeg <-
@@ -284,6 +299,18 @@ eeg <-
   left_join(eeg_ages, by = c("ID", "wave")) %>% 
   filter(ID != "0", ID < 800) 
 ```
+
+```{r}
+# remove extreme relative theta power outlier at age 12 years
+eeg <-
+  eeg %>% 
+  mutate(
+    value = if_else(
+      measure == "thetarel" & value > 1, NA_real_, value
+    )
+  ) 
+```
+
 
 ## ITSEA data
 
@@ -634,7 +661,6 @@ d0_tidy <-
   # IDs not part of the sample
   filter(ID != 0 & ID < 800) %>% 
   arrange(ID, wave)
-
 ```
 
 ### Tidy age variables
@@ -823,6 +849,6 @@ d <-
 
 # Export data
 ```{r}
-write_csv(d, paste0(home, "/data/BEIP_big_analysis_tidied_data_20211022.csv"))
+write_csv(d, paste0(home, "/data/BEIP_big_analysis_tidied_data_20220105.csv"))
 ```
 

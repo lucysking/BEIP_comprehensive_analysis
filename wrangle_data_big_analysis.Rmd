@@ -14,7 +14,7 @@ library(tidyverse)
 library(labelled)
 
 #Files__________________________________________________________________________
-home <- "~/Box/lucy_king_files/Tulane/BEIP/comprehensive_analysis/"
+home <- "/Users/lking/Library/CloudStorage/Box-Box/lucy_king_files/Tulane/BEIP/comprehensive_analysis/"
 
 # Demographics, IQ, psychopathology, physical size
 BEIP_MA_file <-paste0(home, "data/Datarequest_Humphreys_12.7.19_updated.sav")
@@ -26,8 +26,7 @@ stability_file <- paste0(home, "data/BEIP_18yrDisruptionsStabilityFCG.xlsx")
 # EEG 
 EEG_ages_file <- paste0(home, "data/All EEG ages.sav")
 EEG_16yr_age_file <- paste0(home, "data/ages16eeg_update.sav") # 16 yr wave EEG age incorrect in main file; use age in file below
-EEG_data_file <- paste0(home, "data/EEG_request_082021/DataRequest_King_8.21.21.sav")
-EEG_16yr_data_file <- paste0(home, "data/EEG_request_082021/16yrs_EO_allband_allchan.txt")
+EEG_data_file <- paste0(home, "data/BEIP_30mo-16yr_rel_alpha_power_021122.csv")
 ```
 
 # Read in data
@@ -122,27 +121,16 @@ eeg_ages <-
 ```   
 
 ### Reformat EEG data 
+
 ```{r}
 eeg_data <-
-  haven::read_sav(EEG_data_file) %>% 
-  dplyr::select(
-    ID = Subject,
-    f3_30 = tabAlpha_Bingo_F3_30mo,
-    f4_30 = tabAlpha_Bingo_F4_30mo,
-    f3_42 = tabAlpha_Bingo_F3_42mo,
-    f4_42 = tabAlpha_Bingo_F4_42mo,
-    f3_8 = tabAlpha1_Open_F3_8,
-    f4_8 = tabAlpha1_Open_F4_8,
-    f3_12 = EEG_tabF3Alpha_EO_12,
-    f4_12 = EEG_tabF4Alpha_EO_12,
-  ) %>% 
-  left_join(
-    read_tsv(EEG_16yr_data_file) %>% 
-      dplyr::select(
-        ID = subnum,
-        f3_16 = F3_EO_16Y_rel_alpha,
-        f4_16 = F4_EO_16Y_rel_alpha
-      )
+  read_csv(EEG_data_file) %>% 
+  rename(
+    relalpha_30 = rel_alpha_mean_30mo,
+    relalpha_42 = rel_alpha_mean_42mo,
+    relalpha_8 = rel_alpha_mean_96mo,
+    relalpha_12 = rel_alpha_mean_12yr,
+    relalpha_16 = rel_alpha_mean_16yr
   ) %>% 
   gather(eeg_key, value, -ID) %>% 
   separate(eeg_key, c("measure", "wave")) %>% 
@@ -338,8 +326,8 @@ d0_domains <-
     iq_wisc_8_O = FSISUMSC_8,
     iq_wisc_12_O = FSIQ_COMP_12,
     iq_wisc_16_O = IQ_fullscale_age18,
-    iq_bayley_30_O = mdi_30mo,
-    iq_bayley_42_O = mdi_42mo,
+    iq_bayley_30_O = devquot_30mo,
+    iq_bayley_42_O = devquot_42mo,
     iq_wppsi_54_O = fulliq,
     iq_bayley_BL_O = mdi_bl,
     rad_dai_8_P = radinh_8yr,
@@ -370,8 +358,8 @@ d0_domains <-
     by = "ID"
   ) %>% 
   gather(domain_key, value, adhd_hbq_8_T:last_col()) %>% 
-  filter(!is.na(value)) %>% 
-  ungroup()
+  ungroup() %>% 
+  filter(!is.na(value)) 
 ```
 
 ### Ages of assessment
@@ -699,6 +687,6 @@ d <-
 
 # Export data
 ```{r}
-write_csv(d, paste0(home, "/data/BEIP_big_analysis_tidied_data_20211022.csv"))
+write_csv(d, paste0(home, "/data/BEIP_big_analysis_tidied_data_20220214.csv"))
 ```
 
