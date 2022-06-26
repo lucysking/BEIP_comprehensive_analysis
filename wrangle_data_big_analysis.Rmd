@@ -14,11 +14,11 @@ library(tidyverse)
 library(labelled)
 
 #Files__________________________________________________________________________
-home <- "/Users/lking/Library/CloudStorage/Box-Box/lucy_king_files/Tulane/BEIP/comprehensive_analysis/"
+home <- "/Users/lking@ideo.com/Library/CloudStorage/Box-Box/lucy_king_files/Tulane/BEIP/comprehensive_analysis/"
 
 # Demographics, IQ, psychopathology, physical size
-BEIP_MA_file <-paste0(home, "data/Datarequest_Humphreys_12.7.19_updated.sav")
-RAD_12yr_file <-paste0(home, "data/RAD_age12.sav")
+BEIP_MA_file <- paste0(home, "data/Datarequest_Humphreys_12.7.19_updated.sav")
+RAD_12yr_file <- paste0(home, "data/RAD_age12.sav")
 
 # FC stability 
 stability_file <- paste0(home, "data/BEIP_18yrDisruptionsStabilityFCG.xlsx")
@@ -688,5 +688,22 @@ d <-
 # Export data
 ```{r}
 write_csv(d, paste0(home, "/data/BEIP_big_analysis_tidied_data_20220214.csv"))
+
+#for public sharing
+d_share <-
+  d %>% 
+  group_by(ID) %>% 
+  mutate(
+    git_id = sample(1:50000, 1)
+  ) %>% 
+  ungroup() %>% 
+  dplyr::select(
+    git_id, 
+    everything(),
+    -ID,
+    -FC_placement_age
+  )
+
+write_csv(d_share, paste0(home, "/data/king_BEIP_comphrensive_analysis_data_share.csv"))
 ```
 

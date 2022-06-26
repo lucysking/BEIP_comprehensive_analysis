@@ -10,7 +10,7 @@ output:
 
 
 ```{r setup}
-knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
 # Set up environment
@@ -29,15 +29,15 @@ library(ggpubr)
 library(performance)
 library(parameters)
 library(cowplot)
-library(cowplot)
 library(dplyr)
 library(readr)
 library(corrr)
+library(glue)
 
 source("R_rainclouds.R")
 
 #Files__________________________________________________________________________
-home <- "/Users/lking/Library/CloudStorage/Box-Box/lucy_king_files/Tulane/BEIP/comprehensive_analysis/"
+home <- "/Users/lking@ideo.com/Library/CloudStorage/Box-Box/lucy_king_files/Tulane/BEIP/comprehensive_analysis/"
 
 cleaned_data_file <- paste0(home, "data/BEIP_big_analysis_tidied_data_20220214.csv")
 
@@ -1173,7 +1173,7 @@ a1_cogbio_parameters <-
   model_parameters(
   a1_cogbio,
   bootstrap = TRUE,
-  df_method = "satterthwaite",
+  ci_method = "quantile",
   iterations = 1000
 )
 
@@ -1183,7 +1183,7 @@ a1_cogbio_parameters
 ```{r}
 forest_df <-
   tibble(
-    Parameter = "Overall cognitive and biological",
+    Parameter = "Overall cognitive, physical, and neural",
     Coefficient = a1_cogbio_parameters$Coefficient[[2]],
     CI_low = a1_cogbio_parameters$CI_low[[2]],
     CI_high = a1_cogbio_parameters$CI_high[[2]],
@@ -1228,7 +1228,7 @@ a1_psy_parameters <-
   model_parameters(
     a1_psy,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -1293,7 +1293,7 @@ a2_cogbio_EEG_parameters <-
   model_parameters(
     a2_cogbio_EEG,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a2_cogbio_EEG_parameters
@@ -1335,7 +1335,7 @@ a2_cogbio_IQ_parameters <-
   model_parameters(
     a2_cogbio_IQ,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -1378,7 +1378,7 @@ a2_cogbio_PHY_parameters <-
   model_parameters(
     a2_cogbio_PHY,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -1413,7 +1413,7 @@ anova(a2_cogbio_domainXage)
 ```
 
 ```{r}
-a2_cogbio_domainXsex<- lmer(
+a2_cogbio_domainXsex <- lmer(
   value_z ~ 
     group * construct * male +
     scale(age_years, scale = TRUE) +
@@ -1450,7 +1450,7 @@ a2_cogbio_EEG_male_parameters <-
   model_parameters(
     a2_cogbio_EEG_male,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -1481,7 +1481,7 @@ a2_cogbio_EEG_female_parameters <-
   model_parameters(
     a2_cogbio_EEG_female,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -1512,7 +1512,7 @@ a2_cogbio_IQ_male_parameters <-
   model_parameters(
     a2_cogbio_IQ_male,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -1543,7 +1543,7 @@ a2_cogbio_IQ_female_parameters <-
   model_parameters(
     a2_cogbio_IQ_female,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -1574,7 +1574,7 @@ a2_cogbio_PHYS_male_parameters <-
   model_parameters(
     a2_cogbio_PHYS_male,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -1605,7 +1605,7 @@ a2_cogbio_PHYS_female_parameters <-
   model_parameters(
     a2_cogbio_PHYS_female,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -1659,7 +1659,7 @@ a2_psy_ADHD_parameters <-
   model_parameters(
     a2_psy_ADHD,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -1708,7 +1708,7 @@ a2_psy_DSED_parameters <-
   model_parameters(
     a2_psy_DSED,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a2_psy_DSED_parameters
@@ -1756,7 +1756,7 @@ a2_psy_EXT_parameters <-
   model_parameters(
     a2_psy_EXT,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -1805,7 +1805,7 @@ a2_psy_INT_parameters <-
   model_parameters(
     a2_psy_INT,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -1854,7 +1854,7 @@ a2_psy_RAD_parameters <-
   model_parameters(
     a2_psy_RAD,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -1931,7 +1931,7 @@ a2_ADHD_age3_parameters <-
   model_parameters(
     a2_ADHD_age3,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -1965,7 +1965,7 @@ a2_ADHD_age8_parameters <-
   model_parameters(
     a2_ADHD_age8,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -1999,7 +1999,7 @@ a2_ADHD_age16_parameters <-
   model_parameters(
     a2_ADHD_age16,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -2033,7 +2033,7 @@ a2_DSED_age3_parameters <-
   model_parameters(
     a2_DSED_age3,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a2_DSED_age3_parameters
@@ -2066,7 +2066,7 @@ a2_DSED_age8_parameters <-
   model_parameters(
     a2_DSED_age8,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a2_DSED_age8_parameters
@@ -2099,7 +2099,7 @@ a2_DSED_age16_parameters <-
   model_parameters(
     a2_DSED_age16,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a2_DSED_age16_parameters
@@ -2132,7 +2132,7 @@ a2_EXT_age3_parameters <-
   model_parameters(
     a2_EXT_age3,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -2166,7 +2166,7 @@ a2_EXT_age8_parameters <-
   model_parameters(
     a2_EXT_age8,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -2200,7 +2200,7 @@ a2_EXT_age16_parameters <-
   model_parameters(
     a2_EXT_age16,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -2234,7 +2234,7 @@ a2_INT_age3_parameters <-
   model_parameters(
     a2_INT_age3,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -2268,7 +2268,7 @@ a2_INT_age8_parameters <-
   model_parameters(
     a2_INT_age8,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -2302,7 +2302,7 @@ a2_INT_age16_parameters <-
   model_parameters(
     a2_INT_age16,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -2336,7 +2336,7 @@ a2_RAD_age3_parameters <-
   model_parameters(
     a2_RAD_age3,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -2370,7 +2370,7 @@ a2_RAD_age8_parameters <-
   model_parameters(
     a2_RAD_age8,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -2404,7 +2404,7 @@ a2_RAD_age16_parameters <-
   model_parameters(
     a2_RAD_age16,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -2455,7 +2455,7 @@ a3_age_placement_parameters_std <-
   model_parameters(
     a3_age_placement_std,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -2466,7 +2466,7 @@ a3_age_placement_parameters_raw <-
   model_parameters(
     a3_age_placement_raw,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -2520,7 +2520,7 @@ a3_age_placement_EEG_parameters_std <-
   model_parameters(
     a3_age_placement_EEG_std,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_age_placement_EEG_parameters_std
@@ -2530,7 +2530,7 @@ a3_age_placement_EEG_parameters_raw <-
   model_parameters(
     a3_age_placement_EEG_raw,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_age_placement_EEG_parameters_raw
@@ -2567,7 +2567,7 @@ a3_age_placement_IQ_parameters_std <-
   model_parameters(
     a3_age_placement_IQ_std,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_age_placement_IQ_parameters_std
@@ -2577,7 +2577,7 @@ a3_age_placement_IQ_parameters_raw <-
   model_parameters(
     a3_age_placement_IQ_raw,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_age_placement_IQ_parameters_raw
@@ -2614,7 +2614,7 @@ a3_age_placement_PHY_parameters_std <-
   model_parameters(
     a3_age_placement_PHY_std,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_age_placement_PHY_parameters_std
@@ -2624,7 +2624,7 @@ a3_age_placement_PHY_parameters_raw <-
   model_parameters(
     a3_age_placement_PHY_raw,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_age_placement_PHY_parameters_raw
@@ -2662,7 +2662,7 @@ a3_age_placement_age3_std_parameters <-
   model_parameters(
     a3_age_placement_age3_std,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_age_placement_age3_std_parameters
@@ -2672,7 +2672,7 @@ a3_age_placement_age3_parameters_raw <-
   model_parameters(
     a3_age_placement_age3_raw,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_age_placement_age3_parameters_raw
@@ -2703,7 +2703,7 @@ a3_age_placement_age8_std_parameters <-
   model_parameters(
     a3_age_placement_age8_std,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_age_placement_age8_std_parameters
@@ -2713,7 +2713,7 @@ a3_age_placement_age8_parameters_raw <-
   model_parameters(
     a3_age_placement_age8_raw,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_age_placement_age8_parameters_raw
@@ -2744,7 +2744,7 @@ a3_age_placement_age16_std_parameters <-
   model_parameters(
     a3_age_placement_age16_std,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_age_placement_age16_std_parameters
@@ -2754,7 +2754,7 @@ a3_age_placement_age16_parameters_raw <-
   model_parameters(
     a3_age_placement_age16_raw,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_age_placement_age16_parameters_raw
@@ -2805,7 +2805,7 @@ a3_psy_age_placement_parameters_std <-
   model_parameters(
     a3_psy_age_placement_std,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -2816,7 +2816,7 @@ a3_psy_age_placement_parameters_raw <-
   model_parameters(
     a3_psy_age_placement_raw,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -2874,7 +2874,7 @@ a3_psy_age_placement_age3_std_parameters <-
   model_parameters(
     a3_psy_age_placement_age3_std,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_psy_age_placement_age3_std_parameters
@@ -2884,7 +2884,7 @@ a3_psy_age_placement_age3_parameters_raw <-
   model_parameters(
     a3_psy_age_placement_age3_raw,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_psy_age_placement_age3_parameters_raw
@@ -2917,7 +2917,7 @@ a3_psy_age_placement_age8_std_parameters <-
   model_parameters(
     a3_psy_age_placement_age8_std,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_psy_age_placement_age8_std_parameters
@@ -2927,7 +2927,7 @@ a3_psy_age_placement_age8_parameters_raw <-
   model_parameters(
     a3_psy_age_placement_age8_raw,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_psy_age_placement_age8_parameters_raw
@@ -2960,7 +2960,7 @@ a3_psy_age_placement_age16_std_parameters <-
   model_parameters(
     a3_psy_age_placement_age16_std,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_psy_age_placement_age16_std_parameters
@@ -2970,7 +2970,7 @@ a3_psy_age_placement_age16_parameters_raw <-
   model_parameters(
     a3_psy_age_placement_age16_raw,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_psy_age_placement_age16_parameters_raw
@@ -3011,7 +3011,7 @@ a3_cogbio_stability_parameters <-
   model_parameters(
     a3_cogbio_stability,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -3041,7 +3041,7 @@ a3_stab_age3_parameters <-
   model_parameters(
     a3_stab_age3,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_stab_age3_parameters
@@ -3064,7 +3064,7 @@ a3_stab_age8_parameters <-
   model_parameters(
     a3_stab_age8,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_stab_age8_parameters
@@ -3086,7 +3086,7 @@ a3_stab_age16_parameters <-
   model_parameters(
     a3_stab_age16,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_stab_age16_parameters
@@ -3128,7 +3128,7 @@ a3_psy_stability_parameters <-
   model_parameters(
     a3_psy_stability,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 
@@ -3161,7 +3161,7 @@ a3_psy_stab_age3_parameters <-
   model_parameters(
     a3_psy_stab_age3,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_psy_stab_age3_parameters
@@ -3185,7 +3185,7 @@ a3_psy_stab_age8_parameters <-
   model_parameters(
     a3_psy_stab_age8,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_psy_stab_age8_parameters
@@ -3208,7 +3208,7 @@ a3_psy_stab_age16_parameters <-
   model_parameters(
     a3_psy_stab_age16,
     bootstrap = TRUE,
-    df_method = "satterthwaite",
+    ci_method = "quantile",
     iterations = 1000
   )
 a3_psy_stab_age16_parameters
@@ -3397,7 +3397,6 @@ ggsave(
   height = 10
 )
 ```
-
 ### Forest plot
 ```{r}
 library(weights)
@@ -3411,7 +3410,7 @@ forest_df_viz <-
   mutate(
     Parameter = fct_relevel(
       Parameter,
-        "Overall cognitive and biological",
+        "Overall cognitive, physical, and neural",
         "Overall psychopathology",
         "IQ",
         "Physical growth",
@@ -3423,16 +3422,20 @@ forest_df_viz <-
         "Internalizing"
     ),
     p = rd(p, digits = 3),
-    p = paste0("p=", p)
+    p = paste0("p=", p),
+    p = if_else(
+      p == "p=.0000000", "p<.001", p
+    )
   )
 
 forest_df_viz
 ```
+
 ```{r}
 forest_cogbio_p <-
   forest_df_viz %>% 
   filter(
-    Parameter == "Overall cognitive and biological" |
+    Parameter == "Overall cognitive, physical, and neural" |
     Parameter == "IQ" |
     Parameter == "Physical growth" |
     Parameter == "EEG alpha power"
@@ -3451,7 +3454,7 @@ forest_cogbio_p <-
   coord_flip() +
   theme_beip +
   theme(
-    axis.text.x = element_text(face = c('bold', 'plain', 'plain', 'plain', 'plain'))
+    axis.text.y = element_text(face = c("italic", "italic", "italic", "bold"))
   ) +
   labs(
     x = NULL,
@@ -3463,8 +3466,8 @@ forest_cogbio_p
 ggsave(
   paste0(home, "figures/forest_plot_cogbio.png"),
   dpi = 600,
-  width = 9.8, 
-  height = 3
+  width = 10.5, 
+  height = 5
 )
 ```
 
@@ -3472,7 +3475,7 @@ ggsave(
 forest_psy_p <-
   forest_df_viz %>% 
   filter(
-    Parameter != "Overall cognitive and biological",
+    Parameter != "Overall cognitive, physical, and neural",
     Parameter != "IQ",
     Parameter != "Physical growth",
     Parameter != "EEG alpha power",
@@ -3490,12 +3493,22 @@ forest_psy_p <-
   scale_y_continuous(breaks = seq.int(-1, 1, .2), limits = c(-1, 1)) +
   coord_flip() +
   theme_beip +
+  theme(
+    axis.text.y = element_text(face = c("italic", "italic", "italic", "italic", "italic", "bold"))
+  ) +
   labs(
     x = NULL,
     y = "Standardized regression coefficient"
   )
 
 forest_psy_p
+
+ggsave(
+  paste0(home, "figures/forest_plot_psychopathology.png"),
+  dpi = 600,
+  width = 9, 
+  height = 5
+)
 
 ggarrange(
   forest_cogbio_p, 
@@ -3507,7 +3520,7 @@ ggarrange(
 ggsave(
   paste0(home, "figures/forest_plot.png"),
   dpi = 600,
-  width = 9, 
+  width = 10.5, 
   height = 9
 )
 ```
