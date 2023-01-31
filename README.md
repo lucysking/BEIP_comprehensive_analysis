@@ -2,7 +2,7 @@
 
 This repository contains scripts and data for the manuscript: 
 
-*Developmental outcomes following severe deprivation: Broadscale and specific effects of a randomized controlled trial from infancy through adolescence*
+*A comprehensive multi-level analysis of the Bucharest Early Intervention Project: Causal effects on recovery from early severe deprivation*
 
 
 Notes on repository contents:
