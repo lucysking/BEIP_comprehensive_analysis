@@ -1,5 +1,5 @@
 ---
-title: "Multi-Level Analysis of Foster Care as an Alternative to Institutionalization on Psychobiological Outcomes Across Childhood"
+title: "A comprehensive multi-level analysis of the Bucharest Early Intervention Project: Causal effects on recovery from severe deprivation"
 date: "2022"
 output: 
   github_document:
@@ -26,7 +26,6 @@ library(effectsize)
 library(ggsci)
 library(gt)
 library(ggpubr)
-library(performance)
 library(parameters)
 library(cowplot)
 library(dplyr)
@@ -37,9 +36,9 @@ library(glue)
 source("R_rainclouds.R")
 
 #Files__________________________________________________________________________
-home <- "/Users/lking@ideo.com/Library/CloudStorage/Box-Box/lucy_king_files/Tulane/BEIP/comprehensive_analysis/"
+home <- "~/Desktop/Tulane/BEIP/comprehensive_analysis/"
 
-cleaned_data_file <- paste0(home, "data/BEIP_big_analysis_tidied_data_20220214.csv")
+cleaned_data_file <- paste0(home, "data/BEIP_big_analysis_tidied_data_20221013.csv")
 
 #Aesthetics_____________________________________________________________________
 theme_beip <-
@@ -124,7 +123,7 @@ d_baseline_physical %>%
     mean_height = mean(height, na.rm = TRUE),
     sd_height =  sd(height, na.rm = TRUE),
     mean_weight = mean(weight, na.rm = TRUE),
-    sd_weight=  sd(weight, na.rm = TRUE)
+    sd_weight =  sd(weight, na.rm = TRUE)
   )
 
 t.test(d_baseline_physical$height ~ d_baseline_physical$group)
@@ -154,8 +153,11 @@ d_baseline %>%
     mean_inst_age = mean(inst_entry_age, na.rm = TRUE),
     sd_ints_age = sd(inst_entry_age, na.rm = TRUE),
     mean_bl_age = mean(age_months, na.rm = TRUE),
-    sd_bl_age = sd(age_months, na.rm = TRUE)
+    sd_bl_age = sd(age_months, na.rm = TRUE),
+    min_bl_age = min(age_months, na.rm = TRUE),
+    max_bl_age = max(age_months, na.rm = TRUE)
   )
+
 
 t.test(d_baseline$age_months ~ d_baseline$group)
 t.test(d_baseline$birth_weight ~ d_baseline$group)
@@ -178,6 +180,14 @@ prop.test(table_sex)
 table_ethnic <- table(d_baseline$romanian, d_baseline$group)
 prop.test(table_ethnic)
 ```
+```{r}
+d_baseline %>% 
+  summarise(
+    mean_age_bl = mean(age_months),
+    max_age_bl = max(age_months),
+    min_age_bl = min(age_months)
+  )
+```
 
 ```{r}
 # baseline: length of stay in institutional care (in months)
@@ -198,6 +208,13 @@ d_baseline %>%
 
 ### Remove baseline data 
 ```{r}
+#keep copy with it
+d_withBL <-
+  d
+```
+
+```{r}
+#overwrite "d" without it
 d <-
   d %>% 
   filter(wave != "BL") %>% 
@@ -211,7 +228,231 @@ IDs <-
   filter(!is.na(value)) %>% 
   distinct(ID, group)
 
+IDs_vector <-
+  IDs %>% 
+  pull(ID)
+
 #write_csv(IDs, paste0(home, "data/included_IDs_20220215.csv"))
+```
+
+## Supplemental Analyses: Missingness
+
+### Descriptives: Missingness out of all possible observations
+
+```{r}
+d %>% 
+  select(
+    ID,
+    n_obs,
+    per_missing
+  ) %>% 
+  distinct(ID, n_obs, per_missing)  %>% 
+  summarise_at(
+    vars(n_obs, per_missing),
+    funs(mean, median, min, max)
+  )
+
+```
+  
+### Associations of baseline characteristics with missigness
+
+```{r}
+d_BL_wide <-
+  d_withBL %>%  
+  filter(ID %in% IDs_vector) %>% 
+  filter(wave == "BL") %>% 
+  select(
+    ID, 
+    group, 
+    per_missing,
+    domain, 
+    value
+  ) %>% 
+  pivot_wider(
+    names_from = domain,
+    values_from = value
+  ) %>% 
+  mutate(
+    group = as.factor(group)
+  )
+
+```
+
+```{r}
+t.test( d_BL_wide$per_missing ~ d_BL_wide$group)
+```
+
+```{r}
+# regressions with simple effects for CAUG
+contrasts(d_BL_wide$group) = c(0, 1)
+
+# DSED
+dsed_miss_lm <-
+  lm(
+    per_missing ~
+      group * dsed,
+    data = d_BL_wide
+  )
+summary(dsed_miss_lm)
+
+# RAD
+rad_miss_lm <-
+  lm(
+    per_missing ~
+      group * rad,
+    data = d_BL_wide
+  )
+summary(rad_miss_lm)
+
+# ADHD
+adhd_miss_lm <-
+  lm(
+    per_missing ~
+      group * adhd,
+    data = d_BL_wide
+  )
+summary(adhd_miss_lm)
+
+# externalizing
+extern_miss_lm <-
+  lm(
+    per_missing ~
+      group * extern,
+    data = d_BL_wide
+  )
+summary(extern_miss_lm)
+
+# internalizing 
+intern_miss_lm <-
+  lm(
+    per_missing ~
+      group * intern,
+    data = d_BL_wide
+  )
+summary(intern_miss_lm)
+
+# head circumference
+head_miss_lm <-
+  lm(
+    per_missing ~
+      group * head,
+    data = d_BL_wide
+  )
+summary(head_miss_lm)
+
+# height
+height_miss_lm <-
+  lm(
+    per_missing ~
+      group * height,
+    data = d_BL_wide
+  )
+summary(height_miss_lm)
+
+# weight
+weight_miss_lm <-
+  lm(
+    per_missing ~
+      group * weight,
+    data = d_BL_wide
+  )
+summary(weight_miss_lm)
+
+# IQ
+
+iq_miss_lm <-
+  lm(
+    per_missing ~
+      group * iq,
+    data = d_BL_wide
+  )
+summary(iq_miss_lm)
+```
+
+```{r}
+# regressions with simple effects for FCG
+contrasts(d_BL_wide$group) = c(1, 0)
+
+# DSED
+dsed_miss_lm.1 <-
+  lm(
+    per_missing ~
+      group * dsed,
+    data = d_BL_wide
+  )
+summary(dsed_miss_lm.1)
+
+# RAD
+rad_miss_lm.1 <-
+  lm(
+    per_missing ~
+      group * rad,
+    data = d_BL_wide
+  )
+summary(rad_miss_lm.1)
+
+# ADHD
+adhd_miss_lm.1 <-
+  lm(
+    per_missing ~
+      group * adhd,
+    data = d_BL_wide
+  )
+summary(adhd_miss_lm.1)
+
+# externalizing
+extern_miss_lm.1 <-
+  lm(
+    per_missing ~
+      group * extern,
+    data = d_BL_wide
+  )
+summary(extern_miss_lm.1)
+
+# internalizing 
+intern_miss_lm.1 <-
+  lm(
+    per_missing ~
+      group * intern,
+    data = d_BL_wide
+  )
+summary(intern_miss_lm.1)
+
+# head circumference
+head_miss_lm.1 <-
+  lm(
+    per_missing ~
+      group * head,
+    data = d_BL_wide
+  )
+summary(head_miss_lm.1)
+
+# height
+height_miss_lm.1 <-
+  lm(
+    per_missing ~
+      group * height,
+    data = d_BL_wide
+  )
+summary(height_miss_lm.1)
+
+# weight
+weight_miss_lm.1 <-
+  lm(
+    per_missing ~
+      group * weight,
+    data = d_BL_wide
+  )
+summary(weight_miss_lm.1)
+
+# IQ
+iq_miss_lm.1 <-
+  lm(
+    per_missing ~
+      group * iq,
+    data = d_BL_wide
+  )
+summary(iq_miss_lm.1)
 ```
 
 ## CONSORT diagram
@@ -339,6 +580,12 @@ d <-
   filter(!is.na(value))
 ```
 
+
+```{r}
+d %>% 
+  count(male)
+```
+
 # Create subsetted data frames
 
 ## Subset IQ, EEG, and physical growth data 
@@ -364,13 +611,16 @@ d_cog_bio <-
     domain = droplevels(domain),
     informant = droplevels(informant),
     wave = droplevels(wave),
+    wave_ordered = droplevels(wave_ordered),
     construct = droplevels(construct)
   )
 
+# number of observations
 d_cog_bio %>% 
-  filter(domain == "eeg") %>% 
-  group_by(wave, group, measure) %>% 
-  summarise_at(vars(value), funs(mean, sd))
+  count(!is.na(value))
+
+d_cog_bio %>% 
+  count(group, !is.na(value))
 ```
 
 ## Subset psychopathology data
@@ -391,10 +641,17 @@ d_psy <-
   mutate(
     domain = droplevels(domain),
     informant = droplevels(informant),
-    wave = droplevels(wave)
+    wave = droplevels(wave),
+    wave_ordered = droplevels(wave_ordered)
   )
-```
 
+# number of observations
+d_psy %>% 
+  count(!is.na(value))
+
+d_psy %>% 
+  count(group, !is.na(value))
+```
 ## Subset FCG data
 ```{r}
 d_fcg_cog_bio <-
@@ -430,7 +687,7 @@ d %>%
   geom_histogram(alpha = 1/2) +
   scale_x_continuous(breaks = seq.int(0, 18, 2)) +
   scale_y_continuous(breaks = seq.int(0, 150, 20)) +
-  scale_fill_manual(values=cbbPalette) +
+  scale_fill_manual(values = cbbPalette) +
   theme_beip +
   theme(
     legend.position = "right"
@@ -639,7 +896,7 @@ ggsave(
   height = 4.3
 )
 ```
-# Internalizing
+## Internalizing
 ```{r}
 d_psy %>% 
   filter(domain == "intern", measure == "itsea") %>% 
@@ -816,7 +1073,7 @@ d_psy %>%
   scale_fill_manual(values = cbbPalette) +
   labs(
     fill = NULL,
-    x = "DSED symptoms"
+    x = "Disinhibited social engagement disorder symptoms"
   ) +
   facet_grid(wave_ordered~group)
 
@@ -838,7 +1095,7 @@ d_psy %>%
   scale_fill_manual(values = cbbPalette) +
   labs(
     fill = NULL,
-    x = "RAD symptoms"
+    x = "Reactive attachment disorder symptoms"
   ) +
   facet_grid(wave_ordered~group)
 
@@ -1023,7 +1280,7 @@ out_corr <-
   spread(domain, value_z) %>% 
   ungroup() %>% 
   dplyr::select(-ID) %>% 
-  corrr::correlate() %>% 
+  corrr::correlate(method = "spearman") %>% 
   fashion() 
 
 out_corr
@@ -1113,7 +1370,7 @@ out_corr_plot %>%
     midpoint = 0,
     limit = c(-1, 1),
     space = "Lab",
-    name = "Pearson correlation\ncoefficient"
+    name = "Spearman correlation\ncoefficient"
   ) +
   theme_void() +
   theme(
@@ -1135,6 +1392,11 @@ ggsave(
   width = 8, 
   height = 6
 )
+```
+```{r}
+d_cog_bio %>% 
+  distinct(ID, sibling_type) %>% 
+  count(sibling_type)
 ```
 
 # Results
@@ -1164,7 +1426,8 @@ a1_cogbio <- lmer(
     male +
     scale(age_years, scale = TRUE) +
     construct +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_cog_bio
 )
 
@@ -1179,6 +1442,34 @@ a1_cogbio_parameters <-
 
 a1_cogbio_parameters
 ```
+
+
+```{r}
+# supplementary analysis with extended random effects structure
+a1_cogbio_rex <- lmer(
+  value_z ~ 
+    group +
+    male +
+    scale(age_years, scale = TRUE) +
+    construct +
+    (1|ID) +
+    (1|ID:construct) +
+    (1|family_id), 
+  data = d_cog_bio
+)
+
+set.seed(123456)
+a1_cogbio_parameters_rex <-
+  model_parameters(
+  a1_cogbio_rex,
+  bootstrap = TRUE,
+  ci_method = "quantile",
+  iterations = 1000
+)
+
+a1_cogbio_parameters_rex
+```
+
 
 ```{r}
 forest_df <-
@@ -1211,6 +1502,7 @@ contrasts(d_psy$domain) = cbind(
 contrasts(d_psy$informant) = c(-.5, .5)
 ```
 
+
 ```{r}
 a1_psy <- lmer(
   value_z ~ 
@@ -1219,7 +1511,8 @@ a1_psy <- lmer(
     scale(age_years, scale = TRUE) +
     domain +
     informant +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_psy
 )
 
@@ -1229,10 +1522,39 @@ a1_psy_parameters <-
     a1_psy,
     bootstrap = TRUE,
     ci_method = "quantile",
+    effects = "fixed",
     iterations = 1000
   )
 
 a1_psy_parameters
+```
+
+```{r}
+# supplementary analysis with extended random effects structure
+a1_psy_rex <- lmer(
+  value_z ~ 
+    group +
+    male +
+    scale(age_years, scale = TRUE) +
+    domain +
+    informant +
+    (1|ID) +
+    (1|ID:domain) +
+    (1|family_id), 
+  data = d_psy
+)
+
+set.seed(123456)
+a1_psy_parameters_rex <-
+  model_parameters(
+    a1_psy_rex,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    effects = "fixed",
+    iterations = 1000
+  )
+
+a1_psy_parameters_rex
 ```
 
 ```{r}
@@ -1261,9 +1583,21 @@ a2_cogbio <- lmer(
     group * construct +
     group * male +
     group * scale(age_years, scale = FALSE) +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id), 
+  REML = FALSE,
   data = d_cog_bio
 )
+
+set.seed(123456)
+a2_cogbio_parameters <-
+  model_parameters(
+    a2_cogbio,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    effects = "fixed",
+    iterations = 1000
+  )
 
 anova(a2_cogbio)
 ```
@@ -1284,7 +1618,8 @@ a2_cogbio_EEG <- lmer(
     group * construct +
     male +
     scale(age_years, scale = TRUE) +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_cog_bio
 )
 
@@ -1326,7 +1661,8 @@ a2_cogbio_IQ <- lmer(
     group * construct +
     male +
     scale(age_years, scale = TRUE) +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),  
   data = d_cog_bio
 )
 
@@ -1369,7 +1705,8 @@ a2_cogbio_PHY <- lmer(
     group * construct +
     male +
     scale(age_years, scale = TRUE) +
-    (1 |ID),  
+    (1|ID) +
+    (1|family_id),  
   data = d_cog_bio
 )
 
@@ -1405,7 +1742,8 @@ a2_cogbio_domainXage <- lmer(
   value_z ~ 
     group * construct * scale(age_years, scale = FALSE) +
     male +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),  
   data = d_cog_bio
 )
 
@@ -1417,7 +1755,8 @@ a2_cogbio_domainXsex <- lmer(
   value_z ~ 
     group * construct * male +
     scale(age_years, scale = TRUE) +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),  
   data = d_cog_bio
 )
 
@@ -1441,7 +1780,8 @@ a2_cogbio_EEG_male <- lmer(
   value_z ~ 
     group * construct * male +
     scale(age_years, scale = TRUE) +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),  
   data = d_cog_bio
 )
 
@@ -1472,7 +1812,8 @@ a2_cogbio_EEG_female <- lmer(
   value_z ~ 
     group * construct * male +
     scale(age_years, scale = TRUE) +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),  
   data = d_cog_bio
 )
 
@@ -1503,7 +1844,8 @@ a2_cogbio_IQ_male <- lmer(
   value_z ~ 
     group * construct * male +
     scale(age_years, scale = TRUE) +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_cog_bio
 )
 
@@ -1534,7 +1876,8 @@ a2_cogbio_IQ_female <- lmer(
   value_z ~ 
     group * construct * male +
     scale(age_years, scale = TRUE) +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),  
   data = d_cog_bio
 )
 
@@ -1565,7 +1908,8 @@ a2_cogbio_PHYS_male <- lmer(
   value_z ~ 
     group * construct * male +
     scale(age_years, scale = TRUE) +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_cog_bio
 )
 
@@ -1596,7 +1940,8 @@ a2_cogbio_PHYS_female <- lmer(
   value_z ~ 
     group * construct * male +
     scale(age_years, scale = TRUE) +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),  
   data = d_cog_bio
 )
 
@@ -1622,7 +1967,8 @@ a2_psy_type <- lmer(
     group * male +
     group * scale(age_years, scale = TRUE) +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),  
   data = d_psy
 )
 
@@ -1650,7 +1996,8 @@ a2_psy_ADHD <- lmer(
     male +
     scale(age_years, scale = TRUE) +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_psy
 )
 
@@ -1699,7 +2046,8 @@ a2_psy_DSED <- lmer(
     male +
     scale(age_years, scale = TRUE) +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),  
   data = d_psy
 )
 
@@ -1719,7 +2067,7 @@ forest_df <-
   forest_df %>% 
   rbind( 
     c(
-      "DSED",
+      "Disinhibited social engagement disorder",
       a2_psy_DSED_parameters$Coefficient[[2]],
       a2_psy_DSED_parameters$CI_low[[2]],
       a2_psy_DSED_parameters$CI_hi[[2]],
@@ -1747,7 +2095,8 @@ a2_psy_EXT <- lmer(
     male +
     scale(age_years, scale = TRUE) +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),  
   data = d_psy
 )
 
@@ -1796,7 +2145,8 @@ a2_psy_INT <- lmer(
     male +
     scale(age_years, scale = TRUE) +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),  
   data = d_psy
 )
 
@@ -1845,7 +2195,8 @@ a2_psy_RAD <- lmer(
     male +
     scale(age_years, scale = TRUE) +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),   
   data = d_psy
 )
 
@@ -1866,7 +2217,7 @@ forest_df <-
   forest_df %>% 
   rbind( 
     c(
-      "RAD",
+      "Reactive attachment disorder",
       a2_psy_RAD_parameters$Coefficient[[2]],
       a2_psy_RAD_parameters$CI_low[[2]],
       a2_psy_RAD_parameters$CI_hi[[2]],
@@ -1882,7 +2233,8 @@ a2_psy_type_gender <- lmer(
     group * domain * male +
     scale(age_years, scale = TRUE) +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),  
   data = d_psy
 )
 
@@ -1890,12 +2242,13 @@ anova(a2_psy_type_gender)
 ```
 
 ```{r}
-a2_psy_type_age<- lmer(
+a2_psy_type_age <- lmer(
   value_z ~ 
     group * domain * scale(age_years, scale = TRUE) +
     male +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),   
   data = d_psy
 )
 
@@ -1922,7 +2275,8 @@ a2_ADHD_age3 <- lmer(
     group * domain * I(age_years - 3.5) +
     male +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),  
   data = d_psy
 )
 
@@ -1956,7 +2310,8 @@ a2_ADHD_age8 <- lmer(
     group * domain * I(age_years - 8) +
     male +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),  
   data = d_psy
 )
 
@@ -1990,7 +2345,8 @@ a2_ADHD_age16 <- lmer(
     group * domain * I(age_years - 16) +
     male +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_psy
 )
 
@@ -2024,7 +2380,8 @@ a2_DSED_age3 <- lmer(
     group * domain * I(age_years - 3.5) +
     male +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_psy
 )
 
@@ -2057,7 +2414,8 @@ a2_DSED_age8 <- lmer(
     group * domain * I(age_years - 8) +
     male +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_psy
 )
 
@@ -2090,7 +2448,8 @@ a2_DSED_age16 <- lmer(
     group * domain * I(age_years - 16) +
     male +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_psy
 )
 
@@ -2123,7 +2482,8 @@ a2_EXT_age3 <- lmer(
     group * domain * I(age_years - 3.5) +
     male +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_psy
 )
 
@@ -2157,7 +2517,8 @@ a2_EXT_age8 <- lmer(
     group * domain * I(age_years - 8) +
     male +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_psy
 )
 
@@ -2191,7 +2552,8 @@ a2_EXT_age16 <- lmer(
     group * domain * I(age_years - 16) +
     male +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_psy
 )
 
@@ -2225,7 +2587,8 @@ a2_INT_age3 <- lmer(
     group * domain * I(age_years - 3.5) +
     male +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_psy
 )
 
@@ -2259,7 +2622,8 @@ a2_INT_age8 <- lmer(
     group * domain * I(age_years - 8) +
     male +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_psy
 )
 
@@ -2293,7 +2657,8 @@ a2_INT_age16 <- lmer(
     group * domain * I(age_years - 16) +
     male +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_psy
 )
 
@@ -2327,7 +2692,8 @@ a2_RAD_age3 <- lmer(
     group * domain * I(age_years - 3.5) +
     male +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_psy
 )
 
@@ -2361,7 +2727,8 @@ a2_RAD_age8 <- lmer(
     group * domain * I(age_years - 8) +
     male +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_psy
 )
 
@@ -2395,7 +2762,8 @@ a2_RAD_age16 <- lmer(
     group * domain * I(age_years - 16) +
     male +
     informant +
-    (1 |ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_psy
 )
 
@@ -2436,7 +2804,8 @@ a3_age_placement_std <- lmer(
     male +
     scale(age_years, scale = TRUE) +
     construct +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_fcg_cog_bio
 )
 
@@ -2446,7 +2815,8 @@ a3_age_placement_raw <- lmer(
     male +
     scale(age_years, scale = TRUE) +
     construct +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_fcg_cog_bio
 )
 
@@ -2473,6 +2843,55 @@ a3_age_placement_parameters_raw <-
 a3_age_placement_parameters_raw
 ```
 
+```{r}
+# supplementary analysis with extended random effects structure
+a3_age_placement_std_rex <- lmer(
+  value_z ~ 
+    scale(FC_placement_age, scale = TRUE) +
+    male +
+    scale(age_years, scale = TRUE) +
+    construct +
+    (1|ID) +
+    (1|ID:construct) +
+    (1|family_id), 
+  data = d_fcg_cog_bio
+)
+
+a3_age_placement_raw_rex <- lmer(
+  value_z ~ 
+    scale(FC_placement_age, scale = FALSE) +
+    male +
+    scale(age_years, scale = TRUE) +
+    construct +
+    (1|ID) +
+    (1|ID:construct) +
+    (1|family_id), 
+  data = d_fcg_cog_bio
+)
+
+set.seed(123456)
+a3_age_placement_parameters_std_rex <-
+  model_parameters(
+    a3_age_placement_std_rex,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+
+a3_age_placement_parameters_std_rex
+
+set.seed(123456)
+a3_age_placement_parameters_raw_rex <-
+  model_parameters(
+    a3_age_placement_raw_rex,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+
+a3_age_placement_parameters_raw_rex
+```
+
 ###### Two-way moderations
 ```{r}
 a3_age_placement_std_X <- lmer(
@@ -2480,7 +2899,8 @@ a3_age_placement_std_X <- lmer(
     scale(FC_placement_age, scale = TRUE) * male +
     scale(FC_placement_age, scale = TRUE) * scale(age_years, scale = TRUE) +
     scale(FC_placement_age, scale = TRUE) * construct +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_fcg_cog_bio
 )
 
@@ -2502,7 +2922,8 @@ a3_age_placement_EEG_std <- lmer(
     scale(FC_placement_age, scale = TRUE) * construct +
     scale(age_years, scale = TRUE) +
     male +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_fcg_cog_bio
 )
 
@@ -2511,7 +2932,8 @@ a3_age_placement_EEG_raw <- lmer(
     scale(FC_placement_age, scale = FALSE) * construct +
     scale(age_years, scale = TRUE) +
     male +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_fcg_cog_bio
 )
 
@@ -2549,7 +2971,8 @@ a3_age_placement_IQ_std <- lmer(
     scale(FC_placement_age, scale = TRUE) * construct +
     scale(age_years, scale = TRUE) +
     male +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_fcg_cog_bio
 )
 
@@ -2558,7 +2981,8 @@ a3_age_placement_IQ_raw <- lmer(
     scale(FC_placement_age, scale = FALSE) * construct +
     scale(age_years, scale = TRUE) +
     male +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_fcg_cog_bio
 )
 
@@ -2596,7 +3020,8 @@ a3_age_placement_PHY_std <- lmer(
     scale(FC_placement_age, scale = TRUE) * construct +
     scale(age_years, scale = TRUE) +
     male +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_fcg_cog_bio
 )
 
@@ -2605,7 +3030,8 @@ a3_age_placement_PHY_raw <- lmer(
     scale(FC_placement_age, scale = FALSE) * construct +
     scale(age_years, scale = TRUE) +
     male +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_fcg_cog_bio
 )
 
@@ -2644,7 +3070,8 @@ a3_age_placement_age3_std <- lmer(
     scale(FC_placement_age, scale = TRUE) * I(age_years - 3.5) +
     construct +
     male +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_fcg_cog_bio
 )
 
@@ -2653,7 +3080,8 @@ a3_age_placement_age3_raw <- lmer(
     scale(FC_placement_age, scale = FALSE) * I(age_years - 3.5) +
     construct +
     male +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_fcg_cog_bio
 )
 
@@ -2685,7 +3113,8 @@ a3_age_placement_age8_std <- lmer(
     scale(FC_placement_age, scale = TRUE) * I(age_years - 8) +
     construct +
     male +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_fcg_cog_bio
 )
 
@@ -2694,7 +3123,8 @@ a3_age_placement_age8_raw <- lmer(
     scale(FC_placement_age, scale = FALSE) * I(age_years - 8) +
     construct +
     male +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_fcg_cog_bio
 )
 
@@ -2726,7 +3156,8 @@ a3_age_placement_age16_std <- lmer(
     scale(FC_placement_age, scale = TRUE) * I(age_years - 16) +
     construct +
     male +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_fcg_cog_bio
 )
 
@@ -2735,7 +3166,8 @@ a3_age_placement_age16_raw <- lmer(
     scale(FC_placement_age, scale = FALSE) * I(age_years - 16) +
     construct +
     male +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_fcg_cog_bio
 )
 
@@ -2785,7 +3217,8 @@ a3_psy_age_placement_std <- lmer(
     scale(age_years, scale = TRUE) +
     domain +
     informant +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_fcg_psy
 )
 
@@ -2796,7 +3229,8 @@ a3_psy_age_placement_raw <- lmer(
     scale(age_years, scale = TRUE) +
     domain +
     informant +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_fcg_psy
 )
 
@@ -2823,6 +3257,57 @@ a3_psy_age_placement_parameters_raw <-
 a3_psy_age_placement_parameters_raw
 ```
 
+```{r}
+# supplementary analyses with extended random effects structure
+a3_psy_age_placement_std_rex <- lmer(
+  value_z ~ 
+    scale(FC_placement_age, scale = TRUE) +
+    male +
+    scale(age_years, scale = TRUE) +
+    domain +
+    informant +
+    (1|ID) +
+    (1|ID:domain) +
+    (1|family_id),
+  data = d_fcg_psy
+)
+
+a3_psy_age_placement_raw_rex <- lmer(
+  value_z ~ 
+    scale(FC_placement_age, scale = FALSE) +
+    male +
+    scale(age_years, scale = TRUE) +
+    domain +
+    informant +
+    (1|ID) +
+    (1|ID:domain) +
+    (1|family_id),
+  data = d_fcg_psy
+)
+
+set.seed(123456)
+a3_psy_age_placement_parameters_std_rex <-
+  model_parameters(
+    a3_psy_age_placement_std_rex,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+
+a3_psy_age_placement_parameters_std_rex
+
+set.seed(123456)
+a3_psy_age_placement_parameters_raw_rex <-
+  model_parameters(
+    a3_psy_age_placement_raw_rex,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+
+a3_psy_age_placement_parameters_raw_rex
+```
+
 ##### Two-way moderations
 ```{r}
 a3_psy_age_placement_int <- lmer(
@@ -2831,7 +3316,8 @@ a3_psy_age_placement_int <- lmer(
     scale(FC_placement_age, scale = TRUE) * scale(age_years, scale = TRUE) +
     scale(FC_placement_age, scale = TRUE) * domain +
     informant +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_fcg_psy
 )
 
@@ -2855,7 +3341,8 @@ a3_psy_age_placement_age3_std <- lmer(
     domain +
     male +
     informant +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_fcg_psy
 )
 
@@ -2865,7 +3352,8 @@ a3_psy_age_placement_age3_raw <- lmer(
     domain +
     male +
     informant +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_fcg_psy
 )
 
@@ -2898,7 +3386,8 @@ a3_psy_age_placement_age8_std <- lmer(
     domain +
     male +
     informant +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_fcg_psy
 )
 
@@ -2908,7 +3397,8 @@ a3_psy_age_placement_age8_raw <- lmer(
     domain +
     male +
     informant +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_fcg_psy
 )
 
@@ -2941,7 +3431,8 @@ a3_psy_age_placement_age16_std <- lmer(
     domain +
     male +
     informant +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_fcg_psy
 )
 
@@ -2951,7 +3442,8 @@ a3_psy_age_placement_age16_raw <- lmer(
     domain +
     male +
     informant +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_fcg_psy
 )
 
@@ -2995,14 +3487,14 @@ contrasts(d_fcg_cog_bio$stable) = c(0, 1) # disrupted is baseline
 
 Stability changes in correspondence with wave/age; therefore, a main effect collapsing across ages of assessment would confound state and trait variance because the parameter estimate represents both a contrast of kids who were ever disrupted vs. not and a contrast of after vs. prior to disruption (i.e., regression estimate would be fit to all disrupted observations vs. all stable observations and some kids are in both groups). To distinguish these sources of variance, only interpret moderated by age so that we can say, at a given age, kids who were disrupted were doing worse/better than kids who were not. 
 
-
 ```{r}
 a3_cogbio_stability <- lmer(
   value_z ~ 
     stable * scale(age_years, scale = TRUE) + 
     male +
     construct +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_fcg_cog_bio
 )
 
@@ -3016,6 +3508,31 @@ a3_cogbio_stability_parameters <-
   )
 
 a3_cogbio_stability_parameters
+```
+
+```{r}
+# supplementary analyses with extended random effects structure
+a3_cogbio_stability_rex <- lmer(
+  value_z ~ 
+    stable * scale(age_years, scale = TRUE) + 
+    male +
+    construct +
+    (1|ID) +
+    (1|ID:construct) +
+    (1|family_id),
+  data = d_fcg_cog_bio
+)
+
+set.seed(123456)
+a3_cogbio_stability_parameters_rex <-
+  model_parameters(
+    a3_cogbio_stability_rex,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+
+a3_cogbio_stability_parameters_rex
 ```
 
 ###### Simple effects of age of asssesment
@@ -3032,7 +3549,8 @@ a3_stab_age3 <- lmer(
     stable * I(age_years - 3.5) +
     construct +
     male +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_fcg_cog_bio
 )
 
@@ -3055,7 +3573,8 @@ a3_stab_age8 <- lmer(
     stable * I(age_years - 8) +
     construct +
     male +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_fcg_cog_bio
 )
 
@@ -3077,7 +3596,8 @@ a3_stab_age16 <- lmer(
     stable * I(age_years - 16) +
     construct +
     male +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_fcg_cog_bio
 )
 
@@ -3119,7 +3639,8 @@ a3_psy_stability <- lmer(
     male +
     domain +
     informant +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_fcg_psy
 )
 
@@ -3133,6 +3654,32 @@ a3_psy_stability_parameters <-
   )
 
 a3_psy_stability_parameters
+```
+
+```{r}
+# supplementary analyses with extended random effects structure
+a3_psy_stability_rex <- lmer(
+  value_z ~ 
+    stable * scale(age_years, scale = TRUE) +
+    male +
+    domain +
+    informant +
+    (1|ID) +
+    (1|ID:domain) +
+    (1|family_id),
+  data = d_fcg_psy
+)
+
+set.seed(123456)
+a3_psy_stability_parameters_rex <-
+  model_parameters(
+    a3_psy_stability_rex,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+
+a3_psy_stability_parameters_rex
 ```
 
 ###### Simple effects of age of asssesment
@@ -3152,7 +3699,8 @@ a3_psy_stab_age3 <- lmer(
     domain +
     male +
     informant +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_fcg_psy
 )
 
@@ -3176,7 +3724,8 @@ a3_psy_stab_age8 <- lmer(
     domain +
     male +
     informant +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id),
   data = d_fcg_psy
 )
 
@@ -3199,7 +3748,8 @@ a3_psy_stab_age16 <- lmer(
     domain +
     male +
     informant +
-    (1|ID), 
+    (1|ID) +
+    (1|family_id), 
   data = d_fcg_psy
 )
 
@@ -3342,8 +3892,8 @@ d_plot <-
       construct == "IQ" ~ "IQ",
       construct == "physical" ~ "Physical growth",
       construct == "EEG" ~ paste0("EEG alpha power"),
-      domain == "rad"~ "RAD",
-      domain == "dsed" ~ "DSED",
+      domain == "rad"~ "Reactive attachment\ndisorder",
+      domain == "dsed" ~ "Disinhibited social\nengagement disorder",
       domain == "adhd" ~ "ADHD",
       domain == "extern" ~ "Externalizing",
       domain == "intern" ~ "Internalizing"
@@ -3353,17 +3903,21 @@ d_plot <-
       "IQ",
       "Physical growth", 
       "EEG alpha power", 
-      "DSED", 
-      "RAD", 
+      "Disinhibited social\nengagement disorder",
+      "Reactive attachment\ndisorder",
       "ADHD", 
       "Externalizing", 
       "Internalizing"
     ),
     male = if_else(
       male == 1, "Male", "Female"
+    ),
+    group = recode_factor(
+      group,
+      "FCG" = "Foster care",
+      "CAUG" = "Care as usual"
     )
   )
-
 ```
 
 ### By domain by age of assessment
@@ -3396,6 +3950,13 @@ ggsave(
   width = 6, 
   height = 10
 )
+
+ggsave(
+  paste0(home, "figures/aim2_all_domain_wave.pdf"),
+  dpi = 600,
+  width = 6, 
+  height = 10
+)
 ```
 ### Forest plot
 ```{r}
@@ -3415,8 +3976,8 @@ forest_df_viz <-
         "IQ",
         "Physical growth",
         "EEG alpha power",
-        "DSED",
-        "RAD",
+        "Disinhibited social engagement disorder",
+        "Reactive attachment disorder",
         "ADHD",
         "Externalizing",
         "Internalizing"
@@ -3469,6 +4030,7 @@ ggsave(
   width = 10.5, 
   height = 5
 )
+
 ```
 
 ```{r}
@@ -3523,6 +4085,13 @@ ggsave(
   width = 10.5, 
   height = 9
 )
+
+ggsave(
+  paste0(home, "figures/forest_plot.pdf"),
+  dpi = 600,
+  width = 10.5, 
+  height = 9
+)
 ```
 
 ## Aim 3
@@ -3560,9 +4129,9 @@ d_plot_fcg <-
     domain_construct_pretty = case_when(
       construct == "IQ" ~ "IQ",
       construct == "physical" ~ "Physical growth",
-      construct == "EEG" ~ "EEG alpha-power",
-      domain == "rad"~ "RAD",
-      domain == "dsed" ~ "DSED",
+      construct == "EEG" ~ "EEG alpha power",
+      domain == "rad"~ "Reactive attachment\ndisorder",
+      domain == "dsed" ~ "Disinhibited social\nengagement disorder",
       domain == "adhd" ~ "ADHD",
       domain == "extern" ~ "Externalizing",
       domain == "intern" ~ "Internalizing"
@@ -3571,9 +4140,9 @@ d_plot_fcg <-
       domain_construct_pretty,
       "IQ",
       "Physical growth", 
-      "EEG alpha-power", 
-      "DSED", 
-      "RAD", 
+      "EEG alpha power", 
+      "Disinhibited social\nengagement disorder",
+      "Reactive attachment\ndisorder",
       "ADHD", 
       "Externalizing", 
       "Internalizing"
@@ -3616,6 +4185,7 @@ ggsave(
   width = 9, 
   height = 11
 )
+
 ```
 
 
@@ -3638,12 +4208,12 @@ d_plot_fcg %>%
   scale_fill_viridis_d(guide = FALSE, begin = .5) +
   theme_beip +
   theme(
-    legend.position = "right",
+    legend.position = "bottom",
     plot.caption = element_text(hjust = .5, size = 16),
     axis.title.y = element_text(vjust = 2)
   ) +
   labs(
-    color = "Foster care placement",
+    color = NULL,
     x = "Age of assessment (years)",
     y = "Standardized score"
   ) +
@@ -3652,41 +4222,1235 @@ d_plot_fcg %>%
 ggsave(
   paste0(home, "figures/aim3_all_stability_domain_age.png"),
   dpi = 600,
-  width = 9, 
-  height = 11
+  width = 6, 
+  height = 10
+)
+
+ggsave(
+  paste0(home, "figures/aim3_all_stability_domain_age.pdf"),
+  dpi = 600,
+  width = 6, 
+  height = 10
 )
 ```
 
-#### Stability by wave 
+# Supplemental Analyses
+
+## Associations of baseline characteristics with stability at each wave
 ```{r}
-d_plot_fcg %>% 
-  filter(!is.na(stable)) %>% 
-  ggplot(
+stability_wide <- 
+  d %>% 
+  filter(group == "FCG") %>% 
+  select(
+    ID,
+    wave,
+    stable_num,
+    stability_group
+  ) %>% 
+  distinct(ID, wave, stable_num, .keep_all = TRUE) %>% 
+  filter(!is.na(stable_num)) %>% 
+  # because child could be disrupted between assessment WITHIN a wave, counting as disrupted if marked as "0" for at least one assessment in that wave
+  group_by(ID, wave) %>% 
+  mutate(
+    stable_num = max(stable_num, na.rm = TRUE)
+  ) %>%
+  distinct(ID, wave, stable_num, .keep_all = TRUE) %>% 
+  pivot_wider(
+    names_from = wave,
+    values_from = stable_num,
+    names_prefix = "stable_"
+  ) 
+```
+
+```{r}
+d_BL_wide_FCG <-
+  d_BL_wide %>% 
+  filter(group == "FCG") %>% 
+  left_join(stability_wide, by = "ID") 
+```
+
+```{r}
+## 8-year wave stability ~ baseline characteristics
+d_BL_wide_FCG %>% 
+  count(stable_8y)
+
+# DSED
+t.test(d_BL_wide_FCG$dsed ~ d_BL_wide_FCG$stable_8y)
+
+# RAD
+t.test(d_BL_wide_FCG$rad ~ d_BL_wide_FCG$stable_8y)
+
+# ADHD
+t.test(d_BL_wide_FCG$adhd ~ d_BL_wide_FCG$stable_8y)
+
+# externalizing
+t.test(d_BL_wide_FCG$extern ~ d_BL_wide_FCG$stable_8y)
+
+# internalizing
+t.test(d_BL_wide_FCG$intern ~ d_BL_wide_FCG$stable_8y)
+
+# head circumference
+t.test(d_BL_wide_FCG$head ~ d_BL_wide_FCG$stable_8y)
+
+# height
+t.test(d_BL_wide_FCG$height ~ d_BL_wide_FCG$stable_8y)
+
+# weight
+t.test(d_BL_wide_FCG$weight ~ d_BL_wide_FCG$stable_8y)
+
+# weight
+t.test(d_BL_wide_FCG$iq ~ d_BL_wide_FCG$stable_8y)
+```
+
+```{r}
+## 12-year wave stability ~ baseline characteristics
+d_BL_wide_FCG %>% 
+  count(stable_12y)
+
+# DSED
+t.test(d_BL_wide_FCG$dsed ~ d_BL_wide_FCG$stable_12y)
+
+# RAD
+t.test(d_BL_wide_FCG$rad ~ d_BL_wide_FCG$stable_12y)
+
+# ADHD
+t.test(d_BL_wide_FCG$adhd ~ d_BL_wide_FCG$stable_12y)
+
+# externalizing
+t.test(d_BL_wide_FCG$extern ~ d_BL_wide_FCG$stable_12y)
+
+# internalizing
+t.test(d_BL_wide_FCG$intern ~ d_BL_wide_FCG$stable_12y)
+
+# head circumference
+t.test(d_BL_wide_FCG$head ~ d_BL_wide_FCG$stable_12y)
+
+# height
+t.test(d_BL_wide_FCG$height ~ d_BL_wide_FCG$stable_12y)
+
+# weight
+t.test(d_BL_wide_FCG$weight ~ d_BL_wide_FCG$stable_12y)
+
+# weight
+t.test(d_BL_wide_FCG$iq ~ d_BL_wide_FCG$stable_12y)
+```
+
+```{r}
+## 16/18-year wave stability ~ baseline characteristics
+d_BL_wide_FCG %>% 
+  count(`stable_16-18y`)
+
+# DSED
+t.test(d_BL_wide_FCG$dsed ~ d_BL_wide_FCG$`stable_16-18y`)
+
+# RAD
+t.test(d_BL_wide_FCG$rad ~ d_BL_wide_FCG$`stable_16-18y`)
+
+# ADHD
+t.test(d_BL_wide_FCG$adhd ~ d_BL_wide_FCG$`stable_16-18y`)
+
+# externalizing
+t.test(d_BL_wide_FCG$extern ~ d_BL_wide_FCG$`stable_16-18y`)
+
+# internalizing
+t.test(d_BL_wide_FCG$intern ~ d_BL_wide_FCG$`stable_16-18y`)
+
+# head circumference
+t.test(d_BL_wide_FCG$head ~ d_BL_wide_FCG$`stable_16-18y`)
+
+# height
+t.test(d_BL_wide_FCG$height ~ d_BL_wide_FCG$`stable_16-18y`)
+
+# weight
+t.test(d_BL_wide_FCG$weight ~ d_BL_wide_FCG$`stable_16-18y`)
+
+# weight
+t.test(d_BL_wide_FCG$iq ~ d_BL_wide_FCG$`stable_16-18y`)
+```
+## Aim 2: Age as categorical
+
+### EEG, IQ, physical size
+
+```{r}
+# CAUG is baseline
+contrasts(d_cog_bio$group) = c(0, 1)
+
+contrasts(d_cog_bio$male) = c(-.5, .5) 
+
+contrasts(d_cog_bio$construct) <- cbind(
+  IQvEEG = c(-1/3, 1 - (1/3), -1/3),
+  PHYSvEEG = c(-1/3, -1/3, 1 - (1/3))
+)
+
+contrasts(d_cog_bio$wave_ordered) <- cbind(
+  `42mv30m` = c(-1/6, 1 - (1/6), -1/6, -1/6, -1/6, -1/6),
+  `54mv30m` = c(-1/6, -1/6, 1 - (1/6), -1/6, -1/6, -1/6),
+  `8yv30m` = c(-1/6, -1/6, -1/6, 1 - (1/6), -1/6, -1/6),
+  `12yv30m` = c(-1/6, -1/6, -1/6, -1/6, 1 - (1/6), -1/6),
+  `16yv30m` = c(-1/6, -1/6, -1/6, -1/6, -1/6, 1 - (1/6))
+)
+```
+
+#### Two-way moderations
+```{r}
+a2_cogbio_sup <- lmer(
+  value_z ~ 
+    group * construct +
+    group * male +
+    group * wave_ordered +
+    (1|ID) +
+    (1|family_id), 
+  REML = FALSE,
+  data = d_cog_bio
+)
+
+anova(a2_cogbio_sup)
+```
+
+### Psychopathology
+
+```{r}
+contrasts(d_psy$group) = c(0, 1) # CAUG is baseline
+
+contrasts(d_psy$male) = c(-.5, .5) 
+
+contrasts(d_psy$domain) = cbind(
+  DSEDvADHD = c(-1/5, 1 - (1/5), -1/5, -1/5, -1/5),
+  EXTvADHD = c(-1/5, -1/5, 1 - (1/5), -1/5, -1/5),
+  INTvADHD = c(-1/5, -1/5, -1/5, 1 - (1/5), -1/5),
+  RADvADHD = c(-1/5, -1/5, -1/5, -1/5, 1 - (1/5))
+)
+
+contrasts(d_psy$informant) = c(-.5, .5)
+
+contrasts(d_psy$wave_ordered) <- cbind(
+  `42mv30m` = c(-1/6, 1 - (1/6), -1/6, -1/6, -1/6, -1/6),
+  `54mv30m` = c(-1/6, -1/6, 1 - (1/6), -1/6, -1/6, -1/6),
+  `8yv30m` = c(-1/6, -1/6, -1/6, 1 - (1/6), -1/6, -1/6),
+  `12yv30m` = c(-1/6, -1/6, -1/6, -1/6, 1 - (1/6), -1/6),
+  `16yv30m` = c(-1/6, -1/6, -1/6, -1/6, -1/6, 1 - (1/6))
+)
+```
+
+#### Two-way moderations
+```{r}
+a2_psy_type_sup <- lmer(
+  value_z ~ 
+    group * domain +
+    group * male +
+    group * wave_ordered +
+    informant +
+    (1|ID) +
+    (1|family_id),  
+  data = d_psy
+)
+
+anova(a2_psy_type_sup)
+```
+
+### Visualize effect of the intervention by assessment wave
+```{r}
+d_plot_summary <-
+  d_plot %>% 
+  group_by(group, wave_ordered, domain_construct_pretty) %>% 
+  summarise(
+    n = n(),
+    mean = mean(value_z),
+    sd = sd(value_z),
+    se = sd / sqrt(n)
+  )
+
+d_plot_summary %>% 
+  ggplot(aes(wave_ordered, mean, color = group)) +
+  geom_pointrange(
     aes(
-      wave_ordered, 
-      value_z, 
-      fill = stable
-    )
+      ymin = mean - se,
+      ymax = mean + se
+    ),
+    position = "dodge"
   ) +
-  geom_boxplot() +
-  #scale_y_continuous(breaks = seq.int(-1, 1.4, .4)) +
-  scale_fill_viridis_d() +
+  #scale_fill_manual(values = cbbPalette) +
+  scale_color_manual(values = cbbPalette) +
   theme_beip +
   theme(
-    legend.position = "right",
+    legend.position = "bottom",
     plot.caption = element_text(hjust = .5, size = 16),
     axis.title.y = element_text(vjust = 2),
-    axis.text.x = element_text(angle = 320, hjust = .1)
+    axis.title.x = element_text(vjust = -1),
+    panel.grid.major.x = element_line(color = "gray", linetype = 3)
   ) +
+  #coord_flip() +
   labs(
-    fill = "Foster care placement",
-    x = "Assessment wave", 
+    fill = NULL,
+    color = NULL,
+    x = "Assessment wave",
     y = "Standardized score"
   ) +
   facet_wrap(.~domain_construct_pretty, ncol = 2)
 
 ggsave(
-  paste0(home, "figures/aim3_all_stability_domain_wave_boxplots.png"),
+  paste0(home, "figures/supplemental_aim2_domain_wave_means.png"),
+  dpi = 600,
+  width = 9, 
+  height = 11
+)
+```
+
+
+## Aim 3: Age as categorical
+
+### Age of placement
+
+#### EEG, IQ, physical size 
+```{r}
+contrasts(d_fcg_cog_bio$male) = c(-.5, .5) 
+
+contrasts(d_fcg_cog_bio$construct) <- cbind(
+  IQvEEG = c(-1/3, 1 - (1/3), -1/3),
+  PHYSvEEG = c(-1/3, -1/3, 1 - (1/3))
+)
+
+contrasts(d_fcg_cog_bio$wave_ordered) <- cbind(
+  `42mv30m` = c(-1/6, 1 - (1/6), -1/6, -1/6, -1/6, -1/6),
+  `54mv30m` = c(-1/6, -1/6, 1 - (1/6), -1/6, -1/6, -1/6),
+  `8yv30m` = c(-1/6, -1/6, -1/6, 1 - (1/6), -1/6, -1/6),
+  `12yv30m` = c(-1/6, -1/6, -1/6, -1/6, 1 - (1/6), -1/6),
+  `16yv30m` = c(-1/6, -1/6, -1/6, -1/6, -1/6, 1 - (1/6))
+)
+```
+
+```{r}
+###### Two-way moderations
+a3_age_placement_sup_X <- lmer(
+  value_z ~ 
+    scale(FC_placement_age, scale = TRUE) * male +
+    scale(FC_placement_age, scale = TRUE) * wave_ordered +
+    scale(FC_placement_age, scale = TRUE) * construct +
+    (1|ID) +
+    (1|family_id), 
+  data = d_fcg_cog_bio
+)
+
+anova(a3_age_placement_std_X)
+```
+
+##### By wave
+```{r}
+# 30 months is baseline
+contrasts(d_fcg_cog_bio$wave_ordered) <- cbind(
+  `42mv30m` = c(0, 1, 0, 0, 0, 0),
+  `54mv30m` = c(0, 0, 1, 0, 0, 0),
+  `8yv30m` = c(0, 0, 0, 1, 0, 0),
+  `12yv30m` = c(0, 0, 0, 0, 1, 0),
+  `16yv30m` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_cog_bio_age_placement_wave30 <- lmer(
+  value_z ~ 
+    scale(FC_placement_age, scale = TRUE) * wave_ordered +
+    construct +
+    male +
+    (1|ID) +
+    (1|family_id), 
+  data = d_fcg_cog_bio
+)
+
+set.seed(123456)
+a3_cog_bio_age_placement_wave30_parameters <- 
+  model_parameters(
+    a3_cog_bio_age_placement_wave30,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+a3_cog_bio_age_placement_wave30_parameters
+
+```
+```{r}
+# 42 months is baseline
+contrasts(d_fcg_cog_bio$wave_ordered) <- cbind(
+  `30mv42m` = c(1, 0, 0, 0, 0, 0),
+  `54mv42m` = c(0, 0, 1, 0, 0, 0),
+  `8yv42m` = c(0, 0, 0, 1, 0, 0),
+  `12yv42m` = c(0, 0, 0, 0, 1, 0),
+  `16yv42m` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_cog_bio_age_placement_wave42 <- lmer(
+  value_z ~ 
+    scale(FC_placement_age, scale = TRUE) * wave_ordered +
+    construct +
+    male +
+    (1|ID) +
+    (1|family_id), 
+  data = d_fcg_cog_bio
+)
+
+set.seed(123456)
+a3_cog_bio_age_placement_wave42_parameters <- 
+  model_parameters(
+    a3_cog_bio_age_placement_wave42,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+a3_cog_bio_age_placement_wave42_parameters
+
+```
+
+```{r}
+# 54 months is baseline
+contrasts(d_fcg_cog_bio$wave_ordered) <- cbind(
+  `30mv54m` = c(1, 0, 0, 0, 0, 0),
+  `42mv54m` = c(0, 1, 0, 0, 0, 0),
+  `8yv54m` = c(0, 0, 0, 1, 0, 0),
+  `12yv54m` = c(0, 0, 0, 0, 1, 0),
+  `16yv54m` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_cog_bio_age_placement_wave54 <- lmer(
+  value_z ~ 
+    scale(FC_placement_age, scale = TRUE) * wave_ordered +
+    construct +
+    male +
+    (1|ID) +
+    (1|family_id), 
+  data = d_fcg_cog_bio
+)
+
+set.seed(123456)
+a3_cog_bio_age_placement_wave54_parameters <- 
+  model_parameters(
+    a3_cog_bio_age_placement_wave54,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+a3_cog_bio_age_placement_wave54_parameters
+
+```
+
+
+```{r}
+# 8 years is baseline
+contrasts(d_fcg_cog_bio$wave_ordered) <- cbind(
+  `30mv8y` = c(1, 0, 0, 0, 0, 0),
+  `42mv8y` = c(0, 1, 0, 0, 0, 0),
+  `54mv8y` = c(0, 0, 1, 0, 0, 0),
+  `12yv8y` = c(0, 0, 0, 0, 1, 0),
+  `16yv8y` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_cog_bio_age_placement_wave8 <- lmer(
+  value_z ~ 
+    scale(FC_placement_age, scale = TRUE) * wave_ordered +
+    construct +
+    male +
+    (1|ID) +
+    (1|family_id), 
+  data = d_fcg_cog_bio
+)
+
+set.seed(123456)
+a3_cog_bio_age_placement_wave8_parameters <- 
+  model_parameters(
+    a3_cog_bio_age_placement_wave8,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+a3_cog_bio_age_placement_wave8_parameters
+
+```
+
+```{r}
+# 12 years is baseline
+contrasts(d_fcg_cog_bio$wave_ordered) <- cbind(
+  `30mv12y` = c(1, 0, 0, 0, 0, 0),
+  `42mv12y` = c(0, 1, 0, 0, 0, 0),
+  `54mv12y` = c(0, 0, 1, 0, 0, 0),
+  `8yv12y` = c(0, 0, 0, 1, 0, 0),
+  `16yv12y` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_cog_bio_age_placement_wave12 <- lmer(
+  value_z ~ 
+    scale(FC_placement_age, scale = TRUE) * wave_ordered +
+    construct +
+    male +
+    (1|ID) +
+    (1|family_id), 
+  data = d_fcg_cog_bio
+)
+
+set.seed(123456)
+a3_cog_bio_age_placement_wave12_parameters <- 
+  model_parameters(
+    a3_cog_bio_age_placement_wave12,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+a3_cog_bio_age_placement_wave12_parameters
+
+```
+
+```{r}
+# 16 years is baseline
+contrasts(d_fcg_cog_bio$wave_ordered) <- cbind(
+  `30mv16y` = c(1, 0, 0, 0, 0, 0),
+  `42mv16y` = c(0, 1, 0, 0, 0, 0),
+  `54mv16y` = c(0, 0, 1, 0, 0, 0),
+  `8yv16y` = c(0, 0, 0, 1, 0, 0),
+  `12yv16y` = c(0, 0, 0, 0, 1, 0)
+)
+
+a3_cog_bio_age_placement_wave16 <- lmer(
+  value_z ~ 
+    scale(FC_placement_age, scale = TRUE) * wave_ordered +
+    construct +
+    male +
+    (1|ID) +
+    (1|family_id), 
+  data = d_fcg_cog_bio
+)
+
+set.seed(123456)
+a3_cog_bio_age_placement_wave16_parameters <- 
+  model_parameters(
+    a3_cog_bio_age_placement_wave16,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+a3_cog_bio_age_placement_wave16_parameters
+
+```
+
+#### Psychopathology 
+```{r}
+contrasts(d_fcg_psy$male) = c(-.5, .5) 
+
+contrasts(d_fcg_psy$domain) = cbind(
+  DSEDvADHD = c(-1/5, 1 - (1/5), -1/5, -1/5, -1/5),
+  EXTvADHD = c(-1/5, -1/5, 1 - (1/5), -1/5, -1/5),
+  INTvADHD = c(-1/5, -1/5, -1/5, 1 - (1/5), -1/5),
+  RADvADHD = c(-1/5, -1/5, -1/5, -1/5, 1 - (1/5))
+)
+
+contrasts(d_fcg_psy$informant) = c(-.5, .5)
+
+contrasts(d_fcg_psy$wave_ordered) <- cbind(
+  `42mv30m` = c(-1/6, 1 - (1/6), -1/6, -1/6, -1/6, -1/6),
+  `54mv30m` = c(-1/6, -1/6, 1 - (1/6), -1/6, -1/6, -1/6),
+  `8yv30m` = c(-1/6, -1/6, -1/6, 1 - (1/6), -1/6, -1/6),
+  `12yv30m` = c(-1/6, -1/6, -1/6, -1/6, 1 - (1/6), -1/6),
+  `16yv30m` = c(-1/6, -1/6, -1/6, -1/6, -1/6, 1 - (1/6))
+)
+```
+
+
+```{r}
+a3_psy_age_placement_sup_X <- lmer(
+  value_z ~ 
+    scale(FC_placement_age, scale = TRUE) * male +
+    scale(FC_placement_age, scale = TRUE) * wave_ordered +
+    scale(FC_placement_age, scale = TRUE) * domain +
+    informant +
+    (1|ID) +
+    (1|family_id),
+  data = d_fcg_psy
+)
+
+anova(a3_psy_age_placement_sup_X)
+```
+
+##### By wave
+```{r}
+# 30 months is baseline
+contrasts(d_fcg_psy$wave_ordered) <- cbind(
+  `42mv30m` = c(0, 1, 0, 0, 0, 0),
+  `54mv30m` = c(0, 0, 1, 0, 0, 0),
+  `8yv30m` = c(0, 0, 0, 1, 0, 0),
+  `12yv30m` = c(0, 0, 0, 0, 1, 0),
+  `16yv30m` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_psy_age_placement_wave30 <- lmer(
+  value_z ~ 
+    scale(FC_placement_age, scale = TRUE) * wave_ordered +
+    domain +
+    male +
+    informant +
+    (1|ID) +
+    (1|family_id), 
+  data = d_fcg_psy
+)
+
+set.seed(123456)
+a3_psy_age_placement_wave30_parameters <- 
+  model_parameters(
+    a3_psy_age_placement_wave30,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+a3_psy_age_placement_wave30_parameters
+```
+
+```{r}
+# 42 months is baseline
+contrasts(d_fcg_psy$wave_ordered) <- cbind(
+  `30mv42m` = c(1, 0, 0, 0, 0, 0),
+  `54mv42m` = c(0, 0, 1, 0, 0, 0),
+  `8yv42m` = c(0, 0, 0, 1, 0, 0),
+  `12yv42m` = c(0, 0, 0, 0, 1, 0),
+  `16yv42m` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_psy_age_placement_wave42 <- lmer(
+  value_z ~ 
+    scale(FC_placement_age, scale = TRUE) * wave_ordered +
+    domain +
+    male +
+    informant +
+    (1|ID) +
+    (1|family_id), 
+  data = d_fcg_psy
+)
+
+set.seed(123456)
+a3_psy_age_placement_wave42_parameters <- 
+  model_parameters(
+    a3_psy_age_placement_wave42,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+a3_psy_age_placement_wave42_parameters
+```
+```{r}
+# 54 months is baseline
+contrasts(d_fcg_psy$wave_ordered) <- cbind(
+  `30mv54m` = c(1, 0, 0, 0, 0, 0),
+  `42mv54m` = c(0, 1, 0, 0, 0, 0),
+  `8yv54m` = c(0, 0, 0, 1, 0, 0),
+  `12yv54m` = c(0, 0, 0, 0, 1, 0),
+  `16yv54m` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_psy_age_placement_wave54 <- lmer(
+  value_z ~ 
+    scale(FC_placement_age, scale = TRUE) * wave_ordered +
+    domain +
+    male +
+    informant +
+    (1|ID) +
+    (1|family_id), 
+  data = d_fcg_psy
+)
+
+set.seed(123456)
+a3_psy_age_placement_wave54_parameters <- 
+  model_parameters(
+    a3_psy_age_placement_wave54,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+a3_psy_age_placement_wave54_parameters
+```
+
+```{r}
+# 8 years is baseline
+contrasts(d_fcg_psy$wave_ordered) <- cbind(
+  `30mv8y` = c(1, 0, 0, 0, 0, 0),
+  `42mv8y` = c(0, 1, 0, 0, 0, 0),
+  `54mv8y` = c(0, 0, 1, 0, 0, 0),
+  `12yv8y` = c(0, 0, 0, 0, 1, 0),
+  `16yv8y` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_psy_age_placement_wave8 <- lmer(
+  value_z ~ 
+    scale(FC_placement_age, scale = TRUE) * wave_ordered +
+    domain +
+    male +
+    informant +
+    (1|ID) +
+    (1|family_id), 
+  data = d_fcg_psy
+)
+
+set.seed(123456)
+a3_psy_age_placement_wave8_parameters <- 
+  model_parameters(
+    a3_psy_age_placement_wave8,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+a3_psy_age_placement_wave8_parameters
+```
+
+```{r}
+# 12 years is baseline
+contrasts(d_fcg_psy$wave_ordered) <- cbind(
+  `30mv12y` = c(1, 0, 0, 0, 0, 0),
+  `42mv12y` = c(0, 1, 0, 0, 0, 0),
+  `54mv12y` = c(0, 0, 1, 0, 0, 0),
+  `8yv12y` = c(0, 0, 0, 1, 0, 0),
+  `16yv8y` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_psy_age_placement_wave12 <- lmer(
+  value_z ~ 
+    scale(FC_placement_age, scale = TRUE) * wave_ordered +
+    domain +
+    male +
+    informant +
+    (1|ID) +
+    (1|family_id), 
+  data = d_fcg_psy
+)
+
+set.seed(123456)
+a3_psy_age_placement_wave12_parameters <- 
+  model_parameters(
+    a3_psy_age_placement_wave12,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+a3_psy_age_placement_wave12_parameters
+```
+
+```{r}
+# 16-18 years is baseline
+contrasts(d_fcg_psy$wave_ordered) <- cbind(
+  `30mv12y` = c(1, 0, 0, 0, 0, 0),
+  `42mv12y` = c(0, 1, 0, 0, 0, 0),
+  `54mv12y` = c(0, 0, 1, 0, 0, 0),
+  `8yv12y` = c(0, 0, 0, 1, 0, 0),
+  `16yv8y` = c(0, 0, 0, 0, 1, 0)
+)
+
+a3_psy_age_placement_wave16 <- lmer(
+  value_z ~ 
+    scale(FC_placement_age, scale = TRUE) * wave_ordered +
+    domain +
+    male +
+    informant +
+    (1|ID) +
+    (1|family_id), 
+  data = d_fcg_psy
+)
+
+set.seed(123456)
+a3_psy_age_placement_wave16_parameters <- 
+  model_parameters(
+    a3_psy_age_placement_wave16,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+a3_psy_age_placement_wave16_parameters
+```
+
+### Stability
+
+#### EEG, IQ, physical size
+
+```{r}
+contrasts(d_fcg_cog_bio$stable) = c(0, 1) # disrupted is baseline
+
+contrasts(d_fcg_cog_bio$wave_ordered) <- cbind(
+  `42mv30m` = c(-1/6, 1 - (1/6), -1/6, -1/6, -1/6, -1/6),
+  `54mv30m` = c(-1/6, -1/6, 1 - (1/6), -1/6, -1/6, -1/6),
+  `8yv30m` = c(-1/6, -1/6, -1/6, 1 - (1/6), -1/6, -1/6),
+  `12yv30m` = c(-1/6, -1/6, -1/6, -1/6, 1 - (1/6), -1/6),
+  `16yv30m` = c(-1/6, -1/6, -1/6, -1/6, -1/6, 1 - (1/6))
+)
+```
+
+```{r}
+a3_cogbio_stability_wave_X <- lmer(
+  value_z ~ 
+    stable * wave_ordered + 
+    male +
+    construct +
+    (1|ID) +
+    (1|family_id),
+  data = d_fcg_cog_bio
+)
+
+anova(a3_cogbio_stability_wave_X)
+
+```
+
+##### By wave
+```{r}
+# 30 months is baseline
+contrasts(d_fcg_cog_bio$wave_ordered) <- cbind(
+  `42mv30m` = c(0, 1, 0, 0, 0, 0),
+  `54mv30m` = c(0, 0, 1, 0, 0, 0),
+  `8yv30m` = c(0, 0, 0, 1, 0, 0),
+  `12yv30m` = c(0, 0, 0, 0, 1, 0),
+  `16yv30m` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_cogbio_stability_wave30 <- lmer(
+  value_z ~ 
+    stable * wave_ordered + 
+    male +
+    construct +
+    (1|ID) +
+    (1|family_id),
+  data = d_fcg_cog_bio
+)
+
+set.seed(123456)
+a3_cogbio_stability_wave30_parameters <-
+  model_parameters(
+    a3_cogbio_stability_wave30,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+
+a3_cogbio_stability_wave30_parameters
+```
+```{r}
+# 42 months is baseline
+contrasts(d_fcg_cog_bio$wave_ordered) <- cbind(
+  `30mv42m` = c(1, 0, 0, 0, 0, 0),
+  `54mv42m` = c(0, 0, 1, 0, 0, 0),
+  `8yv42m` = c(0, 0, 0, 1, 0, 0),
+  `12yv42m` = c(0, 0, 0, 0, 1, 0),
+  `16yv42m` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_cogbio_stability_wave42 <- lmer(
+  value_z ~ 
+    stable * wave_ordered + 
+    male +
+    construct +
+    (1|ID) +
+    (1|family_id),
+  data = d_fcg_cog_bio
+)
+
+set.seed(123456)
+a3_cogbio_stability_wave42_parameters <-
+  model_parameters(
+    a3_cogbio_stability_wave42,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+
+a3_cogbio_stability_wave42_parameters
+```
+```{r}
+# 54 months is baseline
+contrasts(d_fcg_cog_bio$wave_ordered) <- cbind(
+  `30mv54m` = c(1, 0, 0, 0, 0, 0),
+  `42mv54m` = c(0, 1, 0, 0, 0, 0),
+  `8yv54m` = c(0, 0, 0, 1, 0, 0),
+  `12yv54m` = c(0, 0, 0, 0, 1, 0),
+  `16yv54m` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_cogbio_stability_wave54 <- lmer(
+  value_z ~ 
+    stable * wave_ordered + 
+    male +
+    construct +
+    (1|ID) +
+    (1|family_id),
+  data = d_fcg_cog_bio
+)
+
+set.seed(123456)
+a3_cogbio_stability_wave54_parameters <-
+  model_parameters(
+    a3_cogbio_stability_wave54,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+
+a3_cogbio_stability_wave54_parameters
+```
+
+```{r}
+# 8 years is baseline
+contrasts(d_fcg_cog_bio$wave_ordered) <- cbind(
+  `30mv8y` = c(1, 0, 0, 0, 0, 0),
+  `42mv8y` = c(0, 1, 0, 0, 0, 0),
+  `54mv8y` = c(0, 0, 1, 0, 0, 0),
+  `12yv8y` = c(0, 0, 0, 0, 1, 0),
+  `16yv8y` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_cogbio_stability_wave8 <- lmer(
+  value_z ~ 
+    stable * wave_ordered + 
+    male +
+    construct +
+    (1|ID) +
+    (1|family_id),
+  data = d_fcg_cog_bio
+)
+
+set.seed(123456)
+a3_cogbio_stability_wave8_parameters <-
+  model_parameters(
+    a3_cogbio_stability_wave8,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+
+a3_cogbio_stability_wave8_parameters
+```
+
+```{r}
+# 12 years is baseline
+contrasts(d_fcg_cog_bio$wave_ordered) <- cbind(
+  `30mv12y` = c(1, 0, 0, 0, 0, 0),
+  `42mv12y` = c(0, 1, 0, 0, 0, 0),
+  `54mv12y` = c(0, 0, 1, 0, 0, 0),
+  `8yv12y` = c(0, 0, 0, 1, 0, 0),
+  `16yv12y` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_cogbio_stability_wave12 <- lmer(
+  value_z ~ 
+    stable * wave_ordered + 
+    male +
+    construct +
+    (1|ID) +
+    (1|family_id),
+  data = d_fcg_cog_bio
+)
+
+set.seed(123456)
+a3_cogbio_stability_wave12_parameters <-
+  model_parameters(
+    a3_cogbio_stability_wave12,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+
+a3_cogbio_stability_wave12_parameters
+```
+
+```{r}
+# 16 years is baseline
+contrasts(d_fcg_cog_bio$wave_ordered) <- cbind(
+  `30mv16y` = c(1, 0, 0, 0, 0, 0),
+  `42mv16y` = c(0, 1, 0, 0, 0, 0),
+  `54mv16y` = c(0, 0, 1, 0, 0, 0),
+  `8yv16y` = c(0, 0, 0, 1, 0, 0),
+  `12yv16y` = c(0, 0, 0, 0, 1, 0)
+)
+
+a3_cogbio_stability_wave16 <- lmer(
+  value_z ~ 
+    stable * wave_ordered + 
+    male +
+    construct +
+    (1|ID) +
+    (1|family_id),
+  data = d_fcg_cog_bio
+)
+
+set.seed(123456)
+a3_cogbio_stability_wave16_parameters <-
+  model_parameters(
+    a3_cogbio_stability_wave16,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+
+a3_cogbio_stability_wave16_parameters
+```
+
+### Psychopathology
+```{r}
+contrasts(d_fcg_psy$stable) = c(0, 1) # disrupted is baseline
+
+contrasts(d_fcg_psy$wave_ordered) <- cbind(
+  `42mv30m` = c(-1/6, 1 - (1/6), -1/6, -1/6, -1/6, -1/6),
+  `54mv30m` = c(-1/6, -1/6, 1 - (1/6), -1/6, -1/6, -1/6),
+  `8yv30m` = c(-1/6, -1/6, -1/6, 1 - (1/6), -1/6, -1/6),
+  `12yv30m` = c(-1/6, -1/6, -1/6, -1/6, 1 - (1/6), -1/6),
+  `16yv30m` = c(-1/6, -1/6, -1/6, -1/6, -1/6, 1 - (1/6))
+)
+```
+
+```{r}
+a3_psy_stability_wave <- lmer(
+  value_z ~ 
+    stable * wave_ordered +
+    male +
+    domain +
+    informant +
+    (1|ID) +
+    (1|family_id),
+  data = d_fcg_psy
+)
+
+anova(a3_psy_stability_wave)
+```
+
+
+#### By wave
+
+```{r}
+# 30 months is baseline
+contrasts(d_fcg_psy$wave_ordered) <- cbind(
+  `42mv30m` = c(0, 1, 0, 0, 0, 0),
+  `54mv30m` = c(0, 0, 1, 0, 0, 0),
+  `8yv30m` = c(0, 0, 0, 1, 0, 0),
+  `12yv30m` = c(0, 0, 0, 0, 1, 0),
+  `16yv30m` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_psy_stability_wave30 <- lmer(
+  value_z ~ 
+    stable * wave_ordered +
+    male +
+    domain +
+    informant +
+    (1|ID) +
+    (1|family_id),
+  data = d_fcg_psy
+)
+
+set.seed(123456)
+a3_psy_stability_wave30_parameters <-
+  model_parameters(
+    a3_psy_stability_wave30,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+
+a3_psy_stability_wave30_parameters
+```
+
+```{r}
+# 42 months is baseline
+contrasts(d_fcg_psy$wave_ordered) <- cbind(
+  `30mv42m` = c(1, 0, 0, 0, 0, 0),
+  `54mv42m` = c(0, 0, 1, 0, 0, 0),
+  `8yv42m` = c(0, 0, 0, 1, 0, 0),
+  `12yv42m` = c(0, 0, 0, 0, 1, 0),
+  `16yv42m` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_psy_stability_wave42 <- lmer(
+  value_z ~ 
+    stable * wave_ordered +
+    male +
+    domain +
+    informant +
+    (1|ID) +
+    (1|family_id),
+  data = d_fcg_psy
+)
+
+set.seed(123456)
+a3_psy_stability_wave42_parameters <-
+  model_parameters(
+    a3_psy_stability_wave42,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+
+a3_psy_stability_wave42_parameters
+```
+
+```{r}
+# 54 months is baseline
+contrasts(d_fcg_psy$wave_ordered) <- cbind(
+  `30mv54m` = c(1, 0, 0, 0, 0, 0),
+  `42mv54m` = c(0, 1, 0, 0, 0, 0),
+  `8yv54m` = c(0, 0, 0, 1, 0, 0),
+  `12yv54m` = c(0, 0, 0, 0, 1, 0),
+  `16yv54m` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_psy_stability_wave54 <- lmer(
+  value_z ~ 
+    stable * wave_ordered +
+    male +
+    domain +
+    informant +
+    (1|ID) +
+    (1|family_id),
+  data = d_fcg_psy
+)
+
+set.seed(123456)
+a3_psy_stability_wave54_parameters <-
+  model_parameters(
+    a3_psy_stability_wave54,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+
+a3_psy_stability_wave54_parameters
+```
+
+```{r}
+# 8 years is baseline
+contrasts(d_fcg_psy$wave_ordered) <- cbind(
+  `30mv8y` = c(1, 0, 0, 0, 0, 0),
+  `42mv8y` = c(0, 1, 0, 0, 0, 0),
+  `54mv8y` = c(0, 0, 1, 0, 0, 0),
+  `12yv8y` = c(0, 0, 0, 0, 1, 0),
+  `16yv8y` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_psy_stability_wave8 <- lmer(
+  value_z ~ 
+    stable * wave_ordered +
+    male +
+    domain +
+    informant +
+    (1|ID) +
+    (1|family_id),
+  data = d_fcg_psy
+)
+
+set.seed(123456)
+a3_psy_stability_wave8_parameters <-
+  model_parameters(
+    a3_psy_stability_wave8,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+
+a3_psy_stability_wave8_parameters
+```
+
+```{r}
+# 12 years is baseline
+contrasts(d_fcg_psy$wave_ordered) <- cbind(
+  `30mv12y` = c(1, 0, 0, 0, 0, 0),
+  `42mv12y` = c(0, 1, 0, 0, 0, 0),
+  `54mv12y` = c(0, 0, 1, 0, 0, 0),
+  `8yv12y` = c(0, 0, 0, 1, 0, 0),
+  `16yv8y` = c(0, 0, 0, 0, 0, 1)
+)
+
+a3_psy_stability_wave12 <- lmer(
+  value_z ~ 
+    stable * wave_ordered +
+    male +
+    domain +
+    informant +
+    (1|ID) +
+    (1|family_id),
+  data = d_fcg_psy
+)
+
+set.seed(123456)
+a3_psy_stability_wave12_parameters <-
+  model_parameters(
+    a3_psy_stability_wave12,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+
+a3_psy_stability_wave12_parameters
+```
+
+```{r}
+# 16-18 years is baseline
+contrasts(d_fcg_psy$wave_ordered) <- cbind(
+  `30mv12y` = c(1, 0, 0, 0, 0, 0),
+  `42mv12y` = c(0, 1, 0, 0, 0, 0),
+  `54mv12y` = c(0, 0, 1, 0, 0, 0),
+  `8yv12y` = c(0, 0, 0, 1, 0, 0),
+  `16yv8y` = c(0, 0, 0, 0, 1, 0)
+)
+
+
+a3_psy_stability_wave16 <- lmer(
+  value_z ~ 
+    stable * wave_ordered +
+    male +
+    domain +
+    informant +
+    (1|ID) +
+    (1|family_id),
+  data = d_fcg_psy
+)
+
+set.seed(123456)
+a3_psy_stability_wave16_parameters <-
+  model_parameters(
+    a3_psy_stability_wave16,
+    bootstrap = TRUE,
+    ci_method = "quantile",
+    iterations = 1000
+  )
+
+a3_psy_stability_wave16_parameters
+```
+
+## Visualize effect of placement stability by assessment wave
+```{r}
+d_plot_fcg_stable_summary <-
+  d_plot_fcg %>% 
+  filter(!is.na(stable)) %>% 
+  group_by(stable, wave_ordered, domain_construct_pretty) %>% 
+  summarise(
+    n = n(),
+    mean = mean(value_z),
+    sd = sd(value_z),
+    se = sd / sqrt(n)
+  )
+
+d_plot_fcg_stable_summary %>% 
+  ggplot(aes(wave_ordered, mean, color = stable)) +
+  geom_pointrange(
+    aes(
+      ymin = mean - se,
+      ymax = mean + se
+    ),
+    #position = position_dodge(width = .5),
+    size = .65
+  ) +
+  scale_color_viridis_d(begin = .5) +
+  scale_fill_viridis_d(guide = FALSE, begin = .5) +
+  theme_beip +
+  theme(
+    legend.position = "bottom",
+    plot.caption = element_text(hjust = .5, size = 16),
+    axis.title.y = element_text(vjust = 2),
+    axis.title.x = element_text(vjust = -.5),
+    panel.grid.major.x = element_line(color = "gray", linetype = 3)
+  ) +
+  labs(
+    color = NULL,
+    x = "Age of assessment (years)",
+    y = "Standardized score"
+  ) +
+  facet_wrap(.~domain_construct_pretty, ncol = 2)
+
+ggsave(
+  paste0(home, "figures/supplemental_aim3_stability_domain_wave_means.png"),
   dpi = 600,
   width = 9, 
   height = 11

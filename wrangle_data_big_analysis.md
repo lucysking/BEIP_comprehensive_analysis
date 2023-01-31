@@ -3,13 +3,32 @@ to Institutionalization on Biobehavioral Outcomes Across Childhood
 ================
 2021
 
--   [Read in data](#read-in-data)
-    -   [EEG data](#eeg-data)
-    -   [ITSEA data](#itsea-data)
-    -   [All other psychopathology, IQ, physical
-        size](#all-other-psychopathology-iq-physical-size)
-    -   [Create combined dataset](#create-combined-dataset)
--   [Export data](#export-data)
+- <a href="#read-in-data" id="toc-read-in-data">Read in data</a>
+  - <a href="#eeg-data" id="toc-eeg-data">EEG data</a>
+  - <a href="#itsea-data" id="toc-itsea-data">ITSEA data</a>
+  - <a href="#all-other-psychopathology-iq-physical-size"
+    id="toc-all-other-psychopathology-iq-physical-size">All other
+    psychopathology, IQ, physical size</a>
+- <a href="#create-combined-dataset"
+  id="toc-create-combined-dataset">Create combined dataset</a>
+- <a href="#tidy-age-variables" id="toc-tidy-age-variables">Tidy age
+  variables</a>
+  - <a href="#missing-age-data-impute"
+    id="toc-missing-age-data-impute">Missing age data; impute</a>
+- <a href="#add-additional-predictors"
+  id="toc-add-additional-predictors">Add additional predictors</a>
+- <a href="#tidy-percent-in-institutionalized-variables"
+  id="toc-tidy-percent-in-institutionalized-variables">Tidy percent in
+  institutionalized variables</a>
+- <a href="#create-variables-to-index-missingness"
+  id="toc-create-variables-to-index-missingness">Create variables to index
+  missingness</a>
+- <a href="#stability-variables-and-final-tidied-dataset"
+  id="toc-stability-variables-and-final-tidied-dataset">Stability
+  variables and final tidied dataset</a>
+- <a href="#add-sibling-information" id="toc-add-sibling-information">Add
+  sibling information</a>
+- <a href="#export-data" id="toc-export-data">Export data</a>
 
 <https://docs.google.com/spreadsheets/d/1TubH73N8ZpJwILDFGZ6qtvvQM0gqGrzcYEVapVomFaQ/edit?ts=5e0e38bf#gid=0>
 
@@ -17,13 +36,11 @@ to Institutionalization on Biobehavioral Outcomes Across Childhood
 library(tidyverse)
 ```
 
-    ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
-
-    ## ✔ ggplot2 3.3.6     ✔ purrr   0.3.4
-    ## ✔ tibble  3.1.7     ✔ dplyr   1.0.9
-    ## ✔ tidyr   1.2.0     ✔ stringr 1.4.0
-    ## ✔ readr   2.1.2     ✔ forcats 0.5.1
-
+    ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+    ## ✔ ggplot2 3.4.0     ✔ purrr   1.0.1
+    ## ✔ tibble  3.1.8     ✔ dplyr   1.1.0
+    ## ✔ tidyr   1.3.0     ✔ stringr 1.5.0
+    ## ✔ readr   2.1.3     ✔ forcats 1.0.0
     ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
     ## ✖ dplyr::filter() masks stats::filter()
     ## ✖ dplyr::lag()    masks stats::lag()
@@ -32,7 +49,7 @@ library(tidyverse)
 library(labelled)
 
 #Files__________________________________________________________________________
-home <- "/Users/lking@ideo.com/Library/CloudStorage/Box-Box/lucy_king_files/Tulane/BEIP/comprehensive_analysis/"
+home <- "~/Desktop/Tulane/BEIP/comprehensive_analysis/"
 
 # Demographics, IQ, psychopathology, physical size
 BEIP_MA_file <- paste0(home, "data/Datarequest_Humphreys_12.7.19_updated.sav")
@@ -45,6 +62,9 @@ stability_file <- paste0(home, "data/BEIP_18yrDisruptionsStabilityFCG.xlsx")
 EEG_ages_file <- paste0(home, "data/All EEG ages.sav")
 EEG_16yr_age_file <- paste0(home, "data/ages16eeg_update.sav") # 16 yr wave EEG age incorrect in main file; use age in file below
 EEG_data_file <- paste0(home, "data/BEIP_30mo-16yr_rel_alpha_power_021122.csv")
+
+# sibling information
+sibling_file <- paste0(home, "data/BEIP_siblings_info.csv")
 ```
 
 # Read in data
@@ -138,8 +158,8 @@ eeg_ages <-
   dplyr::select(ID, age, wave)
 ```
 
-    ## Warning: attributes are not identical across measure variables;
-    ## they will be dropped
+    ## Warning: attributes are not identical across measure variables; they will be
+    ## dropped
 
 ### Reformat EEG data
 
@@ -253,8 +273,8 @@ itsea_ages <-
   dplyr::select(-c(age_diff_BL:min_age_diff))
 ```
 
-    ## Warning: attributes are not identical across measure variables;
-    ## they will be dropped
+    ## Warning: attributes are not identical across measure variables; they will be
+    ## dropped
 
 ### Reformat ITSEA data
 
@@ -289,8 +309,8 @@ itsea_domains <-
   ) 
 ```
 
-    ## Warning: attributes are not identical across measure variables;
-    ## they will be dropped
+    ## Warning: attributes are not identical across measure variables; they will be
+    ## dropped
 
 ### Join ITSEA data with ages of assesment
 
@@ -401,8 +421,8 @@ d0_domains <-
   filter(!is.na(value)) 
 ```
 
-    ## Warning: attributes are not identical across measure variables;
-    ## they will be dropped
+    ## Warning: attributes are not identical across measure variables; they will be
+    ## dropped
 
 ### Ages of assessment
 
@@ -481,7 +501,7 @@ d0_ages <-
   ungroup()
 ```
 
-## Create combined dataset
+# Create combined dataset
 
 ``` r
 d0_tidy <-
@@ -541,7 +561,7 @@ d0_tidy <-
   arrange(ID, wave)
 ```
 
-### Tidy age variables
+# Tidy age variables
 
 ``` r
 d0_tidy <- 
@@ -552,7 +572,7 @@ d0_tidy <-
   )
 ```
 
-#### Missing age data; impute
+## Missing age data; impute
 
 ``` r
 d0_tidy %>% 
@@ -561,19 +581,19 @@ d0_tidy %>%
 ```
 
     ## # A tibble: 45 × 9
-    ##       ID wave  age_months domain measure informant value construct     age_years
+    ##       ID wave  age_months domain measure informant value construct       age_y…¹
     ##    <dbl> <fct>      <dbl> <fct>  <chr>   <fct>     <dbl> <chr>             <dbl>
-    ##  1    32 16            NA dsed   dai     P             4 psychopathol…        NA
-    ##  2    32 16            NA rad    dai     P             1 psychopathol…        NA
-    ##  3    34 16            NA dsed   dai     P             9 psychopathol…        NA
-    ##  4    34 16            NA rad    dai     P             6 psychopathol…        NA
-    ##  5    67 16            NA dsed   dai     P             0 psychopathol…        NA
-    ##  6    67 16            NA rad    dai     P             0 psychopathol…        NA
-    ##  7    79 16            NA dsed   dai     P             0 psychopathol…        NA
-    ##  8    79 16            NA rad    dai     P             0 psychopathol…        NA
-    ##  9    86 16            NA dsed   dai     P             6 psychopathol…        NA
-    ## 10    86 16            NA rad    dai     P             0 psychopathol…        NA
-    ## # … with 35 more rows
+    ##  1    32 16            NA dsed   dai     P             4 psychopathology      NA
+    ##  2    32 16            NA rad    dai     P             1 psychopathology      NA
+    ##  3    34 16            NA dsed   dai     P             9 psychopathology      NA
+    ##  4    34 16            NA rad    dai     P             6 psychopathology      NA
+    ##  5    67 16            NA dsed   dai     P             0 psychopathology      NA
+    ##  6    67 16            NA rad    dai     P             0 psychopathology      NA
+    ##  7    79 16            NA dsed   dai     P             0 psychopathology      NA
+    ##  8    79 16            NA rad    dai     P             0 psychopathology      NA
+    ##  9    86 16            NA dsed   dai     P             6 psychopathology      NA
+    ## 10    86 16            NA rad    dai     P             0 psychopathology      NA
+    ## # … with 35 more rows, and abbreviated variable name ¹​age_years
 
 ``` r
 d0_tidy %>% 
@@ -632,7 +652,7 @@ d0_tidy <-
   ungroup()
 ```
 
-### Add additional predictors
+# Add additional predictors
 
 ``` r
 # remove SPSS labels from  variables
@@ -670,10 +690,13 @@ d_pred <-
   )
 ```
 
-    ## Warning in recode.haven_labelled(group, `0` = "CAUG", `1` = "FCG", `2` = "NIG"):
-    ## The type of .x has been changed and value labels attributes have been lost.
+    ## Warning: There was 1 warning in `mutate()`.
+    ## ℹ In argument: `group = as.factor(recode(group, `0` = "CAUG", `1` = "FCG", `2`
+    ##   = "NIG"))`.
+    ## Caused by warning in `recode.haven_labelled()`:
+    ## ! The type of .x has been changed and value labels attributes have been lost.
 
-### Tidy percent in institutionalized variables
+# Tidy percent in institutionalized variables
 
 ``` r
 d_pct_time <-
@@ -698,16 +721,52 @@ d_pct_time <-
   arrange(ID, wave)
 ```
 
-    ## Warning: attributes are not identical across measure variables;
-    ## they will be dropped
+    ## Warning: attributes are not identical across measure variables; they will be
+    ## dropped
 
-### Stability variables and final tidied dataset
+# Create variables to index missingness
+
+``` r
+# count number of measures completed after baseline (max is 68 across all follow-up waves)
+# and calculate % missing across all follow-up waves
+missing_vars <-
+  d0_tidy %>% 
+  filter(wave != "BL") %>% 
+  select(
+    ID,
+    wave,
+    measure,
+    domain,
+    informant,
+    value
+  ) %>% 
+  unite(measure, c(measure, domain, informant)) %>% 
+  pivot_wider(
+    names_from = c("measure", "wave")
+  ) %>% 
+  mutate(
+    n_obs = pmap_dbl(
+      select(., c(dai_dsed_P_30:hbq_intern_T_16)),
+      function(...) sum(!is.na(c(...)), na.rm = TRUE)
+    )
+  ) %>% 
+  select(
+    ID,
+    n_obs
+  ) %>% 
+  mutate(
+    per_missing = 1 - (n_obs / 68)
+  )
+```
+
+# Stability variables and final tidied dataset
 
 ``` r
 d <-
   d0_tidy %>% 
   left_join(d_pred, by = "ID") %>% 
   left_join(d_pct_time, by = c("ID", "wave")) %>% 
+  left_join(missing_vars, by = c("ID")) %>% 
   dplyr::select(
     ID,
     group,
@@ -733,7 +792,9 @@ d <-
     measure,
     informant,
     value,
-    pctinst
+    pctinst,
+    n_obs,
+    per_missing
   )  %>% 
   group_by(ID) %>% 
   mutate(
@@ -769,25 +830,48 @@ d <-
   ungroup()
 ```
 
+# Add sibling information
+
+``` r
+d <-
+  d %>% 
+  left_join(read_csv(sibling_file) %>% select(-group), by = "ID") %>% 
+  mutate(
+    family_id = if_else(
+      is.na(family_id),
+      ID, family_id
+    )
+  )
+```
+
+    ## Rows: 12 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (2): group, sibling_type
+    ## dbl (2): ID, family_id
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
 # Export data
 
 ``` r
-write_csv(d, paste0(home, "/data/BEIP_big_analysis_tidied_data_20220214.csv"))
+write_csv(d, paste0(home, "/data/BEIP_big_analysis_tidied_data_20221013.csv"))
 
 #for public sharing
-d_share <-
-  d %>% 
-  group_by(ID) %>% 
-  mutate(
-    git_id = sample(1:50000, 1)
-  ) %>% 
-  ungroup() %>% 
-  dplyr::select(
-    git_id, 
-    everything(),
-    -ID,
-    -FC_placement_age
-  )
-
-write_csv(d_share, paste0(home, "/data/king_BEIP_comphrensive_analysis_data_share.csv"))
+# d_share <-
+#   d %>% 
+#   group_by(ID) %>% 
+#   mutate(
+#     git_id = sample(1:50000, 1)
+#   ) %>% 
+#   ungroup() %>% 
+#   dplyr::select(
+#     git_id, 
+#     everything(),
+#     -ID,
+#     -FC_placement_age
+#   )
+# 
+# write_csv(d_share, paste0(home, "/data/king_BEIP_comphrensive_analysis_data_share.csv"))
 ```

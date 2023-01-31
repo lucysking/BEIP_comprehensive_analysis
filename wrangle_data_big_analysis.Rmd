@@ -14,7 +14,7 @@ library(tidyverse)
 library(labelled)
 
 #Files__________________________________________________________________________
-home <- "/Users/lking@ideo.com/Library/CloudStorage/Box-Box/lucy_king_files/Tulane/BEIP/comprehensive_analysis/"
+home <- "~/Desktop/Tulane/BEIP/comprehensive_analysis/"
 
 # Demographics, IQ, psychopathology, physical size
 BEIP_MA_file <- paste0(home, "data/Datarequest_Humphreys_12.7.19_updated.sav")
@@ -27,6 +27,9 @@ stability_file <- paste0(home, "data/BEIP_18yrDisruptionsStabilityFCG.xlsx")
 EEG_ages_file <- paste0(home, "data/All EEG ages.sav")
 EEG_16yr_age_file <- paste0(home, "data/ages16eeg_update.sav") # 16 yr wave EEG age incorrect in main file; use age in file below
 EEG_data_file <- paste0(home, "data/BEIP_30mo-16yr_rel_alpha_power_021122.csv")
+
+# sibling information
+sibling_file <- paste0(home, "data/BEIP_siblings_info.csv")
 ```
 
 # Read in data
@@ -50,7 +53,6 @@ d0 <-
       ),
     by = "ID"
   )
-
 ```
 
 ## EEG data
@@ -440,7 +442,7 @@ d0_ages <-
 
 ```
 
-## Create combined dataset
+# Create combined dataset
 
 ```{r}
 d0_tidy <-
@@ -501,7 +503,7 @@ d0_tidy <-
 
 ```
 
-### Tidy age variables
+# Tidy age variables
 ```{r}
 d0_tidy <- 
   d0_tidy %>% 
@@ -511,7 +513,7 @@ d0_tidy <-
   )
 ```
 
-#### Missing age data; impute
+## Missing age data; impute
 ```{r}
 d0_tidy %>% 
   filter(is.na(age_months)) %>% 
@@ -556,7 +558,7 @@ d0_tidy <-
   ungroup()
 ```
 
-### Add additional predictors
+# Add additional predictors
 
 ```{r}
 # remove SPSS labels from  variables
@@ -594,7 +596,7 @@ d_pred <-
   )
 ```
 
-### Tidy percent in institutionalized variables 
+# Tidy percent in institutionalized variables 
 ```{r}
 d_pct_time <-
   d0 %>% 
@@ -618,12 +620,47 @@ d_pct_time <-
   arrange(ID, wave)
 ```
 
-### Stability variables and final tidied dataset 
+# Create variables to index missingness
+```{r}
+# count number of measures completed after baseline (max is 68 across all follow-up waves)
+# and calculate % missing across all follow-up waves
+missing_vars <-
+  d0_tidy %>% 
+  filter(wave != "BL") %>% 
+  select(
+    ID,
+    wave,
+    measure,
+    domain,
+    informant,
+    value
+  ) %>% 
+  unite(measure, c(measure, domain, informant)) %>% 
+  pivot_wider(
+    names_from = c("measure", "wave")
+  ) %>% 
+  mutate(
+    n_obs = pmap_dbl(
+      select(., c(dai_dsed_P_30:hbq_intern_T_16)),
+      function(...) sum(!is.na(c(...)), na.rm = TRUE)
+    )
+  ) %>% 
+  select(
+    ID,
+    n_obs
+  ) %>% 
+  mutate(
+    per_missing = 1 - (n_obs / 68)
+  )
+```
+
+# Stability variables and final tidied dataset 
 ```{r}
 d <-
   d0_tidy %>% 
   left_join(d_pred, by = "ID") %>% 
   left_join(d_pct_time, by = c("ID", "wave")) %>% 
+  left_join(missing_vars, by = c("ID")) %>% 
   dplyr::select(
     ID,
     group,
@@ -649,7 +686,9 @@ d <-
     measure,
     informant,
     value,
-    pctinst
+    pctinst,
+    n_obs,
+    per_missing
   )  %>% 
   group_by(ID) %>% 
   mutate(
@@ -685,25 +724,38 @@ d <-
   ungroup()
 ```
 
+# Add sibling information
+```{r}
+d <-
+  d %>% 
+  left_join(read_csv(sibling_file) %>% select(-group), by = "ID") %>% 
+  mutate(
+    family_id = if_else(
+      is.na(family_id),
+      ID, family_id
+    )
+  )
+```
+
 # Export data
 ```{r}
-write_csv(d, paste0(home, "/data/BEIP_big_analysis_tidied_data_20220214.csv"))
+write_csv(d, paste0(home, "/data/BEIP_big_analysis_tidied_data_20221013.csv"))
 
 #for public sharing
-d_share <-
-  d %>% 
-  group_by(ID) %>% 
-  mutate(
-    git_id = sample(1:50000, 1)
-  ) %>% 
-  ungroup() %>% 
-  dplyr::select(
-    git_id, 
-    everything(),
-    -ID,
-    -FC_placement_age
-  )
-
-write_csv(d_share, paste0(home, "/data/king_BEIP_comphrensive_analysis_data_share.csv"))
+# d_share <-
+#   d %>% 
+#   group_by(ID) %>% 
+#   mutate(
+#     git_id = sample(1:50000, 1)
+#   ) %>% 
+#   ungroup() %>% 
+#   dplyr::select(
+#     git_id, 
+#     everything(),
+#     -ID,
+#     -FC_placement_age
+#   )
+# 
+# write_csv(d_share, paste0(home, "/data/king_BEIP_comphrensive_analysis_data_share.csv"))
 ```
 
